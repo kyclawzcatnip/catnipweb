@@ -54,6 +54,7 @@
         <a href="#games" class="nav-link" data-target="games">Games</a>
         <a href="#wiki" class="nav-link" data-target="wiki">Wiki</a>
         <a href="#news" class="nav-link" data-target="news">News</a>
+        <a href="#stress" class="nav-link" data-target="stress">Game Stress</a>
         <a href="#community" class="nav-link" data-target="community">Community</a>
         <button class="btn-secrets-nav" id="secrets-nav-trigger" aria-label="Access Developer Portal">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -666,6 +667,34 @@
         </div>
       </section>
 
+      <!-- ==================== PUBLIC CREATOR JOURNAL: THE STRESS OF THE GAME(S) ==================== -->
+      <section id="stress-section" class="app-section">
+        <div class="section-header">
+          <h2 class="section-title">The Stress of the Game(s)</h2>
+          <p class="section-desc">Behind-the-scenes reflections, development challenges, and personal thoughts from the creator of Catnip Studios.</p>
+        </div>
+
+        <div class="community-card" style="flex-direction: column; width: 100%; gap: 20px;">
+          <div class="secrets-dev-notes" style="width: 100%;">
+            <p class="font-readable text-italic" style="font-size: 1.05rem; line-height: 1.7; color: var(--color-text-secondary);">
+              "Creating games like Super Cat World is a thrilling journey, but behind every level, boss fight, and gravity shift comes intense developer stress. From wrestling with physics engine bugs and collision glitches to spending hours balancing boss encounters—game development takes dedication, patience, and relentless problem solving."
+            </p>
+          </div>
+
+          <!-- Public Read-Only Reflections List -->
+          <div class="journal-entries-list" id="public-journal-entries-list" style="display: flex; flex-direction: column; gap: 15px; width: 100%;">
+            <div class="journal-entry-item" style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 18px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <strong style="color: var(--color-accent); font-family: var(--font-headings);">Entry #1: Super Cat World & Physics Overhauls</strong>
+                <span style="font-size: 0.8rem; color: var(--color-text-muted);">Feb 24, 2025 – Present</span>
+              </div>
+              <p style="font-size: 0.95rem; line-height: 1.6; color: var(--color-text-secondary);" class="font-readable">
+                Building the platformer mechanics, parkour jumps, and boss fights for Super Cat World tested everything we had. When game-stopping Bug Code 3 hit, it felt like starting over—but fixing the localized vector grid and polishing the Glitched Lands made every stressed hour worth it.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <!-- ==================== COMMUNITY SECTION ==================== -->
       <section id="community-section" class="app-section">
@@ -1043,6 +1072,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
   <!-- Main Script File -->
-  <script src="script.js?v=20260721j"></script>
+  <script src="script.js?v=20260721k"></script>
 </body>
 </html>
