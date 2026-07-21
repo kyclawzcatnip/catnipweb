@@ -723,7 +723,7 @@
           </div>
           
           <div class="leaderboard-body">
-            <table class="leaderboard-table" id="leaderboard-table">
+            <table class="leaderboard-table" id="leaderboard-table" style="display: table;">
               <thead>
                 <tr>
                   <th>Rank</th>
@@ -734,11 +734,17 @@
                 </tr>
               </thead>
               <tbody id="leaderboard-tbody">
-                <!-- Dynamically populated via script.js -->
+                <tr>
+                  <td>#1</td>
+                  <td>catnip</td>
+                  <td><span class="status-badge dev-badge">Easy (1 Boss)</span></td>
+                  <td>20:36.00</td>
+                  <td>2026-07-21</td>
+                </tr>
               </tbody>
             </table>
             
-            <div class="leaderboard-empty" id="leaderboard-empty-state">
+            <div class="leaderboard-empty" id="leaderboard-empty-state" style="display: none;">
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"></circle>
                 <polyline points="12 6 12 12 16 14"></polyline>
@@ -966,6 +972,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
   <!-- Main Script File -->
-  <script src="script.js?v=20260721g"></script>
+  <script src="script.js?v=20260721h"></script>
 </body>
 </html>
