@@ -293,13 +293,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (sectionId === 'community') {
       loadLeaderboard();
     }
+    if (sectionId === 'stress') {
+      if (typeof renderStressJournal === 'function') renderStressJournal();
+    }
   }
 
   // Monitor hash changes
   window.addEventListener('hashchange', () => {
     const hash = window.location.hash.substring(1) || 'home';
     // Validate hash is one of our sections
-    const validSections = ['home', 'games', 'wiki', 'news', 'community', 'secrets'];
+    const validSections = ['home', 'games', 'wiki', 'news', 'stress', 'community', 'secrets'];
     if (validSections.includes(hash)) {
       navigateTo(hash);
     }
