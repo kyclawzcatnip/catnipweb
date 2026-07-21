@@ -271,7 +271,8 @@ document.addEventListener('DOMContentLoaded', () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     // Update Nav links active states
-    navLinks.forEach(link => {
+    const currentNavLinks = document.querySelectorAll('.nav-link');
+    currentNavLinks.forEach(link => {
       if (link.getAttribute('data-target') === sectionId) {
         link.classList.add('active');
       } else {
@@ -280,12 +281,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Update Sections display states
-    appSections.forEach(section => {
+    const currentAppSections = document.querySelectorAll('.app-section');
+    currentAppSections.forEach(section => {
       const idMatches = section.getAttribute('id') === `${sectionId}-section`;
       if (idMatches) {
         section.classList.add('active');
+        section.style.display = 'block';
       } else {
         section.classList.remove('active');
+        section.style.display = 'none';
       }
     });
 
@@ -298,10 +302,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Explicit click listeners for nav links
+  navLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      const target = link.getAttribute('data-target');
+      if (target) {
+        e.preventDefault();
+        window.location.hash = target;
+        navigateTo(target);
+      }
+    });
+  });
+
   // Monitor hash changes
   window.addEventListener('hashchange', () => {
     const hash = window.location.hash.substring(1) || 'home';
-    // Validate hash is one of our sections
     const validSections = ['home', 'games', 'wiki', 'news', 'stress', 'community', 'secrets'];
     if (validSections.includes(hash)) {
       navigateTo(hash);
