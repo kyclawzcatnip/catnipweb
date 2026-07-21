@@ -1043,6 +1043,7 @@ p {
 }
 
 .wiki-card {
+  cursor: pointer;
   background: var(--color-surface-glass);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-md);

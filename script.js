@@ -645,12 +645,18 @@ document.addEventListener('DOMContentLoaded', () => {
     filterWiki();
   });
 
-  // Click on "Read Entry" to open full article in modal
+  // Click on "Read Entry" or Wiki Card to open full article in modal
   document.addEventListener('click', (e) => {
-    const btn = e.target.closest('.btn-read-wiki');
-    if (!btn) return;
+    const targetEl = e.target.closest('.btn-read-wiki') || e.target.closest('.wiki-card');
+    if (!targetEl) return;
 
-    const articleKey = btn.getAttribute('data-article');
+    let articleKey = targetEl.getAttribute('data-article');
+    if (!articleKey) {
+      const readBtn = targetEl.querySelector('.btn-read-wiki');
+      if (readBtn) articleKey = readBtn.getAttribute('data-article');
+    }
+
+    if (!articleKey) return;
     const article = wikiArticles[articleKey];
 
     if (article) {
