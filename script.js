@@ -724,23 +724,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const leaderboardTbody = document.getElementById('leaderboard-tbody');
   const leaderboardEmptyState = document.getElementById('leaderboard-empty-state');
 
-  function loadLeaderboard() {
-    let scores = [];
-    try {
-      scores = JSON.parse(localStorage.getItem('scw_local_leaderboard') || '[]');
-    } catch (e) {
-      scores = [];
-    }
-
-    if (scores.length === 0) {
+  function renderLeaderboardScores(scores) {
+    if (!scores || scores.length === 0) {
       if (leaderboardTable) leaderboardTable.style.display = 'none';
       if (leaderboardEmptyState) leaderboardEmptyState.style.display = 'flex';
     } else {
       if (leaderboardTable) leaderboardTable.style.display = 'table';
       if (leaderboardEmptyState) leaderboardEmptyState.style.display = 'none';
 
-      // Sort speedrun scores: fastest string format (e.g. 01:24.03) first
-      scores.sort((a, b) => a.time.localeCompare(b.time));
+      // Sort speedrun scores: fastest time string format (e.g. 01:24.03) first
+      scores.sort((a, b) => (a.time || '').localeCompare(b.time || ''));
 
       if (leaderboardTbody) {
         leaderboardTbody.innerHTML = '';
@@ -755,6 +748,36 @@ document.addEventListener('DOMContentLoaded', () => {
           `;
           leaderboardTbody.appendChild(row);
         });
+      }
+    }
+  }
+
+  function loadLeaderboard() {
+    let localScores = [];
+    try {
+      localScores = JSON.parse(localStorage.getItem('scw_local_leaderboard') || '[]');
+    } catch (e) {
+      localScores = [];
+    }
+    renderLeaderboardScores(localScores);
+
+    // Fetch permanent cloud database entries if Firebase is initialized
+    if (typeof firebase !== 'undefined' && firebase.firestore) {
+      try {
+        const db = firebase.firestore();
+        db.collection('leaderboard').orderBy('time', 'asc').limit(50).onSnapshot((snapshot) => {
+          const cloudScores = [];
+          snapshot.forEach((doc) => {
+            cloudScores.push(doc.data());
+          });
+          if (cloudScores.length > 0) {
+            renderLeaderboardScores(cloudScores);
+          }
+        }, (err) => {
+          console.warn("Firestore leaderboard offline / standard mode:", err);
+        });
+      } catch (e) {
+        console.warn("Cloud Firestore init info:", e);
       }
     }
   }
