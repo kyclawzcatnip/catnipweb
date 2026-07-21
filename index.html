@@ -866,6 +866,40 @@
             </div>
           </div>
 
+          <!-- The Stress of the Game(s) Creator Journal -->
+          <div class="secrets-card stress-journal-card" style="grid-column: 1 / -1;">
+            <div class="secrets-card-header">
+              <span class="secrets-cat">Creator Reflections</span>
+              <h3>The Stress of the Game(s)</h3>
+            </div>
+            
+            <div class="secrets-dev-notes" style="margin-top: 10px;">
+              <p class="font-readable text-italic" style="font-size: 1.05rem; line-height: 1.7; color: var(--color-text-secondary);">
+                "Creating games like Super Cat World is a thrilling journey, but behind every level, boss fight, and gravity shift comes intense developer stress. From wrestling with physics engine bugs and collision glitches to spending hours balancing boss encounters—game development takes dedication, patience, and relentless problem solving."
+              </p>
+            </div>
+
+            <!-- Creator Entries Container -->
+            <div class="journal-entries-list" id="journal-entries-list" style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
+              <div class="journal-entry-item" style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 18px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                  <strong style="color: var(--color-accent); font-family: var(--font-headings);">Entry #1: Super Cat World & Physics Overhauls</strong>
+                  <span style="font-size: 0.8rem; color: var(--color-text-muted);">Feb 24, 2025 – Present</span>
+                </div>
+                <p style="font-size: 0.95rem; line-height: 1.6; color: var(--color-text-secondary);" class="font-readable">
+                  Building the platformer mechanics, parkour jumps, and boss fights for Super Cat World tested everything we had. When game-stopping Bug Code 3 hit, it felt like starting over—but fixing the localized vector grid and polishing the Glitched Lands made every stressed hour worth it.
+                </p>
+              </div>
+            </div>
+
+            <!-- Add New Entry Box -->
+            <div class="journal-add-box" style="margin-top: 25px; border-top: 1px solid var(--border-light); padding-top: 20px;">
+              <h5 style="margin-bottom: 10px; font-size: 0.95rem; color: var(--color-text-primary);">Add Creator Reflection Note</h5>
+              <textarea id="journal-input" class="form-input" rows="3" placeholder="Write about your game dev experience, stress, or thoughts on your games..." style="width: 100%; resize: vertical; margin-bottom: 12px;"></textarea>
+              <button class="btn btn-primary btn-sm" id="btn-add-journal">Publish Reflection</button>
+            </div>
+          </div>
+
         </div>
       </section>
 
@@ -1009,6 +1043,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
   <!-- Main Script File -->
-  <script src="script.js?v=20260721h"></script>
+  <script src="script.js?v=20260721i"></script>
 </body>
 </html>

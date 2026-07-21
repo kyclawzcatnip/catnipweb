@@ -1004,4 +1004,77 @@ document.addEventListener('DOMContentLoaded', () => {
     if (savedUser) updateAuthStateUI(savedUser);
   }
 
+  // ==================== THE STRESS OF THE GAME(S) JOURNAL ====================
+  const journalInput = document.getElementById('journal-input');
+  const btnAddJournal = document.getElementById('btn-add-journal');
+  const journalEntriesList = document.getElementById('journal-entries-list');
+
+  function renderStressJournal() {
+    let savedEntries = [];
+    try {
+      savedEntries = JSON.parse(localStorage.getItem('scw_stress_journal') || '[]');
+    } catch (e) {
+      savedEntries = [];
+    }
+
+    if (savedEntries.length > 0 && journalEntriesList) {
+      savedEntries.forEach((entry, idx) => {
+        const item = document.createElement('div');
+        item.className = 'journal-entry-item';
+        item.style.cssText = 'background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 18px;';
+        item.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <strong style="color: var(--color-accent); font-family: var(--font-headings);">Reflection Note #${idx + 2}</strong>
+            <span style="font-size: 0.8rem; color: var(--color-text-muted);">${escapeHtml(entry.date)}</span>
+          </div>
+          <p style="font-size: 0.95rem; line-height: 1.6; color: var(--color-text-secondary);" class="font-readable">${escapeHtml(entry.text)}</p>
+        `;
+        journalEntriesList.appendChild(item);
+      });
+    }
+  }
+
+  if (btnAddJournal && journalInput) {
+    btnAddJournal.addEventListener('click', () => {
+      const noteText = journalInput.value.trim();
+      if (!noteText) {
+        alert("Please enter a reflection note before publishing!");
+        return;
+      }
+
+      const newEntry = {
+        text: noteText,
+        date: new Date().toLocaleDateString()
+      };
+
+      let savedEntries = [];
+      try {
+        savedEntries = JSON.parse(localStorage.getItem('scw_stress_journal') || '[]');
+      } catch (e) {
+        savedEntries = [];
+      }
+
+      savedEntries.push(newEntry);
+      localStorage.setItem('scw_stress_journal', JSON.stringify(savedEntries));
+
+      journalInput.value = '';
+      
+      const item = document.createElement('div');
+      item.className = 'journal-entry-item';
+      item.style.cssText = 'background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 18px;';
+      item.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <strong style="color: var(--color-accent); font-family: var(--font-headings);">Reflection Note #${savedEntries.length + 1}</strong>
+          <span style="font-size: 0.8rem; color: var(--color-text-muted);">${escapeHtml(newEntry.date)}</span>
+        </div>
+        <p style="font-size: 0.95rem; line-height: 1.6; color: var(--color-text-secondary);" class="font-readable">${escapeHtml(newEntry.text)}</p>
+      `;
+      if (journalEntriesList) journalEntriesList.appendChild(item);
+
+      alert("🎉 Reflection note published to your Developer Secrets journal!");
+    });
+  }
+
+  renderStressJournal();
+
 });
