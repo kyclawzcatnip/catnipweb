@@ -681,8 +681,8 @@
             </p>
           </div>
 
-          <!-- Reflections List -->
-          <div class="journal-entries-list" id="journal-entries-list" style="display: flex; flex-direction: column; gap: 15px; width: 100%;">
+          <!-- Public Read-Only Reflections List -->
+          <div class="journal-entries-list" id="public-journal-entries-list" style="display: flex; flex-direction: column; gap: 15px; width: 100%;">
             <div class="journal-entry-item" style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 18px;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                 <strong style="color: var(--color-accent); font-family: var(--font-headings);">Entry #1: Super Cat World & Physics Overhauls</strong>
@@ -692,13 +692,6 @@
                 Building the platformer mechanics, parkour jumps, and boss fights for Super Cat World tested everything we had. When game-stopping Bug Code 3 hit, it felt like starting over—but fixing the localized vector grid and polishing the Glitched Lands made every stressed hour worth it.
               </p>
             </div>
-          </div>
-
-          <!-- Add New Reflection Entry Box -->
-          <div class="journal-add-box" style="margin-top: 25px; border-top: 1px solid var(--border-light); padding-top: 20px; width: 100%;">
-            <h5 style="margin-bottom: 10px; font-size: 0.95rem; color: var(--color-text-primary);">Add Creator Reflection Note</h5>
-            <textarea id="journal-input" class="form-input" rows="3" placeholder="Write about your game dev experience, stress, or thoughts on your games..." style="width: 100%; resize: vertical; margin-bottom: 12px;"></textarea>
-            <button class="btn btn-primary btn-sm" id="btn-add-journal">Publish Reflection</button>
           </div>
         </div>
       </section>
@@ -906,6 +899,24 @@
             </div>
           </div>
 
+          <!-- Developer Secrets: Creator Reflection Publisher Card -->
+          <div class="secrets-card stress-publisher-card" style="grid-column: 1 / -1;">
+            <div class="secrets-card-header">
+              <span class="secrets-cat">Developer Portal Access Only</span>
+              <h3>Creator Reflection Publisher</h3>
+            </div>
+            
+            <p style="font-size: 0.9rem; color: var(--color-text-secondary); margin-bottom: 15px;">
+              Write new reflections about game development stress, challenges, or thoughts. Published notes will be broadcast live to the public <strong>Game Stress</strong> section for all players to read!
+            </p>
+
+            <div class="journal-add-box">
+              <h5 style="margin-bottom: 10px; font-size: 0.95rem; color: var(--color-text-primary);">Add Creator Reflection Note</h5>
+              <textarea id="journal-input" class="form-input" rows="3" placeholder="Write about your game dev experience, stress, or thoughts on your games..." style="width: 100%; resize: vertical; margin-bottom: 12px;"></textarea>
+              <button class="btn btn-primary btn-sm" id="btn-add-journal">Publish Reflection</button>
+            </div>
+          </div>
+
         </div>
       </section>
 
@@ -1049,6 +1060,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
   <!-- Main Script File -->
-  <script src="script.js?v=20260721p"></script>
+  <script src="script.js?v=20260721q"></script>
 </body>
 </html>

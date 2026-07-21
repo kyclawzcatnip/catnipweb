@@ -229,23 +229,29 @@ document.addEventListener('DOMContentLoaded', () => {
     devVisibilityLeaveTimer = null;
   // ==================== STRESS JOURNAL RENDERERS ====================
   function displayJournalEntries(entries) {
-    const journalList = document.getElementById('journal-entries-list');
-    if (!journalList) return;
-    const dynamicItems = journalList.querySelectorAll('.journal-entry-dynamic');
-    dynamicItems.forEach(el => el.remove());
+    const containers = [
+      document.getElementById('public-journal-entries-list'),
+      document.getElementById('journal-entries-list')
+    ];
 
-    entries.forEach((entry, idx) => {
-      const item = document.createElement('div');
-      item.className = 'journal-entry-item journal-entry-dynamic';
-      item.style.cssText = 'background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 18px;';
-      item.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-          <strong style="color: var(--color-accent); font-family: var(--font-headings);">Reflection Note #${idx + 2}</strong>
-          <span style="font-size: 0.8rem; color: var(--color-text-muted);">${escapeHtml(entry.date)}</span>
-        </div>
-        <p style="font-size: 0.95rem; line-height: 1.6; color: var(--color-text-secondary);" class="font-readable">${escapeHtml(entry.text)}</p>
-      `;
-      journalList.appendChild(item);
+    containers.forEach(container => {
+      if (!container) return;
+      const dynamicItems = container.querySelectorAll('.journal-entry-dynamic');
+      dynamicItems.forEach(el => el.remove());
+
+      entries.forEach((entry, idx) => {
+        const item = document.createElement('div');
+        item.className = 'journal-entry-item journal-entry-dynamic';
+        item.style.cssText = 'background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 18px;';
+        item.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <strong style="color: var(--color-accent); font-family: var(--font-headings);">Reflection Note #${idx + 2}</strong>
+            <span style="font-size: 0.8rem; color: var(--color-text-muted);">${escapeHtml(entry.date)}</span>
+          </div>
+          <p style="font-size: 0.95rem; line-height: 1.6; color: var(--color-text-secondary);" class="font-readable">${escapeHtml(entry.text)}</p>
+        `;
+        container.appendChild(item);
+      });
     });
   }
 
