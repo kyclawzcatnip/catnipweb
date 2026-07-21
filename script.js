@@ -762,7 +762,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Default permanent record
     const defaultRun = { name: "catnip", mode: "Easy (1 Boss)", time: "20:36.00", date: new Date().toLocaleDateString() };
-    if (localScores.length === 0) {
+    const hasCatnipRun = Array.isArray(localScores) && localScores.some(s => s.name === "catnip" && s.time === "20:36.00");
+    if (!hasCatnipRun) {
+      if (!Array.isArray(localScores)) localScores = [];
       localScores.push(defaultRun);
       try {
         localStorage.setItem('scw_local_leaderboard', JSON.stringify(localScores));
