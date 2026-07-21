@@ -341,8 +341,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const idMatches = section.getAttribute('id') === `${sectionId}-section`;
       if (idMatches) {
         section.classList.add('active');
+        section.style.setProperty('display', 'block', 'important');
       } else {
         section.classList.remove('active');
+        section.style.setProperty('display', 'none', 'important');
       }
     });
 
