@@ -1149,9 +1149,10 @@ p {
   background: var(--color-surface-solid);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--radius-lg);
-  width: 100%;
+  width: 90%;
   max-width: 750px;
   max-height: 85vh;
+  margin: auto;
   overflow-y: auto;
   position: relative;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
