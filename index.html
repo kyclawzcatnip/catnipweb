@@ -13,7 +13,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
   
   <!-- Favicon -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐱</text></svg>">
+  <link rel="icon" type="image/jpeg" href="favicon.jpg">
+  <link rel="shortcut icon" href="favicon.jpg">
+  <link rel="apple-touch-icon" href="favicon.jpg">
 
   <!-- Core Stylesheet -->
   <link rel="stylesheet" href="style.css">
@@ -30,26 +32,8 @@
   <!-- Header & Navigation -->
   <header class="main-header">
     <div class="container header-container">
-      <a href="#home" class="logo" id="logo-link">
-        <!-- SVG Logo: Stylized Cat Face with Glowing Accents -->
-        <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="logo-svg">
-          <defs>
-            <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#00E676" />
-              <stop offset="100%" stop-color="#7C4DFF" />
-            </linearGradient>
-            <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="8" result="blur" />
-              <feComposite in="SourceGraphic" in2="blur" operator="over" />
-            </filter>
-          </defs>
-          <path d="M15 25L30 45M85 25L70 45" stroke="url(#logo-grad)" stroke-width="8" stroke-linecap="round"/>
-          <path d="M10 30L25 10L42 28L58 28L75 10L90 30L80 75C75 88 65 92 50 92C35 92 25 88 20 75L10 30Z" fill="rgba(11, 8, 19, 0.85)" stroke="url(#logo-grad)" stroke-width="6" filter="url(#glow)"/>
-          <circle cx="35" cy="50" r="6" fill="#00E676" />
-          <circle cx="65" cy="50" r="6" fill="#7C4DFF" />
-          <path d="M42 68C42 68 46 72 50 72C54 72 58 68 58 68" stroke="#00E676" stroke-width="4" stroke-linecap="round"/>
-          <path d="M22 55L8 52M22 60L5 61M78 55L92 52M78 60L95 61" stroke="url(#logo-grad)" stroke-width="3" stroke-linecap="round"/>
-        </svg>
+      <a href="#home" class="logo nav-trigger" data-target="home" id="logo-link">
+        <img src="logo.jpg" alt="Catnip Studios Logo" class="header-logo-img" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border-light); box-shadow: var(--shadow-neon-green);" />
         <span class="logo-text">Catnip<span>Studios</span></span>
       </a>
       <nav class="nav-menu" id="nav-menu">
@@ -1063,6 +1047,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
   <!-- Main Script File -->
-  <script src="script.js?v=20260721t"></script>
+  <script src="script.js?v=20260721u"></script>
 </body>
 </html>
