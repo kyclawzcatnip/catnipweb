@@ -785,4 +785,186 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initial leaderboard load
   loadLeaderboard();
 
+  // ==================== FIREBASE AUTH & USER PROFILES ====================
+  // Firebase Configuration Object
+  const firebaseConfig = {
+    apiKey: "AIzaSy_CATNIP_STUDIOS_FIREBASE_KEY",
+    authDomain: "catnip-studios-web.firebaseapp.com",
+    projectId: "catnip-studios-web",
+    storageBucket: "catnip-studios-web.appspot.com",
+    messagingSenderId: "109876543210",
+    appId: "1:109876543210:web:catnipweb000111"
+  };
+
+  // Safe Firebase Initialization
+  let firebaseAuth = null;
+  if (typeof firebase !== 'undefined' && firebase.auth) {
+    try {
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+      firebaseAuth = firebase.auth();
+    } catch (err) {
+      console.warn("Firebase Auth init warning:", err);
+    }
+  }
+
+  // DOM Elements for Auth
+  const accountNavTrigger = document.getElementById('account-nav-trigger');
+  const accountNavLabel = document.getElementById('account-nav-label');
+  const authModal = document.getElementById('auth-modal');
+  const authModalClose = document.getElementById('auth-modal-close');
+  const authLoggedOutView = document.getElementById('auth-logged-out-view');
+  const authLoggedInView = document.getElementById('auth-logged-in-view');
+  const tabLoginBtn = document.getElementById('tab-login-btn');
+  const tabRegisterBtn = document.getElementById('tab-register-btn');
+  const formLogin = document.getElementById('form-login');
+  const formRegister = document.getElementById('form-register');
+  const loginFeedback = document.getElementById('login-feedback');
+  const regFeedback = document.getElementById('reg-feedback');
+  const profileDisplayName = document.getElementById('profile-display-name');
+  const profileEmail = document.getElementById('profile-email');
+  const btnSignOut = document.getElementById('btn-sign-out');
+
+  function openAuthModal() {
+    if (authModal) authModal.style.display = 'flex';
+  }
+
+  function closeAuthModal() {
+    if (authModal) authModal.style.display = 'none';
+    if (loginFeedback) loginFeedback.innerHTML = '';
+    if (regFeedback) regFeedback.innerHTML = '';
+  }
+
+  if (accountNavTrigger) accountNavTrigger.addEventListener('click', openAuthModal);
+  if (authModalClose) authModalClose.addEventListener('click', closeAuthModal);
+  if (authModal) {
+    authModal.addEventListener('click', (e) => {
+      if (e.target === authModal) closeAuthModal();
+    });
+  }
+
+  // Tab switching inside Auth Modal
+  if (tabLoginBtn && tabRegisterBtn) {
+    tabLoginBtn.addEventListener('click', () => {
+      tabLoginBtn.classList.add('active');
+      tabRegisterBtn.classList.remove('active');
+      formLogin.classList.add('active');
+      formRegister.classList.remove('active');
+    });
+
+    tabRegisterBtn.addEventListener('click', () => {
+      tabRegisterBtn.classList.add('active');
+      tabLoginBtn.classList.remove('active');
+      formRegister.classList.add('active');
+      formLogin.classList.remove('active');
+    });
+  }
+
+  // Update Auth State UI
+  function updateAuthStateUI(user) {
+    if (user) {
+      // User is logged in
+      const displayName = user.displayName || user.email.split('@')[0];
+      if (accountNavLabel) accountNavLabel.textContent = `🐱 ${displayName}`;
+      if (accountNavTrigger) accountNavTrigger.classList.add('logged-in');
+
+      if (authLoggedOutView) authLoggedOutView.style.display = 'none';
+      if (authLoggedInView) authLoggedInView.style.display = 'block';
+      if (profileDisplayName) profileDisplayName.textContent = displayName;
+      if (profileEmail) profileEmail.textContent = user.email;
+    } else {
+      // User is logged out
+      if (accountNavLabel) accountNavLabel.textContent = 'Sign In';
+      if (accountNavTrigger) accountNavTrigger.classList.remove('logged-in');
+
+      if (authLoggedOutView) authLoggedOutView.style.display = 'block';
+      if (authLoggedInView) authLoggedInView.style.display = 'none';
+    }
+  }
+
+  // Listen to Firebase Auth state
+  if (firebaseAuth) {
+    firebaseAuth.onAuthStateChanged((user) => {
+      updateAuthStateUI(user);
+    });
+  }
+
+  // Handle Register Form Submit
+  if (formRegister) {
+    formRegister.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('reg-username').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const password = document.getElementById('reg-password').value;
+
+      regFeedback.innerHTML = '<span style="color: #00E676;">Creating user account...</span>';
+
+      if (firebaseAuth) {
+        try {
+          const userCred = await firebaseAuth.createUserWithEmailAndPassword(email, password);
+          await userCred.user.updateProfile({ displayName: username });
+          regFeedback.innerHTML = '<span style="color: #00E676;">Account created successfully!</span>';
+          setTimeout(closeAuthModal, 800);
+        } catch (err) {
+          regFeedback.innerHTML = `<span style="color: #FF5252;">${err.message}</span>`;
+        }
+      } else {
+        // Fallback session mode
+        const mockUser = { displayName: username, email: email, uid: 'user-' + Date.now() };
+        localStorage.setItem('scw_local_user', JSON.stringify(mockUser));
+        updateAuthStateUI(mockUser);
+        regFeedback.innerHTML = '<span style="color: #00E676;">Account created!</span>';
+        setTimeout(closeAuthModal, 800);
+      }
+    });
+  }
+
+  // Handle Login Form Submit
+  if (formLogin) {
+    formLogin.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+
+      loginFeedback.innerHTML = '<span style="color: #00E676;">Authenticating...</span>';
+
+      if (firebaseAuth) {
+        try {
+          await firebaseAuth.signInWithEmailAndPassword(email, password);
+          loginFeedback.innerHTML = '<span style="color: #00E676;">Welcome back!</span>';
+          setTimeout(closeAuthModal, 800);
+        } catch (err) {
+          loginFeedback.innerHTML = `<span style="color: #FF5252;">${err.message}</span>`;
+        }
+      } else {
+        // Fallback session mode
+        const mockUser = { displayName: email.split('@')[0], email: email, uid: 'user-' + Date.now() };
+        localStorage.setItem('scw_local_user', JSON.stringify(mockUser));
+        updateAuthStateUI(mockUser);
+        loginFeedback.innerHTML = '<span style="color: #00E676;">Signed in!</span>';
+        setTimeout(closeAuthModal, 800);
+      }
+    });
+  }
+
+  // Handle Sign Out
+  if (btnSignOut) {
+    btnSignOut.addEventListener('click', () => {
+      if (firebaseAuth) {
+        firebaseAuth.signOut();
+      } else {
+        localStorage.removeItem('scw_local_user');
+        updateAuthStateUI(null);
+      }
+      closeAuthModal();
+    });
+  }
+
+  // Initial check for offline / fallback mode
+  if (!firebaseAuth) {
+    const savedUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
+    if (savedUser) updateAuthStateUI(savedUser);
+  }
+
 });

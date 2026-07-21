@@ -62,6 +62,13 @@
           </svg>
           Dev Portal
         </button>
+        <button class="btn-account-nav" id="account-nav-trigger" aria-label="User Account">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <span id="account-nav-label">Sign In</span>
+        </button>
       </nav>
       <button class="mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Toggle navigation menu">
         <span></span>
@@ -889,7 +896,79 @@
     </div>
   </footer>
 
-  <!-- Script File -->
-  <script src="script.js?v=20260721b"></script>
+  <!-- ==================== FIREBASE USER AUTH MODAL ==================== -->
+  <div class="auth-modal" id="auth-modal">
+    <div class="auth-card-modal">
+      <button class="auth-close-btn" id="auth-modal-close" aria-label="Close modal">&times;</button>
+      
+      <!-- LOGGED OUT VIEW -->
+      <div id="auth-logged-out-view">
+        <div class="auth-tabs">
+          <button class="auth-tab-btn active" id="tab-login-btn">Sign In</button>
+          <button class="auth-tab-btn" id="tab-register-btn">Register</button>
+        </div>
+
+        <!-- Form 1: Login -->
+        <form id="form-login" class="auth-form active">
+          <div class="input-group">
+            <label for="login-email">Email Address</label>
+            <input type="email" id="login-email" placeholder="catnip@example.com" required>
+          </div>
+          <div class="input-group">
+            <label for="login-password">Password</label>
+            <input type="password" id="login-password" placeholder="••••••••" required>
+          </div>
+          <div class="auth-feedback" id="login-feedback"></div>
+          <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+        </form>
+
+        <!-- Form 2: Register -->
+        <form id="form-register" class="auth-form">
+          <div class="input-group">
+            <label for="reg-username">Cat Name / Display Name</label>
+            <input type="text" id="reg-username" placeholder="e.g. CaptainClawz" required>
+          </div>
+          <div class="input-group">
+            <label for="reg-email">Email Address</label>
+            <input type="email" id="reg-email" placeholder="catnip@example.com" required>
+          </div>
+          <div class="input-group">
+            <label for="reg-password">Password (min 6 chars)</label>
+            <input type="password" id="reg-password" placeholder="••••••••" required minlength="6">
+          </div>
+          <div class="auth-feedback" id="reg-feedback"></div>
+          <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+        </form>
+      </div>
+
+      <!-- LOGGED IN VIEW -->
+      <div id="auth-logged-in-view" style="display: none;">
+        <div class="profile-header">
+          <div class="profile-avatar">🐱</div>
+          <h3 id="profile-display-name">Catnip Player</h3>
+          <p id="profile-email" class="profile-email-text">player@example.com</p>
+        </div>
+        <div class="profile-stats">
+          <div class="profile-stat-box">
+            <span class="stat-num" id="profile-runs-count">SCW</span>
+            <span class="stat-label">Member</span>
+          </div>
+          <div class="profile-stat-box">
+            <span class="stat-num" id="profile-lore-count">8/8</span>
+            <span class="stat-label">Lore Codex</span>
+          </div>
+        </div>
+        <button class="btn btn-secondary btn-block" id="btn-sign-out" style="margin-top: 20px;">Sign Out</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Firebase Web SDK Compat Libraries -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+
+  <!-- Main Script File -->
+  <script src="script.js?v=20260721c"></script>
 </body>
 </html>
