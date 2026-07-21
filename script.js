@@ -759,6 +759,15 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (e) {
       localScores = [];
     }
+
+    // Default permanent record
+    const defaultRun = { name: "catnip", mode: "Easy (1 Boss)", time: "20:36.00", date: new Date().toLocaleDateString() };
+    if (localScores.length === 0) {
+      localScores.push(defaultRun);
+      try {
+        localStorage.setItem('scw_local_leaderboard', JSON.stringify(localScores));
+      } catch (e) {}
+    }
     renderLeaderboardScores(localScores);
 
     // Fetch permanent cloud database entries if Firebase is initialized
