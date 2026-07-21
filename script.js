@@ -85,6 +85,94 @@ document.addEventListener('DOMContentLoaded', () => {
         <h4>Origins</h4>
         <p>The studio was established to create its debut title, the action-platformer <strong>Super Cat World</strong>. You can play it directly using the link in the Games section.</p>
       `
+    },
+    'lore-book-1': {
+      title: 'Book I: The First Meow',
+      category: 'lore',
+      tag: 'Lore Book',
+      content: `
+        <p class="text-italic">"Long ago, the Great Catnip Tree gave birth to the Nine Feline Realms. The Cat Clan lived in peace... until the Rat King coveted the Golden Catnip."</p>
+        <h4>Lore & Meaning</h4>
+        <p>This inaugural volume reveals the mythic creation story of the Cat Clan and the Nine Feline Realms by the Great Catnip Tree. It details the peaceful era of feline civilization before conflict erupted when the Rat King launched an assault to claim the sacred Golden Catnip.</p>
+        <p><strong>Unlock Location:</strong> World 1 (Level 0)</p>
+      `
+    },
+    'lore-book-2': {
+      title: 'Book II: Whispers in the Wall',
+      category: 'lore',
+      tag: 'Lore Book',
+      content: `
+        <p class="text-italic">"The Rat King constructed his fortress atop ancient ruins, forging iron-tipped spears and training archers to repel any feline intruders."</p>
+        <h4>Lore & Meaning</h4>
+        <p>Documents the Rat King's militarization after seizing territory. He erected a heavy iron stronghold over sacred feline ruins, equipping spear-throwers and archers to defend his perimeter against cat scouts.</p>
+        <p><strong>Unlock Location:</strong> World 4 (Level 3)</p>
+      `
+    },
+    'lore-book-3': {
+      title: 'Book III: Secrets of the Throne',
+      category: 'lore',
+      tag: 'Lore Book',
+      content: `
+        <p class="text-italic">"When cornered, the Rat King unleashes floor traps and shadow clones. Legend says only well-timed stomps can shatter his defense."</p>
+        <h4>Lore & Meaning</h4>
+        <p>A tactical codex detailing the Rat King's boss combat patterns. It explains his reliance on shadow clones and concealed floor spikes when cornered, advising heroes that precise jumping stomps are necessary to crack his armor.</p>
+        <p><strong>Unlock Location:</strong> World 5 (Level 4)</p>
+      `
+    },
+    'lore-book-4': {
+      title: 'Book IV: Ships in the Sky',
+      category: 'lore',
+      tag: 'Lore Book',
+      content: `
+        <p class="text-italic">"Pirate Captain Rattail fled to the sky islands, building floating warships to hoard sky coins away from land-dwelling cats."</p>
+        <h4>Lore & Meaning</h4>
+        <p>Introduces the second major antagonist, Pirate Captain Rattail. Following the fall of the land fortress, Rattail constructed an armada of floating sky ships to hoard the kingdom's sky coins out of reach.</p>
+        <p><strong>Unlock Location:</strong> World 7 (Level 6)</p>
+      `
+    },
+    'lore-book-5': {
+      title: 'Book V: The Sky Captain\'s Vow',
+      category: 'lore',
+      tag: 'Lore Book',
+      content: `
+        <p class="text-italic">"Captain Rattail swore never to drop anchor until he found the Legendary Sky Fish. His flagship is armed with heavy cannons and spinning yarn!"</p>
+        <h4>Lore & Meaning</h4>
+        <p>Exposes Captain Rattail's obsession with capturing the Legendary Sky Fish. It warns players of his sky flagship's weapons: heavy naval cannonballs and spinning yarn traps designed to entangle airborne cats.</p>
+        <p><strong>Unlock Location:</strong> World 11 (Level 10)</p>
+      `
+    },
+    'lore-book-6': {
+      title: 'Book VI: Crystal Depths',
+      category: 'lore',
+      tag: 'Lore Book',
+      content: `
+        <p class="text-italic">"Deep beneath the mountains lie crystal caverns and rivers of magma. Only cats with Fire Protection can withstand the subterranean heat."</p>
+        <h4>Lore & Meaning</h4>
+        <p>Explores the volcanic subterranean biome beneath the World of Catz. It warns of rivers of magma and highlights the necessity of equipping the <strong>Fire Protector</strong> power-up to traverse hot magma zones unharmed.</p>
+        <p><strong>Unlock Location:</strong> World 13 (Level 12)</p>
+      `
+    },
+    'lore-book-7': {
+      title: 'Book VII: The Miner\'s Greed',
+      category: 'lore',
+      tag: 'Lore Book',
+      content: `
+        <p class="text-italic">"Miner Boss Rattock dug too deep into the ancient ore veins, unleashing cave-ins and volatile minecart explosives."</p>
+        <h4>Lore & Meaning</h4>
+        <p>Details the background of the third boss, Miner Boss Rattock. Obsessed with subterranean crystal mining, Rattock destabilized the caverns, weaponizing rolling minecart explosives and falling ceiling debris.</p>
+        <p><strong>Unlock Location:</strong> World 22 (Level 21)</p>
+      `
+    },
+    'lore-book-8': {
+      title: 'Book VIII: The Glitched Realm',
+      category: 'lore',
+      tag: 'Lore Book',
+      content: `
+        <p class="text-italic">"Beyond the silver pipes lies a shifting dimension of corrupted code and inverted gravity. Few cats ever return from this frontier."</p>
+        <h4>Lore & Meaning</h4>
+        <p>The final mystery codex describing the endgame dimension known as <strong>The Gliched Lands</strong>. Located beyond secret silver pipes, this corrupted zone alters gravity and reality, standing as the ultimate test of platforming mastery.</p>
+        <p><strong>Unlock Location:</strong> World 26 (Level 25 - Gliched Lands)</p>
+      `
     }
   };
 
