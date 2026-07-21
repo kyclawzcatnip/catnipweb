@@ -723,7 +723,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const leaderboardTable = document.getElementById('leaderboard-table');
   const leaderboardTbody = document.getElementById('leaderboard-tbody');
   const leaderboardEmptyState = document.getElementById('leaderboard-empty-state');
-  const clearLeaderboardBtn = document.getElementById('btn-clear-leaderboard');
 
   function loadLeaderboard() {
     let scores = [];
@@ -736,11 +735,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (scores.length === 0) {
       if (leaderboardTable) leaderboardTable.style.display = 'none';
       if (leaderboardEmptyState) leaderboardEmptyState.style.display = 'flex';
-      if (clearLeaderboardBtn) clearLeaderboardBtn.style.display = 'none';
     } else {
       if (leaderboardTable) leaderboardTable.style.display = 'table';
       if (leaderboardEmptyState) leaderboardEmptyState.style.display = 'none';
-      if (clearLeaderboardBtn) clearLeaderboardBtn.style.display = 'inline-flex';
 
       // Sort speedrun scores: fastest string format (e.g. 01:24.03) first
       scores.sort((a, b) => a.time.localeCompare(b.time));
@@ -770,16 +767,6 @@ document.addEventListener('DOMContentLoaded', () => {
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#039;");
-  }
-
-  if (clearLeaderboardBtn) {
-    clearLeaderboardBtn.addEventListener('click', () => {
-      const confirmClear = confirm("Are you sure you want to clear all leaderboard records? This cannot be undone.");
-      if (confirmClear) {
-        localStorage.removeItem('scw_local_leaderboard');
-        loadLeaderboard();
-      }
-    });
   }
 
   // Initial leaderboard load
