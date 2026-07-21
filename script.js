@@ -227,6 +227,8 @@ document.addEventListener('DOMContentLoaded', () => {
     devTabLeaveTimer = null;
     clearTimeout(devVisibilityLeaveTimer);
     devVisibilityLeaveTimer = null;
+  }
+
   // ==================== STRESS JOURNAL RENDERERS ====================
   function displayJournalEntries(entries) {
     const containers = [
