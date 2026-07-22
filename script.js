@@ -1093,6 +1093,9 @@ document.addEventListener('DOMContentLoaded', () => {
           if (isFallbackError) {
             const mockUser = { displayName: username, email: email, uid: 'user-' + Date.now() };
             localStorage.setItem('scw_local_user', JSON.stringify(mockUser));
+            if (typeof saveToLocalProfilesDatabase === 'function') {
+              saveToLocalProfilesDatabase(username, email, 0, []);
+            }
             updateAuthStateUI(mockUser);
             regFeedback.innerHTML = '<span style="color: #00E676;">Account created successfully!</span>';
             setTimeout(closeAuthModal, 800);
@@ -1104,6 +1107,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Fallback session mode
         const mockUser = { displayName: username, email: email, uid: 'user-' + Date.now() };
         localStorage.setItem('scw_local_user', JSON.stringify(mockUser));
+        if (typeof saveToLocalProfilesDatabase === 'function') {
+          saveToLocalProfilesDatabase(username, email, 0, []);
+        }
         updateAuthStateUI(mockUser);
         regFeedback.innerHTML = '<span style="color: #00E676;">Account created!</span>';
         setTimeout(closeAuthModal, 800);
@@ -1137,6 +1143,35 @@ document.addEventListener('DOMContentLoaded', () => {
           if (isFallbackError) {
             const mockUser = { displayName: email.split('@')[0], email: email, uid: 'user-' + Date.now() };
             localStorage.setItem('scw_local_user', JSON.stringify(mockUser));
+            
+            // Check if there are existing coins/items in database to load
+            let existingCoins = 0;
+            let existingItems = [];
+            if (email.toLowerCase() === 'kyclawzcatnip@gmail.com' || email.toLowerCase() === 'catnip') {
+              existingCoins = 9999;
+              existingItems = ["golden-name", "purple-border", "crown-badge", "sound-pack"];
+            } else {
+              try {
+                const localDb = JSON.parse(localStorage.getItem('scw_local_profiles_database') || '[]');
+                const matched = localDb.find(u => u.email === email);
+                if (matched) {
+                  existingCoins = matched.coins || 0;
+                  existingItems = matched.cosmetics || [];
+                }
+              } catch(e) {}
+            }
+            
+            userCoins = existingCoins;
+            ownedItems = existingItems;
+            activeCosmetics = [...existingItems]; // auto-equip
+            updateCoinUI();
+            applyActiveCosmetics();
+            renderShopItems();
+            updateChestUI();
+            
+            if (typeof saveToLocalProfilesDatabase === 'function') {
+              saveToLocalProfilesDatabase(mockUser.displayName, email, userCoins, ownedItems);
+            }
             updateAuthStateUI(mockUser);
             loginFeedback.innerHTML = '<span style="color: #00E676;">Welcome back!</span>';
             setTimeout(closeAuthModal, 800);
@@ -1148,6 +1183,34 @@ document.addEventListener('DOMContentLoaded', () => {
         // Fallback session mode
         const mockUser = { displayName: email.split('@')[0], email: email, uid: 'user-' + Date.now() };
         localStorage.setItem('scw_local_user', JSON.stringify(mockUser));
+        
+        let existingCoins = 0;
+        let existingItems = [];
+        if (email.toLowerCase() === 'kyclawzcatnip@gmail.com' || email.toLowerCase() === 'catnip') {
+          existingCoins = 9999;
+          existingItems = ["golden-name", "purple-border", "crown-badge", "sound-pack"];
+        } else {
+          try {
+            const localDb = JSON.parse(localStorage.getItem('scw_local_profiles_database') || '[]');
+            const matched = localDb.find(u => u.email === email);
+            if (matched) {
+              existingCoins = matched.coins || 0;
+              existingItems = matched.cosmetics || [];
+            }
+          } catch(e) {}
+        }
+        
+        userCoins = existingCoins;
+        ownedItems = existingItems;
+        activeCosmetics = [...existingItems];
+        updateCoinUI();
+        applyActiveCosmetics();
+        renderShopItems();
+        updateChestUI();
+        
+        if (typeof saveToLocalProfilesDatabase === 'function') {
+          saveToLocalProfilesDatabase(mockUser.displayName, email, userCoins, ownedItems);
+        }
         updateAuthStateUI(mockUser);
         loginFeedback.innerHTML = '<span style="color: #00E676;">Signed in!</span>';
         setTimeout(closeAuthModal, 800);
@@ -1306,6 +1369,32 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 1200);
   }
 
+  // Helper to save offline profiles to local database
+  function saveToLocalProfilesDatabase(username, email, coins = 0, cosmetics = []) {
+    let localDb = [];
+    try {
+      localDb = JSON.parse(localStorage.getItem('scw_local_profiles_database') || '[]');
+    } catch(e) {}
+    
+    const existingIdx = localDb.findIndex(u => u.email === email);
+    const profile = {
+      username: username,
+      email: email,
+      coins: coins,
+      cosmetics: cosmetics,
+      status: "Offline"
+    };
+
+    if (existingIdx >= 0) {
+      localDb[existingIdx].username = username;
+      localDb[existingIdx].coins = coins;
+      localDb[existingIdx].cosmetics = cosmetics;
+    } else {
+      localDb.push(profile);
+    }
+    localStorage.setItem('scw_local_profiles_database', JSON.stringify(localDb));
+  }
+
   // Save current state to local storage
   function saveCoinsToLocalStorage() {
     try {
@@ -1313,6 +1402,12 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem('scw_owned_items', JSON.stringify(ownedItems));
       localStorage.setItem('scw_active_cosmetics', JSON.stringify(activeCosmetics));
       localStorage.setItem('scw_last_claim_timestamp', lastClaimTimestamp.toString());
+
+      // Sync active session user to local database directory
+      const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
+      if (localUser) {
+        saveToLocalProfilesDatabase(localUser.displayName || "Local Fallback User", localUser.email, userCoins, ownedItems);
+      }
     } catch (e) {
       console.error("Local storage error saving coins:", e);
     }
