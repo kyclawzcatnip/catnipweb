@@ -1702,13 +1702,7 @@ document.addEventListener('DOMContentLoaded', () => {
       status: isDevSession ? "Staff / Online (Dev)" : "Staff / Offline"
     });
 
-    userProfiles.push({
-      username: "speedrun_tester",
-      email: "tester@catnipstudios.com",
-      coins: 380,
-      cosmetics: ["sound-pack"],
-      status: "Offline"
-    });
+
 
     // 2. Fetch current local storage user or display guest profile progress
     if (localUser) {
