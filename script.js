@@ -1688,13 +1688,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // We build a collection of active accounts to show
     let userProfiles = [];
 
+    // Fetch current local storage user profile
+    const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
+    const isDevSession = localUser && (localUser.email.toLowerCase() === 'kyclawzcatnip@gmail.com' || localUser.email.toLowerCase() === 'catnip');
+
     // 1. Add static mock accounts for flavor
     userProfiles.push({
       username: "catnip (Dev)",
       email: "kyclawzcatnip@gmail.com",
       coins: 9999,
       cosmetics: ["golden-name", "purple-border", "crown-badge", "sound-pack"],
-      status: "Staff / Offline"
+      status: isDevSession ? "Staff / Online (Dev)" : "Staff / Offline"
     });
 
     userProfiles.push({
@@ -1706,15 +1710,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // 2. Fetch current local storage user or display guest profile progress
-    const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
     if (localUser) {
-      userProfiles.push({
-        username: localUser.displayName || "Local Fallback User",
-        email: localUser.email || "local@localStorage",
-        coins: userCoins,
-        cosmetics: ownedItems,
-        status: "Active Session (Local)"
-      });
+      if (!isDevSession) {
+        userProfiles.push({
+          username: localUser.displayName || "Local Fallback User",
+          email: localUser.email || "local@localStorage",
+          coins: userCoins,
+          cosmetics: ownedItems,
+          status: "Active Session (Local)"
+        });
+      }
     } else {
       userProfiles.push({
         username: "Guest Profile (You)",
