@@ -1898,56 +1898,100 @@ document.addEventListener('DOMContentLoaded', () => {
   let isMusicPlaying = false;
   let currentChordIndex = 0;
 
-  // Chord progression: Cmaj9 - Fmaj9 - Am9 - G6/9 (soothing, warm pads)
-  const chords = [
-    [130.81, 329.63, 392.00, 493.88, 587.33], // C3, E4, G4, B4, D5 (Cmaj9)
-    [87.31, 440.00, 523.25, 659.25, 783.99],   // F2, A4, C5, E5, G5 (Fmaj9)
-    [110.00, 261.63, 329.63, 392.00, 493.88], // A2, C4, E4, G4, B4 (Am9)
-    [98.00, 246.94, 293.66, 329.63, 440.00]   // G2, B3, D4, E4, A4 (G6/9)
+  // Soothing Minecraft C418-style piano melody phrases (slow, sparse, emotional)
+  const melodyPhrases = [
+    [
+      { note: 329.63, delay: 0.0 },  // E4
+      { note: 392.00, delay: 1.6 },  // G4
+      { note: 493.88, delay: 3.2 },  // B4
+      { note: 587.33, delay: 4.8 }   // D5 (Cmaj9 arpeggio)
+    ],
+    [
+      { note: 349.23, delay: 0.0 },  // F4
+      { note: 440.00, delay: 1.6 },  // A4
+      { note: 523.25, delay: 3.2 },  // C5
+      { note: 659.25, delay: 4.8 }   // E5 (Fmaj9 arpeggio)
+    ],
+    [
+      { note: 293.66, delay: 0.0 },  // D4
+      { note: 392.00, delay: 1.6 },  // G4
+      { note: 440.00, delay: 3.2 },  // A4
+      { note: 493.88, delay: 4.8 }   // B4 (G6/9 arpeggio)
+    ]
   ];
 
-  function playSoftAmbientChord() {
+  // Synthesize a warm, resonant acoustic piano key strike using physical harmonic modeling
+  function playPianoNote(freq, noteStart) {
+    if (!musicAudioCtx) return;
+    
+    // Fundamental + 2 higher harmonics for natural, bright piano spectrum
+    const harmonics = [
+      { ratio: 1, gain: 0.12, type: 'sine', detune: 3 },
+      { ratio: 2, gain: 0.04, type: 'triangle', detune: -3 },
+      { ratio: 3, gain: 0.015, type: 'sine', detune: 5 }
+    ];
+
+    harmonics.forEach((h) => {
+      const osc = musicAudioCtx.createOscillator();
+      const gainNode = musicAudioCtx.createGain();
+      
+      osc.type = h.type;
+      osc.frequency.setValueAtTime(freq * h.ratio, noteStart);
+      osc.detune.setValueAtTime(h.detune, noteStart);
+      
+      osc.connect(gainNode);
+      gainNode.connect(musicAudioCtx.destination);
+      
+      // ADSR envelope: extremely sharp hammer strike attack + exponential decay/release
+      const attack = 0.008; // immediate strike
+      const decay = 0.45 / h.ratio; // higher harmonics fade out faster
+      const release = 4.2; 
+      
+      gainNode.gain.setValueAtTime(0, noteStart);
+      gainNode.gain.linearRampToValueAtTime(h.gain, noteStart + attack);
+      gainNode.gain.exponentialRampToValueAtTime(h.gain * 0.35, noteStart + attack + decay);
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, noteStart + attack + decay + release);
+      
+      osc.start(noteStart);
+      osc.stop(noteStart + attack + decay + release + 0.1);
+    });
+  }
+
+  function playSoftAmbientPhrase() {
     if (!musicAudioCtx || musicAudioCtx.state === 'suspended') return;
     try {
       const now = musicAudioCtx.currentTime;
-      // High-quality lowpass filter to emulate warm Rhodes piano/analog pad resonance
-      const filter = musicAudioCtx.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(650, now);
-      filter.Q.setValueAtTime(1.0, now);
-      filter.connect(musicAudioCtx.destination);
+      
+      // 1. Play deep, warm grounding bass note (like a long piano damper resonance)
+      const bassNotes = [65.41, 87.31, 73.42]; // C2, F2, D2
+      const bassFreq = bassNotes[currentChordIndex];
+      
+      const bassOsc = musicAudioCtx.createOscillator();
+      const bassGain = musicAudioCtx.createGain();
+      
+      bassOsc.type = 'sine';
+      bassOsc.frequency.setValueAtTime(bassFreq, now);
+      
+      bassOsc.connect(bassGain);
+      bassGain.connect(musicAudioCtx.destination);
+      
+      bassGain.gain.setValueAtTime(0, now);
+      bassGain.gain.linearRampToValueAtTime(0.04, now + 1.2); // swell in
+      bassGain.gain.exponentialRampToValueAtTime(0.0001, now + 7.5);
+      
+      bassOsc.start(now);
+      bassOsc.stop(now + 7.7);
 
-      const notes = chords[currentChordIndex];
-      // Stagger notes to build a gentle arpeggiated piano resonance wave
-      notes.forEach((freq, idx) => {
-        const osc = musicAudioCtx.createOscillator();
-        const gainNode = musicAudioCtx.createGain();
-        
-        // Alternate sine & triangle waves for complex, soft timbre
-        osc.type = Math.random() > 0.5 ? 'sine' : 'triangle';
-        osc.frequency.setValueAtTime(freq, now + idx * 0.35);
-
-        osc.connect(gainNode);
-        gainNode.connect(filter);
-
-        const noteStart = now + idx * 0.35;
-        const attack = 2.8; // warm fading entry
-        const sustain = 3.5; 
-        const release = 7.0; // long, cozy echo decay
-
-        gainNode.gain.setValueAtTime(0, now);
-        gainNode.gain.linearRampToValueAtTime(0.02, noteStart + attack); // whisper soft volume
-        gainNode.gain.setValueAtTime(0.02, noteStart + attack + sustain);
-        gainNode.gain.exponentialRampToValueAtTime(0.0001, noteStart + attack + sustain + release);
-
-        osc.start(noteStart);
-        osc.stop(noteStart + attack + sustain + release + 0.1);
+      // 2. Play acoustic arpeggiated piano melody notes staggered in time
+      const phrase = melodyPhrases[currentChordIndex];
+      phrase.forEach(p => {
+        playPianoNote(p.note, now + p.delay);
       });
 
-      // Advance chord loop index
-      currentChordIndex = (currentChordIndex + 1) % chords.length;
+      // Advance phrase index
+      currentChordIndex = (currentChordIndex + 1) % melodyPhrases.length;
     } catch(e) {
-      console.warn("Ambient music chord synthesizer block:", e);
+      console.warn("Piano music arpeggiation error:", e);
     }
   }
 
@@ -1960,9 +2004,9 @@ document.addEventListener('DOMContentLoaded', () => {
         musicAudioCtx.resume();
       }
       
-      // Trigger first note chord immediately, then loop every 14 seconds
-      playSoftAmbientChord();
-      musicIntervalId = setInterval(playSoftAmbientChord, 14000);
+      // Play first phrase immediately, then cycle every 14 seconds
+      playSoftAmbientPhrase();
+      musicIntervalId = setInterval(playSoftAmbientPhrase, 14000);
       isMusicPlaying = true;
       updateMusicButtonUI();
     } catch(e) {
