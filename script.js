@@ -826,6 +826,25 @@ document.addEventListener('DOMContentLoaded', () => {
   const leaderboardTbody = document.getElementById('leaderboard-tbody');
   const leaderboardEmptyState = document.getElementById('leaderboard-empty-state');
 
+  // Parse time strings (e.g., "MM:SS.CC") into seconds for accurate comparison
+  function timeStringToSeconds(timeStr) {
+    if (!timeStr) return 999999;
+    const cleanStr = timeStr.toString().trim();
+    const parts = cleanStr.split(':');
+    if (parts.length === 2) {
+      const mins = parseFloat(parts[0]) || 0;
+      const secs = parseFloat(parts[1]) || 0;
+      return mins * 60 + secs;
+    } else if (parts.length === 3) {
+      const hrs = parseFloat(parts[0]) || 0;
+      const mins = parseFloat(parts[1]) || 0;
+      const secs = parseFloat(parts[2]) || 0;
+      return hrs * 3600 + mins * 60 + secs;
+    } else {
+      return parseFloat(cleanStr) || 0;
+    }
+  }
+
   function renderLeaderboardScores(scores) {
     if (!scores || scores.length === 0) {
       if (leaderboardTable) leaderboardTable.style.display = 'none';
@@ -834,8 +853,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (leaderboardTable) leaderboardTable.style.display = 'table';
       if (leaderboardEmptyState) leaderboardEmptyState.style.display = 'none';
 
-      // Sort speedrun scores: fastest time string format (e.g. 01:24.03) first
-      scores.sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+      // Sort speedrun scores: fastest time first numerically
+      scores.sort((a, b) => timeStringToSeconds(a.time) - timeStringToSeconds(b.time));
 
       if (leaderboardTbody) {
         leaderboardTbody.innerHTML = '';
@@ -868,11 +887,34 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!hasCatnipRun) {
       if (!Array.isArray(localScores)) localScores = [];
       localScores.push(defaultRun);
-      try {
-        localStorage.setItem('scw_local_leaderboard', JSON.stringify(localScores));
-      } catch (e) {}
     }
-    renderLeaderboardScores(localScores);
+
+    // Filter duplicates locally: keep only the fastest run per unique username
+    const uniqueScores = {};
+    localScores.forEach(score => {
+      const name = (score.name || '').trim();
+      if (!name) return;
+      
+      const existing = uniqueScores[name];
+      if (!existing) {
+        uniqueScores[name] = score;
+      } else {
+        const currentSecs = timeStringToSeconds(score.time);
+        const existingSecs = timeStringToSeconds(existing.time);
+        if (currentSecs < existingSecs) {
+          uniqueScores[name] = score;
+        }
+      }
+    });
+
+    const cleanedScores = Object.values(uniqueScores);
+
+    // Save cleaned deduplicated list back to LocalStorage
+    try {
+      localStorage.setItem('scw_local_leaderboard', JSON.stringify(cleanedScores));
+    } catch (e) {}
+
+    renderLeaderboardScores(cleanedScores);
 
     // Award +20 coins for each new local speedrun run completed
     let lastProcessedCount = parseInt(localStorage.getItem('scw_processed_runs_count') || '1', 10);
@@ -898,8 +940,27 @@ document.addEventListener('DOMContentLoaded', () => {
           snapshot.forEach((doc) => {
             cloudScores.push(doc.data());
           });
-          if (cloudScores.length > 0) {
-            renderLeaderboardScores(cloudScores);
+          
+          // Filter duplicates: keep only the fastest run per unique username
+          const uniqueCloud = {};
+          cloudScores.forEach(score => {
+            const name = (score.name || '').trim();
+            if (!name) return;
+            const existing = uniqueCloud[name];
+            if (!existing) {
+              uniqueCloud[name] = score;
+            } else {
+              const currentSecs = timeStringToSeconds(score.time);
+              const existingSecs = timeStringToSeconds(existing.time);
+              if (currentSecs < existingSecs) {
+                uniqueCloud[name] = score;
+              }
+            }
+          });
+          
+          const cleanedCloud = Object.values(uniqueCloud);
+          if (cleanedCloud.length > 0) {
+            renderLeaderboardScores(cleanedCloud);
           }
         }, (err) => {
           console.warn("Firestore leaderboard offline / standard mode:", err);
