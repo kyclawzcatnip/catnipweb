@@ -1894,47 +1894,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ==================== AMBIENT MUSIC SYNTHESIZER (MINECRAFT C418 STYLE) ====================
   let musicAudioCtx = null;
+  let musicDelayNode = null;
+  let musicFeedbackNode = null;
   let musicIntervalId = null;
   let isMusicPlaying = false;
   let currentChordIndex = 0;
 
-  // Soothing Minecraft C418-style piano phrases (distinct patterns: ascending, descending, wandering, dyad chord, resolution)
+  // Custom composed phrases inspired by the warm chord cycles of C418's Sweden and Wet Hands (Key: G Major / E minor)
   const melodyPhrases = [
-    // Phrase 0: Soothing upward arpeggio (Cmaj9)
+    // Phrase 0: Sweden-style G Major opener (gentle stepping notes)
+    [
+      { note: 246.94, delay: 0.0 },  // B3
+      { note: 293.66, delay: 1.2 },  // D4
+      { note: 392.00, delay: 2.4 },  // G4
+      { note: 293.66, delay: 3.6 }   // D4
+    ],
+    // Phrase 1: Wet Hands-style C major lift (flowing arpeggiations)
     [
       { note: 329.63, delay: 0.0 },  // E4
-      { note: 392.00, delay: 1.5 },  // G4
-      { note: 493.88, delay: 3.0 },  // B4
-      { note: 587.33, delay: 4.2 }   // D5
+      { note: 392.00, delay: 0.8 },  // G4
+      { note: 493.88, delay: 1.6 },  // B4
+      { note: 523.25, delay: 2.4 },  // C5
+      { note: 493.88, delay: 3.6 }   // B4
     ],
-    // Phrase 1: Soft descending melody (Fmaj9)
+    // Phrase 2: Melancholic D major transition
     [
-      { note: 659.25, delay: 0.0 },  // E5
-      { note: 523.25, delay: 1.2 },  // C5
+      { note: 293.66, delay: 0.0 },  // D4
+      { note: 369.99, delay: 1.2 },  // F#4
       { note: 440.00, delay: 2.4 },  // A4
-      { note: 349.23, delay: 3.8 }   // F4
+      { note: 369.99, delay: 3.6 }   // F#4
     ],
-    // Phrase 2: Wandering Am9 cadence
-    [
-      { note: 440.00, delay: 0.0 },  // A4
-      { note: 493.88, delay: 1.0 },  // B4
-      { note: 523.25, delay: 2.0 },  // C5
-      { note: 392.00, delay: 3.5 },  // G4
-      { note: 329.63, delay: 5.0 }   // E4
-    ],
-    // Phrase 3: Peaceful double-strike dyad (G6)
+    // Phrase 3: Sweden-style E minor resolution
     [
       { note: 392.00, delay: 0.0 },  // G4
-      { note: 587.33, delay: 0.0 },  // D5 (strikes together!)
-      { note: 493.88, delay: 1.8 },  // B4
-      { note: 440.00, delay: 3.2 }   // A4
-    ],
-    // Phrase 4: Warm resolution (Cmaj7)
-    [
-      { note: 261.63, delay: 0.0 },  // C4
-      { note: 329.63, delay: 1.5 },  // E4
-      { note: 392.00, delay: 3.0 },  // G4
-      { note: 493.88, delay: 4.5 }   // B4
+      { note: 493.88, delay: 1.2 },  // B4
+      { note: 659.25, delay: 2.4 },  // E5
+      { note: 493.88, delay: 3.6 }   // B4
     ]
   ];
 
@@ -1944,9 +1939,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Fundamental + 2 higher harmonics for natural, bright piano spectrum
     const harmonics = [
-      { ratio: 1, gain: 0.12, type: 'sine', detune: 3 },
-      { ratio: 2, gain: 0.04, type: 'triangle', detune: -3 },
-      { ratio: 3, gain: 0.015, type: 'sine', detune: 5 }
+      { ratio: 1, gain: 0.10, type: 'sine', detune: 3 },
+      { ratio: 2, gain: 0.035, type: 'triangle', detune: -3 },
+      { ratio: 3, gain: 0.012, type: 'sine', detune: 5 }
     ];
 
     harmonics.forEach((h) => {
@@ -1958,7 +1953,12 @@ document.addEventListener('DOMContentLoaded', () => {
       osc.detune.setValueAtTime(h.detune, noteStart);
       
       osc.connect(gainNode);
+      
+      // Connect to speakers (dry) & to the global feedback delay loop (wet)
       gainNode.connect(musicAudioCtx.destination);
+      if (musicDelayNode) {
+        gainNode.connect(musicDelayNode);
+      }
       
       // ADSR envelope: extremely sharp hammer strike attack + exponential decay/release
       const attack = 0.008; // immediate strike
@@ -1980,8 +1980,8 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const now = musicAudioCtx.currentTime;
       
-      // 1. Play deep, warm grounding bass note (like a long piano damper resonance)
-      const bassNotes = [130.81, 87.31, 110.00, 98.00, 130.81]; // C3, F2, A2, G2, C3
+      // 1. Play deep, warm grounding bass note (damper resonance)
+      const bassNotes = [98.00, 130.81, 146.83, 164.81]; // G2, C3, D3, E3
       const bassFreq = bassNotes[currentChordIndex % bassNotes.length];
       
       const bassOsc = musicAudioCtx.createOscillator();
@@ -1994,7 +1994,7 @@ document.addEventListener('DOMContentLoaded', () => {
       bassGain.connect(musicAudioCtx.destination);
       
       bassGain.gain.setValueAtTime(0, now);
-      bassGain.gain.linearRampToValueAtTime(0.04, now + 1.2); // swell in
+      bassGain.gain.linearRampToValueAtTime(0.03, now + 1.2); // swell in
       bassGain.gain.exponentialRampToValueAtTime(0.0001, now + 7.5);
       
       bassOsc.start(now);
@@ -2017,6 +2017,20 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       if (!musicAudioCtx) {
         musicAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // Create C418-style cozy feedback tape delay effect
+        musicDelayNode = musicAudioCtx.createDelay(1.5);
+        musicFeedbackNode = musicAudioCtx.createGain();
+        
+        musicDelayNode.delayTime.value = 0.55; // 550ms delay time (slow, dreamy echo)
+        musicFeedbackNode.gain.value = 0.38;   // 38% feedback echo strength
+        
+        // Connect feedback loop: Delay -> Feedback -> Delay
+        musicDelayNode.connect(musicFeedbackNode);
+        musicFeedbackNode.connect(musicDelayNode);
+        
+        // Connect delay feedback to speakers
+        musicFeedbackNode.connect(musicAudioCtx.destination);
       }
       if (musicAudioCtx.state === 'suspended') {
         musicAudioCtx.resume();
@@ -2025,9 +2039,9 @@ document.addEventListener('DOMContentLoaded', () => {
       // Randomize starting phrase so it sounds fresh on every toggle trigger
       currentChordIndex = Math.floor(Math.random() * melodyPhrases.length);
       
-      // Play first phrase immediately, then cycle every 10 seconds (shorter pauses)
+      // Play first phrase immediately, then cycle every 11 seconds
       playSoftAmbientPhrase();
-      musicIntervalId = setInterval(playSoftAmbientPhrase, 10000);
+      musicIntervalId = setInterval(playSoftAmbientPhrase, 11000);
       isMusicPlaying = true;
       updateMusicButtonUI();
     } catch(e) {
