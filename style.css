@@ -2443,8 +2443,11 @@ p {
 /* Neon Purple Avatar Border */
 .purple-border-active {
   border: 3px solid transparent !important;
-  background: linear-gradient(var(--color-surface-solid), var(--color-surface-solid)) padding-box,
-              linear-gradient(135deg, #7C4DFF 0%, #FF1744 50%, #7C4DFF 100%) border-box !important;
+  background-image: linear-gradient(var(--color-surface-solid), var(--color-surface-solid)), 
+                    linear-gradient(135deg, #7C4DFF 0%, #FF1744 50%, #7C4DFF 100%) !important;
+  background-origin: border-box !important;
+  -webkit-background-clip: padding-box, border-box !important;
+  background-clip: padding-box, border-box !important;
   box-shadow: 0 0 15px rgba(124, 77, 255, 0.5) !important;
   animation: avatarBorderPulse 2s infinite alternate !important;
 }
