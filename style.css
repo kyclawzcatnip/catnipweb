@@ -2443,6 +2443,7 @@ p {
 /* Neon Purple Avatar Border */
 .purple-border-active {
   border: 3px solid transparent !important;
+  background-color: transparent !important; /* Prevents background-color from painting over border-box gradient */
   background-image: linear-gradient(var(--color-surface-solid), var(--color-surface-solid)), 
                     linear-gradient(135deg, #7C4DFF 0%, #FF1744 50%, #7C4DFF 100%) !important;
   background-origin: border-box !important;
