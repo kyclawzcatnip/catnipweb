@@ -2476,3 +2476,32 @@ p {
   display: inline-block;
 }
 
+/* Ambient Music Button */
+.btn-music-toggle {
+  background: rgba(124, 77, 255, 0.08);
+  border: 1px solid rgba(124, 77, 255, 0.25);
+  color: var(--color-text-primary);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  margin-right: 8px;
+}
+.btn-music-toggle:hover {
+  background: rgba(124, 77, 255, 0.18);
+  border-color: #7C4DFF;
+  transform: translateY(-1px);
+}
+.btn-music-toggle.music-active {
+  background: rgba(0, 230, 118, 0.12);
+  border-color: #00E676;
+  color: #00E676;
+  box-shadow: 0 0 8px rgba(0, 230, 118, 0.15);
+}
+

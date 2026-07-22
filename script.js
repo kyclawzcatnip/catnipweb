@@ -1892,6 +1892,122 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // ==================== AMBIENT MUSIC SYNTHESIZER (MINECRAFT C418 STYLE) ====================
+  let musicAudioCtx = null;
+  let musicIntervalId = null;
+  let isMusicPlaying = false;
+  let currentChordIndex = 0;
+
+  // Chord progression: Cmaj9 - Fmaj9 - Am9 - G6/9 (soothing, warm pads)
+  const chords = [
+    [130.81, 329.63, 392.00, 493.88, 587.33], // C3, E4, G4, B4, D5 (Cmaj9)
+    [87.31, 440.00, 523.25, 659.25, 783.99],   // F2, A4, C5, E5, G5 (Fmaj9)
+    [110.00, 261.63, 329.63, 392.00, 493.88], // A2, C4, E4, G4, B4 (Am9)
+    [98.00, 246.94, 293.66, 329.63, 440.00]   // G2, B3, D4, E4, A4 (G6/9)
+  ];
+
+  function playSoftAmbientChord() {
+    if (!musicAudioCtx || musicAudioCtx.state === 'suspended') return;
+    try {
+      const now = musicAudioCtx.currentTime;
+      // High-quality lowpass filter to emulate warm Rhodes piano/analog pad resonance
+      const filter = musicAudioCtx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(650, now);
+      filter.Q.setValueAtTime(1.0, now);
+      filter.connect(musicAudioCtx.destination);
+
+      const notes = chords[currentChordIndex];
+      // Stagger notes to build a gentle arpeggiated piano resonance wave
+      notes.forEach((freq, idx) => {
+        const osc = musicAudioCtx.createOscillator();
+        const gainNode = musicAudioCtx.createGain();
+        
+        // Alternate sine & triangle waves for complex, soft timbre
+        osc.type = Math.random() > 0.5 ? 'sine' : 'triangle';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.35);
+
+        osc.connect(gainNode);
+        gainNode.connect(filter);
+
+        const noteStart = now + idx * 0.35;
+        const attack = 2.8; // warm fading entry
+        const sustain = 3.5; 
+        const release = 7.0; // long, cozy echo decay
+
+        gainNode.gain.setValueAtTime(0, now);
+        gainNode.gain.linearRampToValueAtTime(0.02, noteStart + attack); // whisper soft volume
+        gainNode.gain.setValueAtTime(0.02, noteStart + attack + sustain);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, noteStart + attack + sustain + release);
+
+        osc.start(noteStart);
+        osc.stop(noteStart + attack + sustain + release + 0.1);
+      });
+
+      // Advance chord loop index
+      currentChordIndex = (currentChordIndex + 1) % chords.length;
+    } catch(e) {
+      console.warn("Ambient music chord synthesizer block:", e);
+    }
+  }
+
+  function startAmbientMusic() {
+    try {
+      if (!musicAudioCtx) {
+        musicAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (musicAudioCtx.state === 'suspended') {
+        musicAudioCtx.resume();
+      }
+      
+      // Trigger first note chord immediately, then loop every 14 seconds
+      playSoftAmbientChord();
+      musicIntervalId = setInterval(playSoftAmbientChord, 14000);
+      isMusicPlaying = true;
+      updateMusicButtonUI();
+    } catch(e) {
+      console.warn("Failed to initiate ambient audio context:", e);
+    }
+  }
+
+  function stopAmbientMusic() {
+    if (musicIntervalId) {
+      clearInterval(musicIntervalId);
+      musicIntervalId = null;
+    }
+    isMusicPlaying = false;
+    updateMusicButtonUI();
+  }
+
+  function toggleAmbientMusic() {
+    if (isMusicPlaying) {
+      stopAmbientMusic();
+    } else {
+      startAmbientMusic();
+    }
+  }
+
+  function updateMusicButtonUI() {
+    const btn = document.getElementById('ambient-music-btn');
+    if (!btn) return;
+    const icon = btn.querySelector('.music-icon');
+    const text = btn.querySelector('.music-text');
+    if (isMusicPlaying) {
+      if (icon) icon.textContent = '🔊';
+      if (text) text.textContent = 'Music: ON';
+      btn.classList.add('music-active');
+    } else {
+      if (icon) icon.textContent = '🔇';
+      if (text) text.textContent = 'Music: OFF';
+      btn.classList.remove('music-active');
+    }
+  }
+
+  const musicBtn = document.getElementById('ambient-music-btn');
+  if (musicBtn) {
+    musicBtn.addEventListener('click', toggleAmbientMusic);
+  }
+
   renderStressJournal();
 
 });
