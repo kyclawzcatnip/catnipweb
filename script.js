@@ -367,6 +367,9 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         window.location.hash = target;
         navigateTo(target);
+        if (typeof playRetroSound === 'function') {
+          playRetroSound('click');
+        }
       }
     });
   });
@@ -374,7 +377,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Monitor hash changes
   window.addEventListener('hashchange', () => {
     const hash = window.location.hash.substring(1) || 'home';
-    const validSections = ['home', 'games', 'wiki', 'news', 'stress', 'community', 'secrets'];
+    const validSections = ['home', 'games', 'wiki', 'news', 'stress', 'shop', 'community', 'secrets'];
     if (validSections.includes(hash)) {
       navigateTo(hash);
     }
@@ -387,6 +390,9 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       const target = trigger.getAttribute('data-target');
       window.location.hash = target;
+      if (typeof playRetroSound === 'function') {
+        playRetroSound('click');
+      }
     }
   });
 
@@ -750,6 +756,24 @@ document.addEventListener('DOMContentLoaded', () => {
       // Display modal
       wikiReaderModal.style.display = 'flex';
       document.body.style.overflow = 'hidden'; // Stop background scroll
+
+      // Award 5 Catnip Coins for reading this article for the first time
+      let readArticles = [];
+      try {
+        readArticles = JSON.parse(localStorage.getItem('scw_read_articles') || '[]');
+      } catch (e) {}
+      if (!readArticles.includes(articleKey)) {
+        readArticles.push(articleKey);
+        try {
+          localStorage.setItem('scw_read_articles', JSON.stringify(readArticles));
+        } catch (e) {}
+        
+        setTimeout(() => {
+          if (typeof addCoins === 'function') {
+            addCoins(5, targetEl);
+          }
+        }, 150);
+      }
     }
   });
 
@@ -846,6 +870,21 @@ document.addEventListener('DOMContentLoaded', () => {
       } catch (e) {}
     }
     renderLeaderboardScores(localScores);
+
+    // Award +20 coins for each new local speedrun run completed
+    let lastProcessedCount = parseInt(localStorage.getItem('scw_processed_runs_count') || '1', 10);
+    if (localScores.length > lastProcessedCount) {
+      const newRuns = localScores.length - lastProcessedCount;
+      localStorage.setItem('scw_processed_runs_count', localScores.length.toString());
+      setTimeout(() => {
+        if (typeof addCoins === 'function') {
+          addCoins(newRuns * 20, document.querySelector('.leaderboard-card'));
+        }
+      }, 500);
+    } else if (localScores.length < lastProcessedCount) {
+      // Synchronize tracker if local scores were reset or altered
+      localStorage.setItem('scw_processed_runs_count', localScores.length.toString());
+    }
 
     // Fetch permanent cloud database entries if Firebase is initialized
     if (typeof firebase !== 'undefined' && firebase.firestore) {
@@ -977,12 +1016,43 @@ document.addEventListener('DOMContentLoaded', () => {
       if (authLoggedOutView) authLoggedOutView.style.display = 'block';
       if (authLoggedInView) authLoggedInView.style.display = 'none';
     }
+    if (typeof applyActiveCosmetics === 'function') {
+      applyActiveCosmetics();
+    }
   }
 
   // Listen to Firebase Auth state
   if (firebaseAuth) {
     firebaseAuth.onAuthStateChanged((user) => {
       updateAuthStateUI(user);
+      if (user) {
+        // Sync coin balance and cosmetics from Firestore
+        if (typeof firebase !== 'undefined' && firebase.firestore) {
+          const db = firebase.firestore();
+          db.collection('users').doc(user.uid).get().then(doc => {
+            if (doc.exists) {
+              const data = doc.data();
+              if (typeof data.coins === 'number') userCoins = data.coins;
+              if (Array.isArray(data.ownedItems)) ownedItems = data.ownedItems;
+              if (Array.isArray(data.activeCosmetics)) activeCosmetics = data.activeCosmetics;
+              if (typeof data.lastClaimTimestamp === 'number') lastClaimTimestamp = data.lastClaimTimestamp;
+              
+              updateCoinUI();
+              applyActiveCosmetics();
+              renderShopItems();
+              updateChestUI();
+            } else {
+              // Create user doc in Firestore
+              syncCoinsToFirestore();
+            }
+          }).catch(err => {
+            console.warn("Error getting user coins doc:", err);
+          });
+        }
+      } else {
+        // Guest user: restore local storage settings
+        loadCoinsFromLocalStorage();
+      }
     });
   }
 
@@ -1120,6 +1190,361 @@ document.addEventListener('DOMContentLoaded', () => {
       alert("🎉 Reflection note permanently published to your Developer Secrets journal!");
     });
   }
+
+  // ==================== CATNIP COINS & SHOP ENGINE ====================
+  let userCoins = 0;
+  let ownedItems = [];
+  let activeCosmetics = [];
+  let lastClaimTimestamp = 0;
+
+  // Sound Synth Utility (Dynamic Web Audio API)
+  function playRetroSound(type) {
+    if (!ownedItems.includes('sound-pack') || !activeCosmetics.includes('sound-pack')) return;
+    try {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      
+      const now = audioCtx.currentTime;
+      if (type === 'coin') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(987.77, now); // B5
+        osc.frequency.setValueAtTime(1318.51, now + 0.08); // E6
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.35);
+        osc.start(now);
+        osc.stop(now + 0.35);
+      } else if (type === 'click') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(140, now);
+        osc.frequency.exponentialRampToValueAtTime(40, now + 0.07);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.07);
+        osc.start(now);
+        osc.stop(now + 0.07);
+      } else if (type === 'purchase') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(350, now);
+        osc.frequency.exponentialRampToValueAtTime(1100, now + 0.22);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.22);
+        osc.start(now);
+        osc.stop(now + 0.22);
+      } else if (type === 'chest') {
+        osc.type = 'square';
+        const notes = [261.63, 329.63, 392.00, 523.25]; // C4, E4, G4, C5
+        notes.forEach((freq, idx) => {
+          osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+        });
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
+        osc.start(now);
+        osc.stop(now + 0.4);
+      }
+    } catch(e) {
+      console.warn("AudioContext block:", e);
+    }
+  }
+
+  // Floating Coins Popup
+  function showFloatingCoins(amount, element) {
+    if (!element) return;
+    const rect = element.getBoundingClientRect();
+    const x = rect.left + rect.width / 2 + window.scrollX;
+    const y = rect.top + window.scrollY;
+
+    const popup = document.createElement('div');
+    popup.className = 'floating-coin-popup';
+    popup.innerHTML = `+${amount} <img src="coin.png" style="width: 20px; height: 20px;" />`;
+    popup.style.left = `${x}px`;
+    popup.style.top = `${y}px`;
+    document.body.appendChild(popup);
+
+    setTimeout(() => {
+      popup.remove();
+    }, 1200);
+  }
+
+  // Save current state to local storage
+  function saveCoinsToLocalStorage() {
+    try {
+      localStorage.setItem('scw_coins_balance', userCoins.toString());
+      localStorage.setItem('scw_owned_items', JSON.stringify(ownedItems));
+      localStorage.setItem('scw_active_cosmetics', JSON.stringify(activeCosmetics));
+      localStorage.setItem('scw_last_claim_timestamp', lastClaimTimestamp.toString());
+    } catch (e) {
+      console.error("Local storage error saving coins:", e);
+    }
+  }
+
+  // Load from local storage
+  function loadCoinsFromLocalStorage() {
+    try {
+      userCoins = parseInt(localStorage.getItem('scw_coins_balance') || '0', 10);
+      ownedItems = JSON.parse(localStorage.getItem('scw_owned_items') || '[]');
+      activeCosmetics = JSON.parse(localStorage.getItem('scw_active_cosmetics') || '[]');
+      lastClaimTimestamp = parseInt(localStorage.getItem('scw_last_claim_timestamp') || '0', 10);
+      updateCoinUI();
+      applyActiveCosmetics();
+      renderShopItems();
+      updateChestUI();
+    } catch (e) {
+      console.error("Local storage loading error:", e);
+    }
+  }
+
+  // Save / Sync to Firestore
+  function syncCoinsToFirestore() {
+    if (typeof firebase !== 'undefined' && firebase.auth && firebase.firestore) {
+      const user = firebase.auth().currentUser;
+      if (user) {
+        const db = firebase.firestore();
+        db.collection('users').doc(user.uid).set({
+          coins: userCoins,
+          ownedItems: ownedItems,
+          activeCosmetics: activeCosmetics,
+          lastClaimTimestamp: lastClaimTimestamp
+        }, { merge: true }).catch(err => {
+          console.warn("Firestore sync error:", err);
+        });
+      }
+    }
+  }
+
+  // Update navbar/dashboard coin displays
+  function updateCoinUI() {
+    const headerBal = document.getElementById('header-coin-balance');
+    const shopBal = document.getElementById('shop-coin-balance');
+    const coinHeader = document.getElementById('coin-header-display');
+
+    if (headerBal) headerBal.textContent = userCoins;
+    if (shopBal) shopBal.textContent = userCoins;
+
+    if (coinHeader) {
+      coinHeader.style.transform = 'scale(1.15)';
+      setTimeout(() => {
+        coinHeader.style.transform = '';
+      }, 200);
+    }
+  }
+
+  // Add Coins
+  function addCoins(amount, element) {
+    userCoins += amount;
+    updateCoinUI();
+    playRetroSound('coin');
+    if (element) {
+      showFloatingCoins(amount, element);
+    }
+    saveCoinsToLocalStorage();
+    syncCoinsToFirestore();
+  }
+
+  // Deduct Coins
+  function deductCoins(amount) {
+    if (userCoins >= amount) {
+      userCoins -= amount;
+      updateCoinUI();
+      saveCoinsToLocalStorage();
+      syncCoinsToFirestore();
+      return true;
+    }
+    return false;
+  }
+
+  // Apply purchased active cosmetics
+  function applyActiveCosmetics() {
+    const navLabel = document.getElementById('account-nav-label');
+    const profileName = document.getElementById('profile-display-name');
+    const profileAvatar = document.querySelector('.profile-avatar');
+    const shopPreviewName = document.getElementById('preview-gold-name');
+    const shopPreviewAvatar = document.getElementById('preview-avatar-circle');
+
+    // 1. Golden Name Glow
+    const isGoldName = activeCosmetics.includes('golden-name');
+    [navLabel, profileName, shopPreviewName].forEach(el => {
+      if (el) {
+        if (isGoldName) {
+          el.classList.add('gold-glow-active');
+        } else {
+          el.classList.remove('gold-glow-active');
+        }
+      }
+    });
+
+    // 2. Neon Purple Border
+    const isPurpleBorder = activeCosmetics.includes('purple-border');
+    [profileAvatar, shopPreviewAvatar].forEach(el => {
+      if (el) {
+        if (isPurpleBorder) {
+          el.classList.add('purple-border-active');
+        } else {
+          el.classList.remove('purple-border-active');
+        }
+      }
+    });
+
+    // 3. Crown Badge
+    const isCrownBadge = activeCosmetics.includes('crown-badge');
+    [navLabel, profileName].forEach(el => {
+      if (el) {
+        if (isCrownBadge) {
+          el.classList.add('crown-badge-active');
+        } else {
+          el.classList.remove('crown-badge-active');
+        }
+      }
+    });
+  }
+
+  // Check / Update Daily Chest UI and state
+  function updateChestUI() {
+    const btnClaim = document.getElementById('btn-claim-daily');
+    const chestEmoji = document.getElementById('chest-emoji');
+    const chestInst = document.getElementById('chest-instruction');
+    const chestClicker = document.getElementById('daily-chest-clicker');
+    if (!btnClaim) return;
+
+    const cooldown = 24 * 60 * 60 * 1000;
+    const now = Date.now();
+    const timePassed = now - lastClaimTimestamp;
+
+    if (timePassed < cooldown) {
+      // Cooldown active
+      const timeLeft = cooldown - timePassed;
+      const hoursLeft = Math.floor(timeLeft / (60 * 60 * 1000));
+      const minsLeft = Math.floor((timeLeft % (60 * 60 * 1000)) / (60 * 1000));
+      
+      btnClaim.textContent = `Claimed (${hoursLeft}h ${minsLeft}m left)`;
+      btnClaim.disabled = true;
+      btnClaim.style.opacity = '0.5';
+      if (chestEmoji) chestEmoji.textContent = '🔓';
+      if (chestInst) chestInst.textContent = "Your daily chest has been opened! Check back tomorrow for another daily claim.";
+      if (chestClicker) chestClicker.style.pointerEvents = 'none';
+    } else {
+      // Ready to claim
+      btnClaim.textContent = 'Claim Free Coins';
+      btnClaim.disabled = false;
+      btnClaim.style.opacity = '1';
+      if (chestEmoji) chestEmoji.textContent = '📦';
+      if (chestInst) chestInst.textContent = "Click the chest to claim your daily rewards! (Cooldown: 24 hours)";
+      if (chestClicker) chestClicker.style.pointerEvents = 'auto';
+    }
+  }
+
+  // Claim Daily Chest Handler
+  function claimDailyChest(element) {
+    const cooldown = 24 * 60 * 60 * 1000;
+    const now = Date.now();
+    if (now - lastClaimTimestamp >= cooldown) {
+      lastClaimTimestamp = now;
+      playRetroSound('chest');
+      addCoins(50, element);
+      
+      const chestEmoji = document.getElementById('chest-emoji');
+      if (chestEmoji) {
+        chestEmoji.textContent = '🔓';
+        chestEmoji.style.transform = 'scale(1.4) rotate(8deg)';
+        setTimeout(() => {
+          chestEmoji.style.transform = '';
+        }, 300);
+      }
+
+      updateChestUI();
+      alert("🎉 You successfully claimed your Daily Chest and received 50 Catnip Coins!");
+    }
+  }
+
+  // Render Shop Items state
+  function renderShopItems() {
+    const itemCards = document.querySelectorAll('.shop-item-card');
+    itemCards.forEach(card => {
+      const itemId = card.getAttribute('data-item-id');
+      const buyBtn = card.querySelector('.btn-buy-item');
+      if (!buyBtn) return;
+
+      const isOwned = ownedItems.includes(itemId);
+      const isActive = activeCosmetics.includes(itemId);
+
+      if (isOwned) {
+        if (isActive) {
+          buyBtn.textContent = 'Active / Equipped';
+          buyBtn.className = 'btn btn-secondary btn-sm btn-buy-item owned-active';
+        } else {
+          buyBtn.textContent = 'Equip Item';
+          buyBtn.className = 'btn btn-secondary btn-sm btn-buy-item owned-equip';
+        }
+      } else {
+        const cost = buyBtn.getAttribute('data-cost');
+        buyBtn.textContent = `Unlock (Cost: ${cost} 🪙)`;
+        buyBtn.className = 'btn btn-secondary btn-sm btn-buy-item';
+      }
+    });
+  }
+
+  // Handle Item Shop Clicks
+  function handleShopItemInteraction(itemId, cost, element) {
+    const isOwned = ownedItems.includes(itemId);
+    const isActive = activeCosmetics.includes(itemId);
+
+    if (isOwned) {
+      // Toggle equip state
+      playRetroSound('click');
+      if (isActive) {
+        activeCosmetics = activeCosmetics.filter(item => item !== itemId);
+      } else {
+        activeCosmetics.push(itemId);
+      }
+      saveCoinsToLocalStorage();
+      syncCoinsToFirestore();
+      applyActiveCosmetics();
+      renderShopItems();
+    } else {
+      // Attempt to buy
+      if (userCoins >= cost) {
+        if (deductCoins(cost)) {
+          ownedItems.push(itemId);
+          activeCosmetics.push(itemId); // Auto-equip on purchase
+          playRetroSound('purchase');
+          saveCoinsToLocalStorage();
+          syncCoinsToFirestore();
+          applyActiveCosmetics();
+          renderShopItems();
+          alert(`🎉 Congratulations! You have successfully unlocked the ${itemId.replace('-', ' ')} item!`);
+        }
+      } else {
+        alert("❌ Insufficient Catnip Coins! Explore the wiki or check back tomorrow for your daily claim to get more coins.");
+      }
+    }
+  }
+
+  // Attach Daily chest clickers
+  const chestClicker = document.getElementById('daily-chest-clicker');
+  const btnClaimChest = document.getElementById('btn-claim-daily');
+  if (chestClicker) {
+    chestClicker.addEventListener('click', () => claimDailyChest(chestClicker));
+  }
+  if (btnClaimChest) {
+    btnClaimChest.addEventListener('click', () => claimDailyChest(chestClicker));
+  }
+
+  // Attach Item shop buy button click listeners
+  document.addEventListener('click', (e) => {
+    const buyBtn = e.target.closest('.btn-buy-item');
+    if (buyBtn) {
+      const itemId = buyBtn.getAttribute('data-item-id');
+      const cost = parseInt(buyBtn.getAttribute('data-cost') || '0', 10);
+      handleShopItemInteraction(itemId, cost, buyBtn);
+    }
+  });
+
+  // Track Daily Chest Cooldown periodically
+  setInterval(updateChestUI, 30000); // refresh chest timer every 30s
+
+  // Initial load
+  loadCoinsFromLocalStorage();
 
   renderStressJournal();
 

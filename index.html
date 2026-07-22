@@ -42,6 +42,7 @@
         <a href="#wiki" class="nav-link" data-target="wiki">Wiki</a>
         <a href="#news" class="nav-link" data-target="news">News</a>
         <a href="#stress" class="nav-link" data-target="stress">Game Stress</a>
+        <a href="#shop" class="nav-link" data-target="shop">Shop</a>
         <a href="#community" class="nav-link" data-target="community">Community</a>
         <button class="btn-secrets-nav" id="secrets-nav-trigger" aria-label="Access Developer Portal">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -50,6 +51,10 @@
           </svg>
           Dev Portal
         </button>
+        <div class="coin-header-display" id="coin-header-display" title="Your Catnip Coins balance">
+          <img src="coin.png" class="header-coin-icon" alt="Catnip Coin" />
+          <span id="header-coin-balance">0</span>
+        </div>
         <button class="btn-account-nav" id="account-nav-trigger" aria-label="User Account">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -683,6 +688,111 @@
         </div>
       </section>
 
+      <!-- ==================== SHOP SECTION ==================== -->
+      <section id="shop-section" class="app-section">
+        <div class="section-header">
+          <h2 class="section-title">Catnip Shop</h2>
+          <p class="section-desc">Earn Catnip Coins by exploring the site and completing tasks, then spend them to unlock premium profile styles and retro sound effects!</p>
+        </div>
+
+        <!-- Shop Dashboard (Balance & Earning Card) -->
+        <div class="shop-dashboard" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; width: 100%;">
+          
+          <!-- Balance Summary Card -->
+          <div class="secrets-card shop-balance-card" style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 30px;">
+            <span class="secrets-cat">Your Wallet</span>
+            <div class="coin-large-display" style="display: flex; align-items: center; justify-content: center; gap: 15px; margin: 15px 0;">
+              <img src="coin.png" alt="Catnip Coin" class="coin-spinning-3d" style="width: 70px; height: 70px; filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.4));" />
+              <span id="shop-coin-balance" style="font-size: 3.5rem; font-weight: 800; font-family: var(--font-headings); color: #FFD700; text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);">0</span>
+            </div>
+            <p style="font-size: 0.95rem; color: var(--color-text-secondary); max-width: 320px;">Catnip Coins are saved locally to your device and synced securely to your Cloud account when signed in!</p>
+          </div>
+
+          <!-- Earning Chest Card -->
+          <div class="secrets-card shop-earning-card" style="display: flex; flex-direction: column; justify-content: space-between; padding: 25px;">
+            <div class="secrets-card-header">
+              <span class="secrets-cat">Daily Bonus</span>
+              <h3>Daily Free Claim Chest</h3>
+            </div>
+            <div class="daily-chest-wrapper" style="display: flex; align-items: center; gap: 20px; margin: 15px 0;">
+              <!-- Visual Chest Icon (Interactive) -->
+              <div class="chest-icon-box" id="daily-chest-clicker" style="cursor: pointer; position: relative; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-light); border-radius: 12px; transition: var(--transition-smooth);">
+                <span id="chest-emoji" style="font-size: 3rem; transition: transform 0.3s ease;">📦</span>
+                <div class="chest-glow" style="position: absolute; width: 100%; height: 100%; border-radius: 12px; box-shadow: 0 0 20px rgba(0, 230, 118, 0.2); pointer-events: none; opacity: 1; transition: opacity 0.3s;"></div>
+              </div>
+              <div>
+                <h4 style="margin-bottom: 5px; color: var(--color-text-primary);">Open Daily Chest</h4>
+                <p id="chest-instruction" style="font-size: 0.85rem; color: var(--color-text-muted); line-height: 1.5; margin: 0;">Click the chest to claim your daily rewards! (Cooldown: 24 hours)</p>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-sm" id="btn-claim-daily" style="width: 100%;">Claim Free Coins</button>
+          </div>
+        </div>
+
+        <!-- Shop Items Grid -->
+        <h3 style="font-family: var(--font-headings); font-size: 1.5rem; margin-bottom: 20px; width: 100%; border-bottom: 1px solid var(--border-light); padding-bottom: 10px; color: var(--color-text-primary);">Available Customizations</h3>
+        
+        <div class="shop-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; width: 100%;">
+          
+          <!-- Item 1: Golden Developer Name -->
+          <div class="secrets-card shop-item-card" data-item-id="golden-name">
+            <div class="item-badge-cost">
+              <img src="coin.png" class="item-cost-coin" alt="Coin" />
+              <span>100</span>
+            </div>
+            <div class="shop-item-preview" style="height: 100px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.2); border-radius: var(--radius-md); margin-bottom: 15px; border: 1px dashed var(--border-light);">
+              <span class="preview-text" id="preview-gold-name" style="font-size: 1.1rem; font-weight: 700; color: #FFF;">User Profile Name</span>
+            </div>
+            <h3>Golden Name Glow</h3>
+            <p>Applies a shining golden animated gradient glow to your user profile display name.</p>
+            <button class="btn btn-secondary btn-sm btn-buy-item" data-item-id="golden-name" data-cost="100">Unlock Item</button>
+          </div>
+
+          <!-- Item 2: Cyberpunk Avatar Border -->
+          <div class="secrets-card shop-item-card" data-item-id="purple-border">
+            <div class="item-badge-cost">
+              <img src="coin.png" class="item-cost-coin" alt="Coin" />
+              <span>150</span>
+            </div>
+            <div class="shop-item-preview" style="height: 100px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.2); border-radius: var(--radius-md); margin-bottom: 15px; border: 1px dashed var(--border-light);">
+              <div class="preview-avatar-circle" id="preview-avatar-circle" style="width: 50px; height: 50px; border-radius: 50%; background: #2b2b36; border: 3px solid transparent; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">🐱</div>
+            </div>
+            <h3>Neon Purple Border</h3>
+            <p>Wraps your dashboard profile picture in a sleek, pulsing neon-purple cyberpunk border.</p>
+            <button class="btn btn-secondary btn-sm btn-buy-item" data-item-id="purple-border" data-cost="150">Unlock Item</button>
+          </div>
+
+          <!-- Item 3: Crown Badge -->
+          <div class="secrets-card shop-item-card" data-item-id="crown-badge">
+            <div class="item-badge-cost">
+              <img src="coin.png" class="item-cost-coin" alt="Coin" />
+              <span>200</span>
+            </div>
+            <div class="shop-item-preview" style="height: 100px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.2); border-radius: var(--radius-md); margin-bottom: 15px; border: 1px dashed var(--border-light);">
+              <div style="font-size: 2.2rem; filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.6));">👑</div>
+            </div>
+            <h3>Catnip Crown Badge</h3>
+            <p>Displays a sparkling gold crown badge right next to your username on the website dashboard.</p>
+            <button class="btn btn-secondary btn-sm btn-buy-item" data-item-id="crown-badge" data-cost="200">Unlock Item</button>
+          </div>
+
+          <!-- Item 4: Retro Sound Pack -->
+          <div class="secrets-card shop-item-card" data-item-id="sound-pack">
+            <div class="item-badge-cost">
+              <img src="coin.png" class="item-cost-coin" alt="Coin" />
+              <span>300</span>
+            </div>
+            <div class="shop-item-preview" style="height: 100px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.2); border-radius: var(--radius-md); margin-bottom: 15px; border: 1px dashed var(--border-light);">
+              <div style="font-size: 2.5rem; animation: pulse 1.5s infinite;">🔊</div>
+            </div>
+            <h3>Retro Sound Pack</h3>
+            <p>Unlocks retro 8-bit sound effects (jumps, power-ups, coins) that play when you click links and claim rewards.</p>
+            <button class="btn btn-secondary btn-sm btn-buy-item" data-item-id="sound-pack" data-cost="300">Unlock Item</button>
+          </div>
+
+        </div>
+      </section>
+
       <!-- ==================== COMMUNITY SECTION ==================== -->
       <section id="community-section" class="app-section">
         <div class="section-header">
@@ -1047,6 +1157,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
   <!-- Main Script File -->
-  <script src="script.js?v=20260721u"></script>
+  <script src="script.js?v=20260722a"></script>
 </body>
 </html>
