@@ -1898,25 +1898,43 @@ document.addEventListener('DOMContentLoaded', () => {
   let isMusicPlaying = false;
   let currentChordIndex = 0;
 
-  // Soothing Minecraft C418-style piano melody phrases (slow, sparse, emotional)
+  // Soothing Minecraft C418-style piano phrases (distinct patterns: ascending, descending, wandering, dyad chord, resolution)
   const melodyPhrases = [
+    // Phrase 0: Soothing upward arpeggio (Cmaj9)
     [
       { note: 329.63, delay: 0.0 },  // E4
-      { note: 392.00, delay: 1.6 },  // G4
-      { note: 493.88, delay: 3.2 },  // B4
-      { note: 587.33, delay: 4.8 }   // D5 (Cmaj9 arpeggio)
+      { note: 392.00, delay: 1.5 },  // G4
+      { note: 493.88, delay: 3.0 },  // B4
+      { note: 587.33, delay: 4.2 }   // D5
     ],
+    // Phrase 1: Soft descending melody (Fmaj9)
     [
-      { note: 349.23, delay: 0.0 },  // F4
-      { note: 440.00, delay: 1.6 },  // A4
-      { note: 523.25, delay: 3.2 },  // C5
-      { note: 659.25, delay: 4.8 }   // E5 (Fmaj9 arpeggio)
+      { note: 659.25, delay: 0.0 },  // E5
+      { note: 523.25, delay: 1.2 },  // C5
+      { note: 440.00, delay: 2.4 },  // A4
+      { note: 349.23, delay: 3.8 }   // F4
     ],
+    // Phrase 2: Wandering Am9 cadence
     [
-      { note: 293.66, delay: 0.0 },  // D4
-      { note: 392.00, delay: 1.6 },  // G4
-      { note: 440.00, delay: 3.2 },  // A4
-      { note: 493.88, delay: 4.8 }   // B4 (G6/9 arpeggio)
+      { note: 440.00, delay: 0.0 },  // A4
+      { note: 493.88, delay: 1.0 },  // B4
+      { note: 523.25, delay: 2.0 },  // C5
+      { note: 392.00, delay: 3.5 },  // G4
+      { note: 329.63, delay: 5.0 }   // E4
+    ],
+    // Phrase 3: Peaceful double-strike dyad (G6)
+    [
+      { note: 392.00, delay: 0.0 },  // G4
+      { note: 587.33, delay: 0.0 },  // D5 (strikes together!)
+      { note: 493.88, delay: 1.8 },  // B4
+      { note: 440.00, delay: 3.2 }   // A4
+    ],
+    // Phrase 4: Warm resolution (Cmaj7)
+    [
+      { note: 261.63, delay: 0.0 },  // C4
+      { note: 329.63, delay: 1.5 },  // E4
+      { note: 392.00, delay: 3.0 },  // G4
+      { note: 493.88, delay: 4.5 }   // B4
     ]
   ];
 
@@ -1963,8 +1981,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const now = musicAudioCtx.currentTime;
       
       // 1. Play deep, warm grounding bass note (like a long piano damper resonance)
-      const bassNotes = [65.41, 87.31, 73.42]; // C2, F2, D2
-      const bassFreq = bassNotes[currentChordIndex];
+      const bassNotes = [130.81, 87.31, 110.00, 98.00, 130.81]; // C3, F2, A2, G2, C3
+      const bassFreq = bassNotes[currentChordIndex % bassNotes.length];
       
       const bassOsc = musicAudioCtx.createOscillator();
       const bassGain = musicAudioCtx.createGain();
@@ -2004,9 +2022,12 @@ document.addEventListener('DOMContentLoaded', () => {
         musicAudioCtx.resume();
       }
       
-      // Play first phrase immediately, then cycle every 14 seconds
+      // Randomize starting phrase so it sounds fresh on every toggle trigger
+      currentChordIndex = Math.floor(Math.random() * melodyPhrases.length);
+      
+      // Play first phrase immediately, then cycle every 10 seconds (shorter pauses)
       playSoftAmbientPhrase();
-      musicIntervalId = setInterval(playSoftAmbientPhrase, 14000);
+      musicIntervalId = setInterval(playSoftAmbientPhrase, 10000);
       isMusicPlaying = true;
       updateMusicButtonUI();
     } catch(e) {
