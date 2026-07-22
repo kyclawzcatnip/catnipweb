@@ -1688,9 +1688,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // We build a collection of active accounts to show
     let userProfiles = [];
 
-    // Fetch current local storage user profile
+    // Fetch current local storage user profile safely
     const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
-    const isDevSession = localUser && (localUser.email.toLowerCase() === 'kyclawzcatnip@gmail.com' || localUser.email.toLowerCase() === 'catnip');
+    const localEmail = (localUser && typeof localUser.email === 'string') ? localUser.email.toLowerCase() : '';
+    const isDevSession = localEmail === 'kyclawzcatnip@gmail.com' || localEmail === 'catnip';
 
     // 1. Add static mock accounts for flavor
     userProfiles.push({
