@@ -1151,7 +1151,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
       regFeedback.innerHTML = '<span style="color: #00E676;">Creating user account...</span>';
 
-      if (firebaseAuth) {
+      const isEmail = email.includes('@');
+
+      if (firebaseAuth && isEmail) {
         try {
           const userCred = await firebaseAuth.createUserWithEmailAndPassword(email, password);
           await userCred.user.updateProfile({ displayName: username });
@@ -1163,8 +1165,7 @@ document.addEventListener('DOMContentLoaded', () => {
             err.code.includes('invalid') || 
             err.code.includes('config') || 
             err.code.includes('network') || 
-            err.message.includes('API key') ||
-            err.message.includes('api-key');
+            (err.message && (err.message.includes('API key') || err.message.includes('api-key')));
 
           if (isFallbackError) {
             const mockUser = { displayName: username, email: email, uid: 'user-' + Date.now() };
@@ -1202,7 +1203,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
       loginFeedback.innerHTML = '<span style="color: #00E676;">Authenticating...</span>';
 
-      if (firebaseAuth) {
+      const isEmail = email.includes('@');
+
+      if (firebaseAuth && isEmail) {
         try {
           await firebaseAuth.signInWithEmailAndPassword(email, password);
           loginFeedback.innerHTML = '<span style="color: #00E676;">Welcome back!</span>';
@@ -1213,8 +1216,7 @@ document.addEventListener('DOMContentLoaded', () => {
             err.code.includes('invalid') || 
             err.code.includes('config') || 
             err.code.includes('network') || 
-            err.message.includes('API key') ||
-            err.message.includes('api-key');
+            (err.message && (err.message.includes('API key') || err.message.includes('api-key')));
 
           if (isFallbackError) {
             const mockUser = { displayName: email.split('@')[0], email: email, uid: 'user-' + Date.now() };
