@@ -1044,6 +1044,7 @@ document.addEventListener('DOMContentLoaded', () => {
               applyActiveCosmetics();
               renderShopItems();
               updateChestUI();
+              saveCoinsToLocalStorage();
             } else {
               // Create user doc in Firestore
               syncCoinsToFirestore();
@@ -1057,10 +1058,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const savedUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
         if (savedUser) {
           updateAuthStateUI(savedUser);
+          
+          const isDev = savedUser.email && (savedUser.email.toLowerCase() === 'kyclawzcatnip@gmail.com' || savedUser.email.toLowerCase() === 'catnip');
+          if (isDev) {
+            userCoins = 9999;
+            ownedItems = ["golden-name", "purple-border", "crown-badge", "sound-pack"];
+            activeCosmetics = ["golden-name", "purple-border", "crown-badge", "sound-pack"];
+            updateCoinUI();
+            applyActiveCosmetics();
+            renderShopItems();
+            updateChestUI();
+            saveCoinsToLocalStorage();
+          } else {
+            loadCoinsFromLocalStorage();
+          }
         } else {
           updateAuthStateUI(null);
+          loadCoinsFromLocalStorage();
         }
-        loadCoinsFromLocalStorage();
       }
     });
   }
@@ -1168,6 +1183,7 @@ document.addEventListener('DOMContentLoaded', () => {
             applyActiveCosmetics();
             renderShopItems();
             updateChestUI();
+            saveCoinsToLocalStorage();
             
             if (typeof saveToLocalProfilesDatabase === 'function') {
               saveToLocalProfilesDatabase(mockUser.displayName, email, userCoins, ownedItems);
@@ -1207,6 +1223,7 @@ document.addEventListener('DOMContentLoaded', () => {
         applyActiveCosmetics();
         renderShopItems();
         updateChestUI();
+        saveCoinsToLocalStorage();
         
         if (typeof saveToLocalProfilesDatabase === 'function') {
           saveToLocalProfilesDatabase(mockUser.displayName, email, userCoins, ownedItems);
@@ -1248,7 +1265,20 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initial check for offline / fallback mode
   if (!firebaseAuth) {
     const savedUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
-    if (savedUser) updateAuthStateUI(savedUser);
+    if (savedUser) {
+      updateAuthStateUI(savedUser);
+      const isDev = savedUser.email && (savedUser.email.toLowerCase() === 'kyclawzcatnip@gmail.com' || savedUser.email.toLowerCase() === 'catnip');
+      if (isDev) {
+        userCoins = 9999;
+        ownedItems = ["golden-name", "purple-border", "crown-badge", "sound-pack"];
+        activeCosmetics = ["golden-name", "purple-border", "crown-badge", "sound-pack"];
+        updateCoinUI();
+        applyActiveCosmetics();
+        renderShopItems();
+        updateChestUI();
+        saveCoinsToLocalStorage();
+      }
+    }
   }
 
   // ==================== THE STRESS OF THE GAME(S) JOURNAL LISTENER ====================
