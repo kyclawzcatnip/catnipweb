@@ -2304,7 +2304,7 @@ p {
   position: relative;
   overflow: hidden;
   border: 1px solid var(--border-light);
-  background: var(--color-surface);
+  background: var(--color-surface-glass);
   backdrop-filter: blur(15px);
 }
 .shop-balance-card::before {
@@ -2443,7 +2443,7 @@ p {
 /* Neon Purple Avatar Border */
 .purple-border-active {
   border: 3px solid transparent !important;
-  background: linear-gradient(var(--color-surface), var(--color-surface)) padding-box,
+  background: linear-gradient(var(--color-surface-solid), var(--color-surface-solid)) padding-box,
               linear-gradient(135deg, #7C4DFF 0%, #FF1744 50%, #7C4DFF 100%) border-box !important;
   box-shadow: 0 0 15px rgba(124, 77, 255, 0.5) !important;
   animation: avatarBorderPulse 2s infinite alternate !important;
