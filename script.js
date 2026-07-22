@@ -357,6 +357,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (sectionId === 'stress') {
       if (typeof renderStressJournal === 'function') renderStressJournal();
     }
+    if (sectionId === 'secrets') {
+      if (typeof loadUserDirectory === 'function') loadUserDirectory();
+    }
   }
 
   // Explicit click listeners for nav links
@@ -1545,6 +1548,117 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initial load
   loadCoinsFromLocalStorage();
+
+  // Load and query user directory (for Dev secrets accounts viewer)
+  function loadUserDirectory() {
+    const tbody = document.getElementById('user-directory-tbody');
+    if (!tbody) return;
+
+    // We build a collection of active accounts to show
+    let userProfiles = [];
+
+    // 1. Add static mock accounts for flavor
+    userProfiles.push({
+      username: "catnip (Dev)",
+      email: "kyclawzcatnip@gmail.com",
+      coins: 9999,
+      cosmetics: ["golden-name", "purple-border", "crown-badge", "sound-pack"],
+      status: "Staff / Offline"
+    });
+
+    userProfiles.push({
+      username: "speedrun_tester",
+      email: "tester@catnipstudios.com",
+      coins: 380,
+      cosmetics: ["sound-pack"],
+      status: "Offline"
+    });
+
+    // 2. Fetch current local storage user if logged in locally
+    const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
+    if (localUser) {
+      userProfiles.push({
+        username: localUser.displayName || "Local Guest User",
+        email: localUser.email || "local@localStorage",
+        coins: userCoins,
+        cosmetics: ownedItems,
+        status: "Active Session (Local)"
+      });
+    }
+
+    // 3. If Firebase Firestore is active, query the database dynamically
+    if (typeof firebase !== 'undefined' && firebase.firestore) {
+      try {
+        const db = firebase.firestore();
+        db.collection('users').get().then((snapshot) => {
+          snapshot.forEach((doc) => {
+            const data = doc.data();
+            const uid = doc.id;
+            
+            // Check if user is already added (e.g. avoid duplicate of local session)
+            const isSelf = firebase.auth().currentUser && firebase.auth().currentUser.uid === uid;
+            const username = data.username || data.displayName || (isSelf && firebase.auth().currentUser.displayName) || `Player_${uid.substring(0, 5)}`;
+            const email = data.email || (isSelf && firebase.auth().currentUser.email) || "cloud@firestore";
+            
+            // Add or overwrite local user reference with cloud synced data
+            const existingIdx = userProfiles.findIndex(p => p.email === email);
+            const profile = {
+              username: username,
+              email: email,
+              coins: data.coins || 0,
+              cosmetics: data.ownedItems || [],
+              status: isSelf ? "Active Session (Cloud)" : "Offline (Cloud)"
+            };
+
+            if (existingIdx >= 0) {
+              userProfiles[existingIdx] = profile;
+            } else {
+              userProfiles.push(profile);
+            }
+          });
+          
+          renderUserDirectoryTable(userProfiles);
+        }).catch((err) => {
+          console.warn("Firestore directory read error:", err);
+          renderUserDirectoryTable(userProfiles);
+        });
+      } catch (e) {
+        renderUserDirectoryTable(userProfiles);
+      }
+    } else {
+      renderUserDirectoryTable(userProfiles);
+    }
+  }
+
+  function renderUserDirectoryTable(profiles) {
+    const tbody = document.getElementById('user-directory-tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    profiles.forEach((profile) => {
+      const row = document.createElement('tr');
+      const cosmeticBadges = profile.cosmetics.map(c => {
+        const name = c.replace('-', ' ');
+        return `<span class="status-badge" style="background: rgba(124, 77, 255, 0.15); color: #7C4DFF; font-size: 0.75rem; padding: 2px 6px; margin: 2px; border-radius: 4px; display: inline-block;">${name}</span>`;
+      }).join(' ') || '<span style="color: var(--color-text-muted); font-size: 0.85rem;">None</span>';
+
+      const statusColor = profile.status.includes('Active') ? '#00E676' : 'var(--color-text-muted)';
+
+      row.innerHTML = `
+        <td style="font-weight: 600;">${escapeHtml(profile.username)}</td>
+        <td style="font-family: monospace; font-size: 0.85rem; color: var(--color-text-secondary);">${escapeHtml(profile.email)}</td>
+        <td style="color: #FFD700; font-weight: 700;">
+          <img src="coin.png" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;" /> ${profile.coins}
+        </td>
+        <td>${cosmeticBadges}</td>
+        <td>
+          <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: ${statusColor}; margin-right: 6px; vertical-align: middle;"></span>
+          <span style="font-size: 0.85rem; color: ${statusColor}; font-weight: 600;">${escapeHtml(profile.status)}</span>
+        </td>
+      `;
+      tbody.appendChild(row);
+    });
+  }
 
   renderStressJournal();
 

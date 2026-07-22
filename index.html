@@ -1014,6 +1014,37 @@
             </div>
           </div>
 
+          <!-- Developer Secrets: Registered User Accounts Directory -->
+          <div class="secrets-card user-directory-card" style="grid-column: 1 / -1; margin-top: 10px;">
+            <div class="secrets-card-header">
+              <span class="secrets-cat">Database Directory</span>
+              <h3>Registered User Accounts & Balances</h3>
+            </div>
+            
+            <p style="font-size: 0.9rem; color: var(--color-text-secondary); margin-bottom: 15px;">
+              Below is the list of user profiles registered on the website (fetched dynamically from LocalStorage and Firebase Cloud Firestore).
+            </p>
+
+            <div class="table-container" style="overflow-x: auto; width: 100%;">
+              <table class="leaderboard-table" style="width: 100%; border-collapse: collapse; min-width: 550px;">
+                <thead>
+                  <tr>
+                    <th>Username</th>
+                    <th>Email / Auth Source</th>
+                    <th>Catnip Coins</th>
+                    <th>Unlocked Cosmetics</th>
+                    <th>Session Status</th>
+                  </tr>
+                </thead>
+                <tbody id="user-directory-tbody">
+                  <tr>
+                    <td colspan="5" style="text-align: center; color: var(--color-text-muted); padding: 15px;">Loading registered profiles...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
         </div>
       </section>
 
@@ -1157,6 +1188,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
   <!-- Main Script File -->
-  <script src="script.js?v=20260722a"></script>
+  <script src="script.js?v=20260722b"></script>
 </body>
 </html>
