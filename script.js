@@ -1053,7 +1053,13 @@ document.addEventListener('DOMContentLoaded', () => {
           });
         }
       } else {
-        // Guest user: restore local storage settings
+        // Guest/Local fallback user: restore local storage settings
+        const savedUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
+        if (savedUser) {
+          updateAuthStateUI(savedUser);
+        } else {
+          updateAuthStateUI(null);
+        }
         loadCoinsFromLocalStorage();
       }
     });
@@ -1136,11 +1142,25 @@ document.addEventListener('DOMContentLoaded', () => {
   // Handle Sign Out
   if (btnSignOut) {
     btnSignOut.addEventListener('click', () => {
+      localStorage.removeItem('scw_local_user');
       if (firebaseAuth) {
-        firebaseAuth.signOut();
-      } else {
-        localStorage.removeItem('scw_local_user');
-        updateAuthStateUI(null);
+        try {
+          firebaseAuth.signOut().catch(() => {});
+        } catch (e) {}
+      }
+      updateAuthStateUI(null);
+      // Reset local coins and cosmetics to Guest defaults
+      userCoins = 0;
+      ownedItems = [];
+      activeCosmetics = [];
+      lastClaimTimestamp = 0;
+      saveCoinsToLocalStorage();
+      updateCoinUI();
+      applyActiveCosmetics();
+      renderShopItems();
+      updateChestUI();
+      if (typeof loadUserDirectory === 'function') {
+        loadUserDirectory();
       }
       closeAuthModal();
     });
@@ -1574,15 +1594,23 @@ document.addEventListener('DOMContentLoaded', () => {
       status: "Offline"
     });
 
-    // 2. Fetch current local storage user if logged in locally
+    // 2. Fetch current local storage user or display guest profile progress
     const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
     if (localUser) {
       userProfiles.push({
-        username: localUser.displayName || "Local Guest User",
+        username: localUser.displayName || "Local Fallback User",
         email: localUser.email || "local@localStorage",
         coins: userCoins,
         cosmetics: ownedItems,
         status: "Active Session (Local)"
+      });
+    } else {
+      userProfiles.push({
+        username: "Guest Profile (You)",
+        email: "guest@localStorage",
+        coins: userCoins,
+        cosmetics: ownedItems,
+        status: "Active Session (Guest)"
       });
     }
 
