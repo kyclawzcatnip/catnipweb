@@ -770,6 +770,43 @@
           </div>
         </div>
 
+        <!-- SCW Coin Exchange Terminal -->
+        <div class="secrets-card scw-exchange-card" style="margin-bottom: 30px;">
+          <div class="exchange-info">
+            <span class="secrets-cat">Feline Currency Converter</span>
+            <h3 style="margin-top: 5px; margin-bottom: 10px; color: var(--color-text-primary);">Super Cat World Exchange</h3>
+            <p style="font-size: 0.9rem; color: var(--color-text-secondary); line-height: 1.6; margin: 0;">
+              Turn your collected in-game gold coins from <strong>Super Cat World</strong> into official website <strong>Catnip Coins</strong>! 
+              Enter your SCW game coins below to exchange them at a <strong>5:1 exchange rate</strong>.
+            </p>
+          </div>
+          
+          <div class="exchange-form-box" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-light); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 15px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; font-weight: 600; color: var(--color-text-secondary);">
+              <span>Exchange Rate:</span>
+              <span style="color: var(--color-primary);">5 SCW Coins ➔ 1 Catnip Coin</span>
+            </div>
+            
+            <div style="display: flex; gap: 10px; align-items: flex-end;">
+              <div style="flex: 1;">
+                <label for="scw-coins-input" style="display: block; font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 5px; text-transform: uppercase;">In-game SCW Coins</label>
+                <input type="number" id="scw-coins-input" class="form-input" min="5" placeholder="e.g. 500" style="width: 100%; padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); background: rgba(0,0,0,0.25); color: #fff; font-weight: 700; font-family: inherit;" />
+              </div>
+              <div style="display: flex; align-items: center; justify-content: center; font-size: 1.3rem; padding-bottom: 8px; color: var(--color-text-muted);">
+                ➔
+              </div>
+              <div style="width: 120px;">
+                <label style="display: block; font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 5px; text-transform: uppercase;">Catnip Coins</label>
+                <div id="exchange-result" style="width: 100%; padding: 9px; border-radius: var(--radius-sm); background: rgba(0,230,118,0.05); color: var(--color-primary); font-weight: 800; font-size: 1.1rem; text-align: center; border: 1px solid rgba(0,230,118,0.2);">0</div>
+              </div>
+            </div>
+            
+            <div id="exchange-feedback" style="font-size: 0.85rem; text-align: center; min-height: 20px;"></div>
+            
+            <button class="btn btn-primary" id="btn-exchange-coins" style="width: 100%; font-weight: 700;">Complete Exchange</button>
+          </div>
+        </div>
+
         <!-- Shop Items Grid -->
         <h3 style="font-family: var(--font-headings); font-size: 1.5rem; margin-bottom: 20px; width: 100%; border-bottom: 1px solid var(--border-light); padding-bottom: 10px; color: var(--color-text-primary);">Available Customizations</h3>
         
@@ -1229,6 +1266,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
   <!-- Main Script File -->
-  <script src="script.js?v=20260722v"></script>
+  <script src="script.js?v=20260722w"></script>
 </body>
 </html>

@@ -2087,6 +2087,54 @@ document.addEventListener('DOMContentLoaded', () => {
     musicBtn.addEventListener('click', toggleAmbientMusic);
   }
 
+  // ==================== SCW COIN EXCHANGE SYSTEM (5:1 CONVERSION) ====================
+  const scwCoinsInput = document.getElementById('scw-coins-input');
+  const exchangeResult = document.getElementById('exchange-result');
+  const btnExchange = document.getElementById('btn-exchange-coins');
+  const exchangeFeedback = document.getElementById('exchange-feedback');
+
+  if (scwCoinsInput && exchangeResult) {
+    scwCoinsInput.addEventListener('input', () => {
+      const val = parseInt(scwCoinsInput.value, 10) || 0;
+      if (val < 0) {
+        scwCoinsInput.value = '0';
+        exchangeResult.textContent = '0';
+        return;
+      }
+      const outcome = Math.floor(val / 5);
+      exchangeResult.textContent = outcome.toString();
+    });
+  }
+
+  if (btnExchange) {
+    btnExchange.addEventListener('click', () => {
+      const val = parseInt(scwCoinsInput.value, 10) || 0;
+      if (val < 5) {
+        if (exchangeFeedback) {
+          exchangeFeedback.innerHTML = `<span style="color: #FF5252; font-weight: 600;">Minimum exchange is 5 SCW coins.</span>`;
+        }
+        return;
+      }
+      
+      const earned = Math.floor(val / 5);
+      
+      if (typeof addCoins === 'function') {
+        addCoins(earned, btnExchange);
+      }
+      
+      if (exchangeFeedback) {
+        exchangeFeedback.innerHTML = `<span style="color: #00E676; font-weight: 600;">Exchanged ${val} SCW Coins for +${earned} Catnip Coins!</span>`;
+      }
+      
+      scwCoinsInput.value = '';
+      exchangeResult.textContent = '0';
+      
+      setTimeout(() => {
+        if (exchangeFeedback) exchangeFeedback.innerHTML = '';
+      }, 4000);
+    });
+  }
+
   renderStressJournal();
 
 });

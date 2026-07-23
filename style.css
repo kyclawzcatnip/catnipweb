@@ -2510,3 +2510,20 @@ p {
   box-shadow: 0 0 8px rgba(0, 230, 118, 0.15);
 }
 
+/* SCW Coin Exchange Terminal */
+.scw-exchange-card {
+  margin-bottom: 30px;
+  padding: 25px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  align-items: center;
+}
+@media (max-width: 768px) {
+  .scw-exchange-card {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 20px;
+  }
+}
+
