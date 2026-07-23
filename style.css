@@ -2442,20 +2442,21 @@ p {
 
 /* Neon Purple Avatar Border */
 .purple-border-active {
-  border: 3px solid transparent !important;
-  background-color: transparent !important; /* Prevents background-color from painting over border-box gradient */
-  background-image: linear-gradient(var(--color-surface-solid), var(--color-surface-solid)), 
-                    linear-gradient(135deg, #7C4DFF 0%, #FF1744 50%, #7C4DFF 100%) !important;
-  background-origin: border-box !important;
-  -webkit-background-clip: padding-box, border-box !important;
-  background-clip: padding-box, border-box !important;
-  box-shadow: 0 0 15px rgba(124, 77, 255, 0.5) !important;
+  border: 3px solid #7C4DFF !important;
+  box-shadow: 0 0 14px rgba(124, 77, 255, 0.65), inset 0 0 8px rgba(124, 77, 255, 0.45) !important;
   animation: avatarBorderPulse 2s infinite alternate !important;
+  transition: all 0.3s ease;
 }
 
 @keyframes avatarBorderPulse {
-  0% { box-shadow: 0 0 8px rgba(124, 77, 255, 0.4); }
-  100% { box-shadow: 0 0 20px rgba(124, 77, 255, 0.8); }
+  0% {
+    border-color: #7C4DFF !important;
+    box-shadow: 0 0 8px rgba(124, 77, 255, 0.45), inset 0 0 4px rgba(124, 77, 255, 0.3) !important;
+  }
+  100% {
+    border-color: #FF1744 !important;
+    box-shadow: 0 0 18px rgba(255, 23, 68, 0.75), inset 0 0 10px rgba(255, 23, 68, 0.5) !important;
+  }
 }
 
 /* Preview Avatar Circle style core */
