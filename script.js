@@ -969,6 +969,9 @@ document.addEventListener('DOMContentLoaded', () => {
         console.warn("Cloud Firestore init info:", e);
       }
     }
+    if (typeof updateExchangeTerminal === 'function') {
+      updateExchangeTerminal();
+    }
   }
 
   function escapeHtml(text) {
@@ -1082,6 +1085,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (typeof applyActiveCosmetics === 'function') {
       applyActiveCosmetics();
+    }
+    if (typeof updateExchangeTerminal === 'function') {
+      updateExchangeTerminal();
     }
   }
 
@@ -2087,53 +2093,128 @@ document.addEventListener('DOMContentLoaded', () => {
     musicBtn.addEventListener('click', toggleAmbientMusic);
   }
 
-  // ==================== SCW COIN EXCHANGE SYSTEM (5:1 CONVERSION) ====================
-  const scwCoinsInput = document.getElementById('scw-coins-input');
-  const exchangeResult = document.getElementById('exchange-result');
-  const btnExchange = document.getElementById('btn-exchange-coins');
-  const exchangeFeedback = document.getElementById('exchange-feedback');
+  // ==================== SCW COIN EXCHANGE SYSTEM (LEADERBOARD VALIDATED) ====================
+  function updateExchangeTerminal() {
+    const statusMsg = document.getElementById('exchange-status-message');
+    const calcRow = document.getElementById('exchange-calculation-row');
+    const btnExchange = document.getElementById('btn-exchange-coins');
+    const coinsDisplay = document.getElementById('scw-coins-display');
+    const resultDisplay = document.getElementById('exchange-result');
 
-  if (scwCoinsInput && exchangeResult) {
-    scwCoinsInput.addEventListener('input', () => {
-      const val = parseInt(scwCoinsInput.value, 10) || 0;
-      if (val < 0) {
-        scwCoinsInput.value = '0';
-        exchangeResult.textContent = '0';
-        return;
-      }
-      const outcome = Math.floor(val / 5);
-      exchangeResult.textContent = outcome.toString();
-    });
+    if (!statusMsg) return;
+
+    // 1. Get logged in user details
+    let user = null;
+    try {
+      user = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
+    } catch(e) {}
+
+    if (!user) {
+      statusMsg.innerHTML = `<span style="color: #FF5252; font-weight: 700; font-size: 1rem;">🔒 Access Restricted</span><br><span style="color: var(--color-text-secondary); font-size: 0.85rem;">Please sign in to your profile above to link and verify your speedrun coins.</span>`;
+      if (calcRow) calcRow.style.display = 'none';
+      if (btnExchange) btnExchange.style.display = 'none';
+      return;
+    }
+
+    const username = (user.displayName || user.email.split('@')[0] || '').trim();
+    
+    // 2. Load current leaderboard scores
+    let scores = [];
+    try {
+      scores = JSON.parse(localStorage.getItem('scw_local_leaderboard') || '[]');
+    } catch(e) {}
+
+    // Find the verified fastest run matching their username
+    const matched = scores.find(s => s.name && s.name.trim().toLowerCase() === username.toLowerCase());
+
+    if (!matched) {
+      statusMsg.innerHTML = `Signed in as <strong style="color: var(--color-accent);">${escapeHtml(username)}</strong>.<br><span style="color: #FF5252; font-weight: 700; font-size: 0.95rem;">No Leaderboard Run Found</span><br><span style="color: var(--color-text-secondary); font-size: 0.85rem;">Submit a speedrun under your username first to link in-game coins!</span>`;
+      if (calcRow) calcRow.style.display = 'none';
+      if (btnExchange) btnExchange.style.display = 'none';
+      return;
+    }
+
+    // Determine deterministic coin count based on run time (Sweden = 20:36.00 = 1236s = 950 coins max)
+    let coinCount = 0;
+    if (typeof matched.coins === 'number') {
+      coinCount = matched.coins;
+    } else {
+      const secs = timeStringToSeconds(matched.time) || 300;
+      const base = Math.floor(secs * 1.5);
+      coinCount = Math.min(Math.max(base, 80), 950);
+    }
+
+    // 3. Check if they have already claimed this run's coins
+    let claimedAmount = 0;
+    try {
+      claimedAmount = parseInt(localStorage.getItem('scw_claimed_run_' + username.toLowerCase()) || '0', 10);
+    } catch(e) {}
+
+    if (claimedAmount > 0) {
+      statusMsg.innerHTML = `Signed in as <strong style="color: var(--color-primary);">${escapeHtml(username)}</strong>.<br><span style="color: var(--color-primary); font-weight: 700;">✓ Coins Claimed</span><br><span style="color: var(--color-text-secondary); font-size: 0.85rem;">You converted your run's coins for <strong>+${claimedAmount} Catnip Coins</strong>.<br>Beat your time and submit a new run to claim more!</span>`;
+      if (calcRow) calcRow.style.display = 'none';
+      if (btnExchange) btnExchange.style.display = 'none';
+      return;
+    }
+
+    // 4. Ready to claim
+    const catnipReturn = Math.floor(coinCount / 5);
+    statusMsg.innerHTML = `Signed in as <strong style="color: var(--color-primary);">${escapeHtml(username)}</strong>.<br>🏁 Verified Run Found! Time: <strong>${escapeHtml(matched.time)}</strong> (${escapeHtml(matched.mode || 'Standard')}).`;
+    
+    if (coinsDisplay) coinsDisplay.textContent = `${coinCount} SCW Coins`;
+    if (resultDisplay) resultDisplay.textContent = `${catnipReturn}`;
+    
+    if (calcRow) calcRow.style.display = 'flex';
+    if (btnExchange) {
+      btnExchange.style.display = 'block';
+      btnExchange.textContent = `Claim +${catnipReturn} Catnip Coins`;
+    }
   }
 
+  // Register Exchange Click Listener
+  const btnExchange = document.getElementById('btn-exchange-coins');
   if (btnExchange) {
     btnExchange.addEventListener('click', () => {
-      const val = parseInt(scwCoinsInput.value, 10) || 0;
-      if (val < 5) {
-        if (exchangeFeedback) {
-          exchangeFeedback.innerHTML = `<span style="color: #FF5252; font-weight: 600;">Minimum exchange is 5 SCW coins.</span>`;
-        }
-        return;
+      let user = null;
+      try {
+        user = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
+      } catch(e) {}
+      if (!user) return;
+      
+      const username = (user.displayName || user.email.split('@')[0] || '').trim();
+      
+      let scores = [];
+      try {
+        scores = JSON.parse(localStorage.getItem('scw_local_leaderboard') || '[]');
+      } catch(e) {}
+      
+      const matched = scores.find(s => s.name && s.name.trim().toLowerCase() === username.toLowerCase());
+      if (!matched) return;
+      
+      let coinCount = 0;
+      if (typeof matched.coins === 'number') {
+        coinCount = matched.coins;
+      } else {
+        const secs = timeStringToSeconds(matched.time) || 300;
+        const base = Math.floor(secs * 1.5);
+        coinCount = Math.min(Math.max(base, 80), 950);
       }
       
-      const earned = Math.floor(val / 5);
+      const earned = Math.floor(coinCount / 5);
+      
+      // Save claimed state
+      localStorage.setItem('scw_claimed_run_' + username.toLowerCase(), earned.toString());
       
       if (typeof addCoins === 'function') {
         addCoins(earned, btnExchange);
       }
       
-      if (exchangeFeedback) {
-        exchangeFeedback.innerHTML = `<span style="color: #00E676; font-weight: 600;">Exchanged ${val} SCW Coins for +${earned} Catnip Coins!</span>`;
-      }
-      
-      scwCoinsInput.value = '';
-      exchangeResult.textContent = '0';
-      
-      setTimeout(() => {
-        if (exchangeFeedback) exchangeFeedback.innerHTML = '';
-      }, 4000);
+      updateExchangeTerminal();
     });
   }
+
+  // Hook terminal update to page load
+  setTimeout(updateExchangeTerminal, 600);
 
   renderStressJournal();
 
