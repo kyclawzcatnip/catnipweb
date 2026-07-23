@@ -2216,6 +2216,193 @@ document.addEventListener('DOMContentLoaded', () => {
   // Hook terminal update to page load
   setTimeout(updateExchangeTerminal, 600);
 
+  // ==================== SPEEDRUN LOG/SUBMISSION MODAL SYSTEM ====================
+  const btnOpenRunSub = document.getElementById('btn-open-run-submission');
+  const speedrunModal = document.getElementById('speedrun-modal');
+  const btnCloseRunSub = document.getElementById('btn-close-speedrun-modal');
+  const speedrunForm = document.getElementById('speedrun-submission-form');
+  const speedrunUsername = document.getElementById('speedrun-username-input');
+  const speedrunAuthTip = document.getElementById('speedrun-auth-tip');
+  const speedrunCoins = document.getElementById('speedrun-coins-input');
+  const speedrunPreview = document.getElementById('speedrun-conversion-preview');
+  const speedrunError = document.getElementById('speedrun-error-feedback');
+
+  if (btnOpenRunSub && speedrunModal) {
+    btnOpenRunSub.addEventListener('click', () => {
+      speedrunModal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      
+      // Clear previous error
+      if (speedrunError) speedrunError.textContent = '';
+      
+      // Check user profile
+      let user = null;
+      try {
+        user = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
+      } catch(e) {}
+      
+      if (user) {
+        const username = (user.displayName || user.email.split('@')[0] || '').trim();
+        if (speedrunUsername) {
+          speedrunUsername.value = username;
+          speedrunUsername.readOnly = true;
+          speedrunUsername.style.opacity = '0.7';
+        }
+        if (speedrunAuthTip) speedrunAuthTip.style.display = 'none';
+      } else {
+        if (speedrunUsername) {
+          speedrunUsername.value = '';
+          speedrunUsername.readOnly = false;
+          speedrunUsername.style.opacity = '1';
+        }
+        if (speedrunAuthTip) speedrunAuthTip.style.display = 'block';
+      }
+    });
+  }
+
+  if (btnCloseRunSub && speedrunModal) {
+    btnCloseRunSub.addEventListener('click', () => {
+      speedrunModal.style.display = 'none';
+      document.body.style.overflow = '';
+    });
+  }
+
+  if (speedrunModal) {
+    speedrunModal.addEventListener('click', (e) => {
+      if (e.target === speedrunModal) {
+        speedrunModal.style.display = 'none';
+        document.body.style.overflow = '';
+      }
+    });
+  }
+
+  if (speedrunCoins && speedrunPreview) {
+    speedrunCoins.addEventListener('input', () => {
+      const coins = parseInt(speedrunCoins.value, 10) || 0;
+      speedrunPreview.textContent = Math.floor(coins / 5).toString();
+    });
+  }
+
+  if (speedrunForm) {
+    speedrunForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const runner = speedrunUsername.value.trim();
+      const mode = document.getElementById('speedrun-mode-select').value;
+      const timeVal = document.getElementById('speedrun-time-input').value.trim();
+      const coinsVal = parseInt(speedrunCoins.value, 10) || 0;
+      
+      if (!runner) {
+        if (speedrunError) speedrunError.innerHTML = `<span style="color: #FF5252;">Please enter a username.</span>`;
+        return;
+      }
+
+      // 1. Check if user already has a run
+      let localScores = [];
+      try {
+        localScores = JSON.parse(localStorage.getItem('scw_local_leaderboard') || '[]');
+      } catch (err) {}
+
+      const existingIndex = localScores.findIndex(s => s.name && s.name.trim().toLowerCase() === runner.toLowerCase());
+      if (existingIndex !== -1) {
+        const existing = localScores[existingIndex];
+        const newSecs = timeStringToSeconds(timeVal);
+        const oldSecs = timeStringToSeconds(existing.time);
+        
+        if (newSecs >= oldSecs) {
+          if (speedrunError) {
+            speedrunError.innerHTML = `<span style="color: #FF5252;">Only faster personal bests are submitted! Your current record is ${existing.time}.</span>`;
+          }
+          return;
+        }
+      }
+
+      // 2. Build run object
+      const newRun = {
+        name: runner,
+        mode: mode,
+        time: timeVal,
+        date: new Date().toLocaleDateString(),
+        coins: coinsVal
+      };
+
+      // Update or push
+      if (existingIndex !== -1) {
+        localScores[existingIndex] = newRun;
+      } else {
+        localScores.push(newRun);
+      }
+
+      // Sort scores by time
+      localScores.sort((a, b) => timeStringToSeconds(a.time) - timeStringToSeconds(b.time));
+
+      // Save back to LocalStorage
+      try {
+        localStorage.setItem('scw_local_leaderboard', JSON.stringify(localScores));
+      } catch(err) {}
+
+      // 3. Award coins securely matching previous claims
+      let previouslyClaimed = 0;
+      try {
+        previouslyClaimed = parseInt(localStorage.getItem('scw_claimed_run_' + runner.toLowerCase()) || '0', 10);
+      } catch(err) {}
+
+      const eligibleCoins = Math.floor(coinsVal / 5);
+      const netReward = eligibleCoins - previouslyClaimed;
+
+      // Update claim tracker
+      if (eligibleCoins > previouslyClaimed) {
+        localStorage.setItem('scw_claimed_run_' + runner.toLowerCase(), eligibleCoins.toString());
+      }
+
+      if (netReward > 0) {
+        if (typeof addCoins === 'function') {
+          addCoins(netReward, btnOpenRunSub);
+        }
+      }
+
+      // 4. Sync run to Firestore if firebase is available and user matches the run
+      let currentUser = null;
+      try {
+        currentUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
+      } catch(err) {}
+
+      if (currentUser && typeof firebase !== 'undefined' && firebase.firestore) {
+        const currentDisplayName = (currentUser.displayName || currentUser.email.split('@')[0] || '').trim();
+        if (currentDisplayName.toLowerCase() === runner.toLowerCase()) {
+          try {
+            const db = firebase.firestore();
+            db.collection('leaderboard').add({
+              name: runner,
+              mode: mode,
+              time: timeVal,
+              date: newRun.date,
+              coins: coinsVal
+            }).then(() => {
+              console.log("Run successfully synced to cloud leaderboard!");
+            });
+          } catch(err) {
+            console.error("Cloud leaderboard sync failed:", err);
+          }
+        }
+      }
+
+      // 5. Update interface
+      if (typeof loadLeaderboard === 'function') {
+        loadLeaderboard();
+      }
+      if (typeof updateExchangeTerminal === 'function') {
+        updateExchangeTerminal();
+      }
+
+      // Reset form & close
+      speedrunForm.reset();
+      if (speedrunPreview) speedrunPreview.textContent = '0';
+      speedrunModal.style.display = 'none';
+      document.body.style.overflow = '';
+    });
+  }
+
   renderStressJournal();
 
 });
