@@ -2093,15 +2093,18 @@ document.addEventListener('DOMContentLoaded', () => {
     musicBtn.addEventListener('click', toggleAmbientMusic);
   }
 
-  // ==================== SCW COIN EXCHANGE SYSTEM (LEADERBOARD VALIDATED) ====================
+  // ==================== DAILY ADVENTURE JOURNAL SYSTEM (COOLDOWN VALIDATED) ====================
   function updateExchangeTerminal() {
-    const statusMsg = document.getElementById('exchange-status-message');
-    const calcRow = document.getElementById('exchange-calculation-row');
-    const btnExchange = document.getElementById('btn-exchange-coins');
-    const coinsDisplay = document.getElementById('scw-coins-display');
-    const resultDisplay = document.getElementById('exchange-result');
+    const journalText = document.getElementById('journal-text-input');
+    const journalCoins = document.getElementById('journal-coins-input');
+    const btnSubmit = document.getElementById('btn-submit-journal');
+    const timerLabel = document.getElementById('journal-cooldown-timer');
+    const conversionPreview = document.getElementById('journal-conversion-preview');
+    const journalFeedback = document.getElementById('journal-feedback');
+    const historyBox = document.getElementById('journal-history-box');
+    const historyList = document.getElementById('journal-history-list');
 
-    if (!statusMsg) return;
+    if (!btnSubmit) return;
 
     // 1. Get logged in user details
     let user = null;
@@ -2110,298 +2113,187 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch(e) {}
 
     if (!user) {
-      statusMsg.innerHTML = `<span style="color: #FF5252; font-weight: 700; font-size: 1rem;">🔒 Access Restricted</span><br><span style="color: var(--color-text-secondary); font-size: 0.85rem;">Please sign in to your profile above to link and verify your speedrun coins.</span>`;
-      if (calcRow) calcRow.style.display = 'none';
-      if (btnExchange) btnExchange.style.display = 'none';
+      if (journalFeedback) {
+        journalFeedback.innerHTML = `<span style="color: #FF5252; font-weight: 700;">🔒 Account Required</span><br><span style="font-size: 0.8rem; color: var(--color-text-secondary);">Please sign in above to write adventure logs and claim coins.</span>`;
+      }
+      if (journalText) journalText.disabled = true;
+      if (journalCoins) journalCoins.disabled = true;
+      btnSubmit.disabled = true;
+      btnSubmit.style.opacity = '0.5';
+      if (historyBox) historyBox.style.display = 'none';
       return;
     }
 
     const username = (user.displayName || user.email.split('@')[0] || '').trim();
-    
-    // 2. Load current leaderboard scores
-    let scores = [];
+
+    // Enable inputs by default
+    if (journalText) journalText.disabled = false;
+    if (journalCoins) journalCoins.disabled = false;
+    btnSubmit.disabled = false;
+    btnSubmit.style.opacity = '1';
+    if (journalFeedback) journalFeedback.innerHTML = '';
+
+    // 2. Render Check-in History Logs
+    let history = [];
     try {
-      scores = JSON.parse(localStorage.getItem('scw_local_leaderboard') || '[]');
+      history = JSON.parse(localStorage.getItem('scw_journal_history_' + username.toLowerCase()) || '[]');
     } catch(e) {}
 
-    // Find the verified fastest run matching their username
-    const matched = scores.find(s => s.name && s.name.trim().toLowerCase() === username.toLowerCase());
-
-    if (!matched) {
-      statusMsg.innerHTML = `Signed in as <strong style="color: var(--color-accent);">${escapeHtml(username)}</strong>.<br><span style="color: #FF5252; font-weight: 700; font-size: 0.95rem;">No Leaderboard Run Found</span><br><span style="color: var(--color-text-secondary); font-size: 0.85rem;">Submit a speedrun under your username first to link in-game coins!</span>`;
-      if (calcRow) calcRow.style.display = 'none';
-      if (btnExchange) btnExchange.style.display = 'none';
-      return;
+    if (historyList && historyBox) {
+      if (history.length > 0) {
+        historyBox.style.display = 'block';
+        historyList.innerHTML = '';
+        // Render last 3 entries
+        history.slice(-3).reverse().forEach(entry => {
+          const div = document.createElement('div');
+          div.style.fontSize = '0.8rem';
+          div.style.background = 'rgba(255,255,255,0.01)';
+          div.style.border = '1px solid var(--border-light)';
+          div.style.borderRadius = '6px';
+          div.style.padding = '8px';
+          div.style.color = 'var(--color-text-secondary)';
+          div.style.lineHeight = '1.4';
+          div.innerHTML = `<span style="color: var(--color-text-muted); font-size: 0.7rem; display: block; font-weight: 600;">${entry.date}</span><strong>${escapeHtml(entry.text)}</strong> (+${entry.reward} Catnip Coins)`;
+          historyList.appendChild(div);
+        });
+      } else {
+        historyBox.style.display = 'none';
+      }
     }
 
-    // Determine deterministic coin count based on run time (Sweden = 20:36.00 = 1236s = 950 coins max)
-    let coinCount = 0;
-    if (typeof matched.coins === 'number') {
-      coinCount = matched.coins;
+    // 3. Check Cooldown timer (24 hours = 86,400,000 ms)
+    const cooldown = 24 * 60 * 60 * 1000;
+    let lastLogTime = 0;
+    try {
+      lastLogTime = parseInt(localStorage.getItem('scw_last_journal_timestamp_' + username.toLowerCase()) || '0', 10);
+    } catch(e) {}
+
+    const now = Date.now();
+    const elapsed = now - lastLogTime;
+
+    if (elapsed < cooldown) {
+      // Cooldown is active! Disable fields.
+      if (journalText) journalText.disabled = true;
+      if (journalCoins) journalCoins.disabled = true;
+      btnSubmit.disabled = true;
+      btnSubmit.style.opacity = '0.5';
+
+      const remaining = cooldown - elapsed;
+      const hours = Math.floor(remaining / (3600 * 1000));
+      const mins = Math.floor((remaining % (3600 * 1000)) / (60 * 1000));
+
+      if (timerLabel) {
+        timerLabel.textContent = `Cooldown active`;
+        timerLabel.style.color = '#FF5252';
+      }
+
+      if (journalFeedback) {
+        journalFeedback.innerHTML = `<span style="color: #FF5252; font-weight: 600;">Log Locked</span><br><span style="font-size: 0.8rem; color: var(--color-text-muted);">You already checked in today! Come back in <strong>${hours}h ${mins}m</strong> to log your next adventure.</span>`;
+      }
     } else {
-      const secs = timeStringToSeconds(matched.time) || 300;
-      const base = Math.floor(secs * 1.5);
-      coinCount = Math.min(Math.max(base, 80), 950);
-    }
-
-    // 3. Check if they have already claimed this run's coins
-    let claimedAmount = 0;
-    try {
-      claimedAmount = parseInt(localStorage.getItem('scw_claimed_run_' + username.toLowerCase()) || '0', 10);
-    } catch(e) {}
-
-    if (claimedAmount > 0) {
-      statusMsg.innerHTML = `Signed in as <strong style="color: var(--color-primary);">${escapeHtml(username)}</strong>.<br><span style="color: var(--color-primary); font-weight: 700;">✓ Coins Claimed</span><br><span style="color: var(--color-text-secondary); font-size: 0.85rem;">You converted your run's coins for <strong>+${claimedAmount} Catnip Coins</strong>.<br>Beat your time and submit a new run to claim more!</span>`;
-      if (calcRow) calcRow.style.display = 'none';
-      if (btnExchange) btnExchange.style.display = 'none';
-      return;
-    }
-
-    // 4. Ready to claim
-    const catnipReturn = Math.floor(coinCount / 5);
-    statusMsg.innerHTML = `Signed in as <strong style="color: var(--color-primary);">${escapeHtml(username)}</strong>.<br>🏁 Verified Run Found! Time: <strong>${escapeHtml(matched.time)}</strong> (${escapeHtml(matched.mode || 'Standard')}).`;
-    
-    if (coinsDisplay) coinsDisplay.textContent = `${coinCount} SCW Coins`;
-    if (resultDisplay) resultDisplay.textContent = `${catnipReturn}`;
-    
-    if (calcRow) calcRow.style.display = 'flex';
-    if (btnExchange) {
-      btnExchange.style.display = 'block';
-      btnExchange.textContent = `Claim +${catnipReturn} Catnip Coins`;
+      if (timerLabel) {
+        timerLabel.textContent = `Ready to Log`;
+        timerLabel.style.color = 'var(--color-primary)';
+      }
     }
   }
 
-  // Register Exchange Click Listener
-  const btnExchange = document.getElementById('btn-exchange-coins');
-  if (btnExchange) {
-    btnExchange.addEventListener('click', () => {
+  // Register Daily Journal Submit Listeners
+  const btnSubmitJournal = document.getElementById('btn-submit-journal');
+  const journalTextInput = document.getElementById('journal-text-input');
+  const journalCoinsInput = document.getElementById('journal-coins-input');
+  const journalPreview = document.getElementById('journal-conversion-preview');
+
+  if (journalCoinsInput && journalPreview) {
+    // Dynamic preview: 5 SCW coins = 1 Catnip coin + 10 check-in reward
+    journalCoinsInput.addEventListener('input', () => {
+      const val = parseInt(journalCoinsInput.value, 10) || 0;
+      if (val < 0) {
+        journalCoinsInput.value = '0';
+      }
+      const earned = Math.floor(Math.min(val, 500) / 5) + 10;
+      journalPreview.textContent = `+${earned}`;
+    });
+  }
+
+  if (btnSubmitJournal) {
+    btnSubmitJournal.addEventListener('click', () => {
       let user = null;
       try {
         user = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
       } catch(e) {}
       if (!user) return;
-      
+
       const username = (user.displayName || user.email.split('@')[0] || '').trim();
-      
-      let scores = [];
+      const text = (journalTextInput ? journalTextInput.value : '').trim();
+      let coins = parseInt(journalCoinsInput ? journalCoinsInput.value : '0', 10) || 0;
+
+      if (!text) {
+        const fb = document.getElementById('journal-feedback');
+        if (fb) fb.innerHTML = `<span style="color: #FF5252; font-weight: 600;">Please write a journal entry.</span>`;
+        return;
+      }
+
+      // Cap at 500 coins
+      if (coins > 500) coins = 500;
+      if (coins < 0) coins = 0;
+
+      const reward = Math.floor(coins / 5) + 10;
+
+      // 1. Save timestamp and entry
+      const now = Date.now();
+      localStorage.setItem('scw_last_journal_timestamp_' + username.toLowerCase(), now.toString());
+
+      let history = [];
       try {
-        scores = JSON.parse(localStorage.getItem('scw_local_leaderboard') || '[]');
+        history = JSON.parse(localStorage.getItem('scw_journal_history_' + username.toLowerCase()) || '[]');
       } catch(e) {}
-      
-      const matched = scores.find(s => s.name && s.name.trim().toLowerCase() === username.toLowerCase());
-      if (!matched) return;
-      
-      let coinCount = 0;
-      if (typeof matched.coins === 'number') {
-        coinCount = matched.coins;
-      } else {
-        const secs = timeStringToSeconds(matched.time) || 300;
-        const base = Math.floor(secs * 1.5);
-        coinCount = Math.min(Math.max(base, 80), 950);
-      }
-      
-      const earned = Math.floor(coinCount / 5);
-      
-      // Save claimed state
-      localStorage.setItem('scw_claimed_run_' + username.toLowerCase(), earned.toString());
-      
+
+      const newEntry = {
+        text: text,
+        coins: coins,
+        reward: reward,
+        timestamp: now,
+        date: new Date().toLocaleDateString()
+      };
+
+      history.push(newEntry);
+      localStorage.setItem('scw_journal_history_' + username.toLowerCase(), JSON.stringify(history));
+
+      // 2. Add Coins
       if (typeof addCoins === 'function') {
-        addCoins(earned, btnExchange);
+        addCoins(reward, btnSubmitJournal);
       }
-      
+
+      // 3. Sync to Firestore (optional adventure log history collection)
+      if (typeof firebase !== 'undefined' && firebase.firestore) {
+        try {
+          const db = firebase.firestore();
+          db.collection('adventure_logs').add({
+            username: username,
+            text: text,
+            coins: coins,
+            reward: reward,
+            timestamp: now,
+            date: newEntry.date
+          });
+        } catch(err) {
+          console.warn("Firestore journal sync offline:", err);
+        }
+      }
+
+      // Reset fields
+      if (journalTextInput) journalTextInput.value = '';
+      if (journalCoinsInput) journalCoinsInput.value = '';
+      if (journalPreview) journalPreview.textContent = '+10';
+
+      // Refresh UI
       updateExchangeTerminal();
     });
   }
 
   // Hook terminal update to page load
   setTimeout(updateExchangeTerminal, 600);
-
-  // ==================== SPEEDRUN LOG/SUBMISSION MODAL SYSTEM ====================
-  const btnOpenRunSub = document.getElementById('btn-open-run-submission');
-  const speedrunModal = document.getElementById('speedrun-modal');
-  const btnCloseRunSub = document.getElementById('btn-close-speedrun-modal');
-  const speedrunForm = document.getElementById('speedrun-submission-form');
-  const speedrunUsername = document.getElementById('speedrun-username-input');
-  const speedrunAuthTip = document.getElementById('speedrun-auth-tip');
-  const speedrunCoins = document.getElementById('speedrun-coins-input');
-  const speedrunPreview = document.getElementById('speedrun-conversion-preview');
-  const speedrunError = document.getElementById('speedrun-error-feedback');
-
-  if (btnOpenRunSub && speedrunModal) {
-    btnOpenRunSub.addEventListener('click', () => {
-      speedrunModal.style.display = 'flex';
-      document.body.style.overflow = 'hidden';
-      
-      // Clear previous error
-      if (speedrunError) speedrunError.textContent = '';
-      
-      // Check user profile
-      let user = null;
-      try {
-        user = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
-      } catch(e) {}
-      
-      if (user) {
-        const username = (user.displayName || user.email.split('@')[0] || '').trim();
-        if (speedrunUsername) {
-          speedrunUsername.value = username;
-          speedrunUsername.readOnly = true;
-          speedrunUsername.style.opacity = '0.7';
-        }
-        if (speedrunAuthTip) speedrunAuthTip.style.display = 'none';
-      } else {
-        if (speedrunUsername) {
-          speedrunUsername.value = '';
-          speedrunUsername.readOnly = false;
-          speedrunUsername.style.opacity = '1';
-        }
-        if (speedrunAuthTip) speedrunAuthTip.style.display = 'block';
-      }
-    });
-  }
-
-  if (btnCloseRunSub && speedrunModal) {
-    btnCloseRunSub.addEventListener('click', () => {
-      speedrunModal.style.display = 'none';
-      document.body.style.overflow = '';
-    });
-  }
-
-  if (speedrunModal) {
-    speedrunModal.addEventListener('click', (e) => {
-      if (e.target === speedrunModal) {
-        speedrunModal.style.display = 'none';
-        document.body.style.overflow = '';
-      }
-    });
-  }
-
-  if (speedrunCoins && speedrunPreview) {
-    speedrunCoins.addEventListener('input', () => {
-      const coins = parseInt(speedrunCoins.value, 10) || 0;
-      speedrunPreview.textContent = Math.floor(coins / 5).toString();
-    });
-  }
-
-  if (speedrunForm) {
-    speedrunForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      
-      const runner = speedrunUsername.value.trim();
-      const mode = document.getElementById('speedrun-mode-select').value;
-      const timeVal = document.getElementById('speedrun-time-input').value.trim();
-      const coinsVal = parseInt(speedrunCoins.value, 10) || 0;
-      
-      if (!runner) {
-        if (speedrunError) speedrunError.innerHTML = `<span style="color: #FF5252;">Please enter a username.</span>`;
-        return;
-      }
-
-      // 1. Check if user already has a run
-      let localScores = [];
-      try {
-        localScores = JSON.parse(localStorage.getItem('scw_local_leaderboard') || '[]');
-      } catch (err) {}
-
-      const existingIndex = localScores.findIndex(s => s.name && s.name.trim().toLowerCase() === runner.toLowerCase());
-      if (existingIndex !== -1) {
-        const existing = localScores[existingIndex];
-        const newSecs = timeStringToSeconds(timeVal);
-        const oldSecs = timeStringToSeconds(existing.time);
-        
-        if (newSecs >= oldSecs) {
-          if (speedrunError) {
-            speedrunError.innerHTML = `<span style="color: #FF5252;">Only faster personal bests are submitted! Your current record is ${existing.time}.</span>`;
-          }
-          return;
-        }
-      }
-
-      // 2. Build run object
-      const newRun = {
-        name: runner,
-        mode: mode,
-        time: timeVal,
-        date: new Date().toLocaleDateString(),
-        coins: coinsVal
-      };
-
-      // Update or push
-      if (existingIndex !== -1) {
-        localScores[existingIndex] = newRun;
-      } else {
-        localScores.push(newRun);
-      }
-
-      // Sort scores by time
-      localScores.sort((a, b) => timeStringToSeconds(a.time) - timeStringToSeconds(b.time));
-
-      // Save back to LocalStorage
-      try {
-        localStorage.setItem('scw_local_leaderboard', JSON.stringify(localScores));
-      } catch(err) {}
-
-      // 3. Award coins securely matching previous claims
-      let previouslyClaimed = 0;
-      try {
-        previouslyClaimed = parseInt(localStorage.getItem('scw_claimed_run_' + runner.toLowerCase()) || '0', 10);
-      } catch(err) {}
-
-      const eligibleCoins = Math.floor(coinsVal / 5);
-      const netReward = eligibleCoins - previouslyClaimed;
-
-      // Update claim tracker
-      if (eligibleCoins > previouslyClaimed) {
-        localStorage.setItem('scw_claimed_run_' + runner.toLowerCase(), eligibleCoins.toString());
-      }
-
-      if (netReward > 0) {
-        if (typeof addCoins === 'function') {
-          addCoins(netReward, btnOpenRunSub);
-        }
-      }
-
-      // 4. Sync run to Firestore if firebase is available and user matches the run
-      let currentUser = null;
-      try {
-        currentUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
-      } catch(err) {}
-
-      if (currentUser && typeof firebase !== 'undefined' && firebase.firestore) {
-        const currentDisplayName = (currentUser.displayName || currentUser.email.split('@')[0] || '').trim();
-        if (currentDisplayName.toLowerCase() === runner.toLowerCase()) {
-          try {
-            const db = firebase.firestore();
-            db.collection('leaderboard').add({
-              name: runner,
-              mode: mode,
-              time: timeVal,
-              date: newRun.date,
-              coins: coinsVal
-            }).then(() => {
-              console.log("Run successfully synced to cloud leaderboard!");
-            });
-          } catch(err) {
-            console.error("Cloud leaderboard sync failed:", err);
-          }
-        }
-      }
-
-      // 5. Update interface
-      if (typeof loadLeaderboard === 'function') {
-        loadLeaderboard();
-      }
-      if (typeof updateExchangeTerminal === 'function') {
-        updateExchangeTerminal();
-      }
-
-      // Reset form & close
-      speedrunForm.reset();
-      if (speedrunPreview) speedrunPreview.textContent = '0';
-      speedrunModal.style.display = 'none';
-      document.body.style.overflow = '';
-    });
-  }
 
   renderStressJournal();
 
