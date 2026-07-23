@@ -1089,6 +1089,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof updateExchangeTerminal === 'function') {
       updateExchangeTerminal();
     }
+    if (user && typeof showExchangeConfirmationModal === 'function') {
+      const pending = parseInt(localStorage.getItem('scw_pending_claim_coins') || '0', 10);
+      if (pending > 0) {
+        localStorage.removeItem('scw_pending_claim_coins');
+        const reward = Math.floor(pending / 5);
+        setTimeout(() => {
+          showExchangeConfirmationModal(pending, reward);
+        }, 1200);
+      }
+    }
   }
 
   // Listen to Firebase Auth state
@@ -2294,6 +2304,102 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Hook terminal update to page load
   setTimeout(updateExchangeTerminal, 600);
+
+  // ==================== URL QUERY PARAMETER CLAIM HANDLER & MODAL ====================
+  const claimModal = document.getElementById('claim-confirmation-modal');
+  const btnCloseClaim = document.getElementById('btn-close-claim-modal');
+  const btnCancelClaim = document.getElementById('btn-cancel-claim');
+  const btnAcceptClaim = document.getElementById('btn-accept-claim');
+  const confirmScwDisplay = document.getElementById('confirm-scw-coins');
+  const confirmRewardDisplay = document.getElementById('confirm-catnip-reward');
+
+  let activeScwCoins = 0;
+  let activeCatnipReward = 0;
+
+  function showExchangeConfirmationModal(scwCoins, reward) {
+    if (!claimModal) return;
+    activeScwCoins = scwCoins;
+    activeCatnipReward = reward;
+
+    if (confirmScwDisplay) confirmScwDisplay.textContent = scwCoins;
+    if (confirmRewardDisplay) confirmRewardDisplay.textContent = reward;
+
+    claimModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+
+  // Expose it globally so updateAuthStateUI can see it
+  window.showExchangeConfirmationModal = showExchangeConfirmationModal;
+
+  function closeClaimModal() {
+    if (claimModal) {
+      claimModal.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+  }
+
+  if (btnCloseClaim) btnCloseClaim.addEventListener('click', closeClaimModal);
+  if (btnCancelClaim) btnCancelClaim.addEventListener('click', closeClaimModal);
+  
+  if (claimModal) {
+    claimModal.addEventListener('click', (e) => {
+      if (e.target === claimModal) closeClaimModal();
+    });
+  }
+
+  if (btnAcceptClaim) {
+    btnAcceptClaim.addEventListener('click', () => {
+      if (activeCatnipReward > 0) {
+        if (typeof addCoins === 'function') {
+          addCoins(activeCatnipReward, btnAcceptClaim);
+        }
+      }
+      closeClaimModal();
+    });
+  }
+
+  function handleUrlCoinClaims() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const claimCoinsParam = urlParams.get('claim_coins');
+    if (!claimCoinsParam) return;
+
+    const coinsToExchange = parseInt(claimCoinsParam, 10) || 0;
+    if (coinsToExchange <= 0) return;
+
+    // Clean URL query parameters immediately using history API to prevent refresh double-claim
+    const newUrl = window.location.pathname + window.location.hash;
+    window.history.replaceState({}, document.title, newUrl);
+
+    // Check logged in user
+    let user = null;
+    try {
+      user = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
+    } catch(e) {}
+
+    const reward = Math.floor(coinsToExchange / 5);
+
+    if (user) {
+      setTimeout(() => {
+        showExchangeConfirmationModal(coinsToExchange, reward);
+      }, 1000);
+    } else {
+      // Save pending claim in LocalStorage
+      localStorage.setItem('scw_pending_claim_coins', coinsToExchange.toString());
+      
+      // Prompt user to sign in
+      alert(`🎮 Game Session Found!\n\nYou have +${reward} Catnip Coins (${coinsToExchange} SCW Coins) pending! Please Sign In or Create an Account above to claim them.`);
+      
+      // Open auth modal automatically to help them log in!
+      const authModal = document.getElementById('auth-modal');
+      if (authModal) {
+        authModal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+      }
+    }
+  }
+
+  // Run URL claim check on page load
+  setTimeout(handleUrlCoinClaims, 1500);
 
   renderStressJournal();
 
