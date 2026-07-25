@@ -91,9 +91,9 @@ document.addEventListener('DOMContentLoaded', () => {
       category: 'lore',
       tag: 'Lore Book',
       content: `
-        <p class="text-italic">"Long ago, the Great Catnip Tree gave birth to the Nine Feline Realms. The Cat Clan lived in peace... until the Rat King coveted the Golden Catnip."</p>
+        <p class="text-italic">"Long ago, before time had a name, the Great Catnip Tree sprouted in the center of the cosmos. Its roots tapped into ancient wells of magic, and its leaves breathed life into the world, bringing forth the Nine Feline Realms. The Cat Clan built their grand cities in its shade, living in eternal peace and harmony. They guarded the Golden Catnip, a sacred relic keeping their magic alive. But darkness brewed in the lowlands. The Rat King, jealous of their prosperity, coveted the Golden Catnip's power to fuel his dark legion."</p>
         <h4>Lore & Meaning</h4>
-        <p>This inaugural volume reveals the mythic creation story of the Cat Clan and the Nine Feline Realms by the Great Catnip Tree. It details the peaceful era of feline civilization before conflict erupted when the Rat King launched an assault to claim the sacred Golden Catnip.</p>
+        <p>This inaugural volume reveals the mythic creation story of the Cat Clan and the Nine Feline Realms by the Great Catnip Tree. It details the peaceful era of feline civilization before conflict erupted when the Rat King launched an assault to claim the sacred Golden Catnip to power his armies.</p>
         <p><strong>Unlock Location:</strong> World 1 (Level 0)</p>
       `
     },
@@ -102,9 +102,9 @@ document.addEventListener('DOMContentLoaded', () => {
       category: 'lore',
       tag: 'Lore Book',
       content: `
-        <p class="text-italic">"The Rat King constructed his fortress atop ancient ruins, forging iron-tipped spears and training archers to repel any feline intruders."</p>
+        <p class="text-italic">"Following his sudden invasion, the Rat King seized the sacred grounds and constructed his iron fortress directly atop the ancient cat ruins. He forced his subjects to mine the deep mountains, forging iron-tipped spears and heavy armor for his soldiers. He trained legions of archers, positioning them along the high stone ramparts to repel feline scout parties. Whispers echoed in the walls of the castle of hidden passages and dark dungeons where captured kittens were locked away, waiting for a savior."</p>
         <h4>Lore & Meaning</h4>
-        <p>Documents the Rat King's militarization after seizing territory. He erected a heavy iron stronghold over sacred feline ruins, equipping spear-throwers and archers to defend his perimeter against cat scouts.</p>
+        <p>Documents the Rat King's militarization after seizing territory. He erected a heavy iron stronghold over sacred feline ruins, forcing his subjects to mine the deep mountains to forge gear for spear-throwers and archers to defend his perimeter against cat scouts.</p>
         <p><strong>Unlock Location:</strong> World 4 (Level 3)</p>
       `
     },
@@ -113,9 +113,9 @@ document.addEventListener('DOMContentLoaded', () => {
       category: 'lore',
       tag: 'Lore Book',
       content: `
-        <p class="text-italic">"When cornered, the Rat King unleashes floor traps and shadow clones. Legend says only well-timed stomps can shatter his defense."</p>
+        <p class="text-italic">"A dusty scroll found in the castle vaults details the secrets of the throne room. When cornered, the Rat King relies on illusion magic, summoning shadow clones to confuse his attackers while hiding behind iron shields. He triggers floor spike traps to catch foes off balance. However, the scroll notes a critical weakness: his crown is heavy, making his head vulnerable. Legend says only well-timed stomps from above can shatter his defense and break his magical barrier."</p>
         <h4>Lore & Meaning</h4>
-        <p>A tactical codex detailing the Rat King's boss combat patterns. It explains his reliance on shadow clones and concealed floor spikes when cornered, advising heroes that precise jumping stomps are necessary to crack his armor.</p>
+        <p>A tactical codex detailing the Rat King's boss combat patterns. It explains his reliance on shadow clones and concealed floor spikes when cornered, advising heroes that precise jumping stomps are necessary to crack his crown armor.</p>
         <p><strong>Unlock Location:</strong> World 5 (Level 4)</p>
       `
     },
@@ -124,9 +124,9 @@ document.addEventListener('DOMContentLoaded', () => {
       category: 'lore',
       tag: 'Lore Book',
       content: `
-        <p class="text-italic">"Pirate Captain Rattail fled to the sky islands, building floating warships to hoard sky coins away from land-dwelling cats."</p>
+        <p class="text-italic">"When the Rat King's ground fortress fell, his chief naval commander, Pirate Captain Rattail, refused to surrender. Gathering the remaining royal treasures, he fled to the sky islands. There, using floating lumber and sky sails, he constructed an armada of massive wooden warships. He began raiding the trade routes, hoarding thousands of golden sky coins on his vessels. Safe in the clouds, he believed no land-dwelling cat could ever reach his airborne treasury or breach his fleet."</p>
         <h4>Lore & Meaning</h4>
-        <p>Introduces the second major antagonist, Pirate Captain Rattail. Following the fall of the land fortress, Rattail constructed an armada of floating sky ships to hoard the kingdom's sky coins out of reach.</p>
+        <p>Introduces the second major antagonist, Pirate Captain Rattail. Following the fall of the land fortress, Rattail constructed an armada of floating sky ships to hoard the kingdom's sky coins out of reach of land-dwelling cats.</p>
         <p><strong>Unlock Location:</strong> World 7 (Level 6)</p>
       `
     },
@@ -135,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
       category: 'lore',
       tag: 'Lore Book',
       content: `
-        <p class="text-italic">"Captain Rattail swore never to drop anchor until he found the Legendary Sky Fish. His flagship is armed with heavy cannons and spinning yarn!"</p>
+        <p class="text-italic">"Obsessed with the legends of the clouds, Captain Rattail made a solemn vow to never drop anchor until he caught the Legendary Sky Fish, a mythical creature said to grant infinite wishes. His massive flagship, the Sea-Rat, was custom-built for this hunt, armed with double-deck heavy cannons firing explosive iron balls. To repel agile invaders, he rigged spinning yarn launch pads and flying harpoons across the decks, turning his flagship into a floating fortress of death."</p>
         <h4>Lore & Meaning</h4>
         <p>Exposes Captain Rattail's obsession with capturing the Legendary Sky Fish. It warns players of his sky flagship's weapons: heavy naval cannonballs and spinning yarn traps designed to entangle airborne cats.</p>
         <p><strong>Unlock Location:</strong> World 11 (Level 10)</p>
@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
       category: 'lore',
       tag: 'Lore Book',
       content: `
-        <p class="text-italic">"Deep beneath the mountains lie crystal caverns and rivers of magma. Only cats with Fire Protection can withstand the subterranean heat."</p>
+        <p class="text-italic">"Beneath the roots of the world lies a network of ancient caves, glowing with giant luminous crystals and flowing rivers of boiling magma. Feline miners once gathered rare gems here, but the heat grew too intense as volcanic fissures opened. The texts warn that the deep caverns are completely impassable without magical protection. Only a hero wearing the Fire Protector aura can walk through the ash storms, withstand the magma hazards, and survive the scorching subterranean beasts."</p>
         <h4>Lore & Meaning</h4>
         <p>Explores the volcanic subterranean biome beneath the World of Catz. It warns of rivers of magma and highlights the necessity of equipping the <strong>Fire Protector</strong> power-up to traverse hot magma zones unharmed.</p>
         <p><strong>Unlock Location:</strong> World 13 (Level 12)</p>
@@ -157,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
       category: 'lore',
       tag: 'Lore Book',
       content: `
-        <p class="text-italic">"Miner Boss Rattock dug too deep into the ancient ore veins, unleashing cave-ins and volatile minecart explosives."</p>
+        <p class="text-italic">"Blinded by a thirst for riches, Miner Boss Rattock commanded his workers to dig deeper into the mountain than anyone had ever dared. They breached the ancient volcanic core, triggers earthquakes and mine collapses. Rather than retreating, Rattock weaponized the chaos. He designed high-speed minecarts filled with unstable TNT explosives and rigged the cavern arches to drop crushing boulders on intruders. His greed consumed him, transforming him into a paranoid warden of the dark mines."</p>
         <h4>Lore & Meaning</h4>
         <p>Details the background of the third boss, Miner Boss Rattock. Obsessed with subterranean crystal mining, Rattock destabilized the caverns, weaponizing rolling minecart explosives and falling ceiling debris.</p>
         <p><strong>Unlock Location:</strong> World 22 (Level 21)</p>
@@ -168,10 +168,21 @@ document.addEventListener('DOMContentLoaded', () => {
       category: 'lore',
       tag: 'Lore Book',
       content: `
-        <p class="text-italic">"Beyond the silver pipes lies a shifting dimension of corrupted code and inverted gravity. Few cats ever return from this frontier."</p>
+        <p class="text-italic">"At the edge of reality, hidden behind the secret silver pipes, lies a fractured dimension known as the Glitched Lands. In this bizarre realm, the laws of physics break down entirely. Platforms flicker in and out of existence, gravity flips upside down at a moment's notice, and reality itself appears corrupted by digital anomalies. The elder cats warned that this frontier is a one-way trip, as the unstable fabric of the realm tears apart any traveler who lacks absolute focus."</p>
         <h4>Lore & Meaning</h4>
-        <p>The final mystery codex describing the endgame dimension known as <strong>The Gliched Lands</strong>. Located beyond secret silver pipes, this corrupted zone alters gravity and reality, standing as the ultimate test of platforming mastery.</p>
-        <p><strong>Unlock Location:</strong> World 26 (Level 25 - Gliched Lands)</p>
+        <p>The mystery codex describing the endgame dimension known as <strong>The Glitched Lands</strong>. Located beyond secret silver pipes, this corrupted zone alters gravity and reality, standing as the ultimate test of platforming mastery.</p>
+        <p><strong>Unlock Location:</strong> World 26 (Level 25 - Glitched Lands)</p>
+      `
+    },
+    'lore-book-9': {
+      title: 'Book IX: The Glitched Core',
+      category: 'lore',
+      tag: 'Lore Book',
+      content: `
+        <p class="text-italic">"Deep inside the glitched dimension floats the source of all instability: the Glitched Core. It is a sentient, pulsing heart made of corrupted source code and chaotic energy. The Core seeks to rewrite the entire universe in its own image, threatening to dissolve the Nine Feline Realms into static. The ancient prophets wrote that only a hero brave enough to navigate the shifting gravity fields and destroy the Core's firewall can permanently stabilize the code, saving reality."</p>
+        <h4>Lore & Meaning</h4>
+        <p>The final codex entry of the game describing the central anomaly of the Glitched Realm: <strong>The Glitched Core</strong>. Defeating this digital heart stabilizes reality and rescues the world from corruption.</p>
+        <p><strong>Unlock Location:</strong> World 30 (Level 29 - final Core boss arena)</p>
       `
     }
   };
