@@ -91,9 +91,9 @@ document.addEventListener('DOMContentLoaded', () => {
       category: 'lore',
       tag: 'Lore Book',
       content: `
-        <p class="text-italic">"Long ago, before time had a name, the Great Catnip Tree sprouted in the center of the cosmos. Its roots tapped into ancient wells of magic, and its leaves breathed life into the world, bringing forth the Nine Feline Realms. The Cat Clan built their grand cities in its shade, living in eternal peace and harmony. They guarded the Golden Catnip, a sacred relic keeping their magic alive. But darkness brewed in the lowlands. The Rat King, jealous of their prosperity, coveted the Golden Catnip's power to fuel his dark legion."</p>
+        <p class="text-italic">"Long ago, before time had a name, the Great Catnip Tree sprouted in the center of the cosmos. Its roots tapped into ancient wells of magic, and its leaves breathed life into the world, bringing forth the Nine Feline Realms. The Cat Clan built their grand cities in its shade, living in eternal peace and harmony. They guarded the Golden Catnip, a sacred relic keeping their magic alive. But darkness brewed in the lowlands. The Rat King, Miner rat and the pirate rat, jealous of their prosperity, coveted the Golden Catnip's power to fuel his dark legion."</p>
         <h4>Lore & Meaning</h4>
-        <p>This inaugural volume reveals the mythic creation story of the Cat Clan and the Nine Feline Realms by the Great Catnip Tree. It details the peaceful era of feline civilization before conflict erupted when the Rat King launched an assault to claim the sacred Golden Catnip to power his armies.</p>
+        <p>This inaugural volume reveals the mythic creation story of the Cat Clan and the Nine Feline Realms by the Great Catnip Tree. It details the peaceful era of feline civilization before conflict erupted when the Rat King, Miner rat, and pirate rat launched an assault to claim the sacred Golden Catnip to power their armies.</p>
         <p><strong>Unlock Location:</strong> World 1 (Level 0)</p>
       `
     },
