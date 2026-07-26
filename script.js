@@ -334,7 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (sectionId === 'secrets') {
       const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
       const localEmail = (localUser && typeof localUser.email === 'string') ? localUser.email.toLowerCase() : '';
-      const isDevSession = localEmail === 'kyclawzcatnip@gmail.com' || localEmail === 'catnip';
+      const isDevSession = localEmail === 'kyclawzcatnip@gmail.com' || localEmail === 'catnip' || localEmail === 'admin';
       const isAuth = sessionStorage.getItem('dev_auth') === 'true' || isDevSession;
       
       if (!isAuth) {
@@ -490,7 +490,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Check if the current logged-in user is the developer (catnip)
     const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
     const localEmail = (localUser && typeof localUser.email === 'string') ? localUser.email.toLowerCase() : '';
-    const isDevSession = localEmail === 'kyclawzcatnip@gmail.com' || localEmail === 'catnip';
+    const isDevSession = localEmail === 'kyclawzcatnip@gmail.com' || localEmail === 'catnip' || localEmail === 'admin';
 
     // If already authenticated or logged in as Dev, jump straight to panel
     if (sessionStorage.getItem('dev_auth') === 'true' || isDevSession) {
@@ -1118,7 +1118,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Automatically unlock Dev Portal if user is the dev (catnip)
       const localEmail = typeof user.email === 'string' ? user.email.toLowerCase() : '';
-      const isDevSession = localEmail === 'kyclawzcatnip@gmail.com' || localEmail === 'catnip';
+      const isDevSession = localEmail === 'kyclawzcatnip@gmail.com' || localEmail === 'catnip' || localEmail === 'admin';
       if (isDevSession) {
         unlockDevPortalUI();
       }
@@ -1193,7 +1193,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (savedUser) {
           updateAuthStateUI(savedUser);
           
-          const isDev = savedUser.email && (savedUser.email.toLowerCase() === 'kyclawzcatnip@gmail.com' || savedUser.email.toLowerCase() === 'catnip');
+          const isDev = savedUser.email && (savedUser.email.toLowerCase() === 'kyclawzcatnip@gmail.com' || savedUser.email.toLowerCase() === 'catnip' || savedUser.email.toLowerCase() === 'admin');
           if (isDev) {
             userCoins = 9999;
             ownedItems = ["golden-name", "purple-border", "crown-badge", "sound-pack"];
@@ -1298,7 +1298,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Check if there are existing coins/items in database to load
             let existingCoins = 0;
             let existingItems = [];
-            if (email.toLowerCase() === 'kyclawzcatnip@gmail.com' || email.toLowerCase() === 'catnip') {
+            if (email.toLowerCase() === 'kyclawzcatnip@gmail.com' || email.toLowerCase() === 'catnip' || email.toLowerCase() === 'admin') {
               existingCoins = 9999;
               existingItems = ["golden-name", "purple-border", "crown-badge", "sound-pack"];
             } else {
@@ -1338,7 +1338,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         let existingCoins = 0;
         let existingItems = [];
-        if (email.toLowerCase() === 'kyclawzcatnip@gmail.com' || email.toLowerCase() === 'catnip') {
+        if (email.toLowerCase() === 'kyclawzcatnip@gmail.com' || email.toLowerCase() === 'catnip' || email.toLowerCase() === 'admin') {
           existingCoins = 9999;
           existingItems = ["golden-name", "purple-border", "crown-badge", "sound-pack"];
         } else {
@@ -1403,7 +1403,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
     if (savedUser) {
       updateAuthStateUI(savedUser);
-      const isDev = savedUser.email && (savedUser.email.toLowerCase() === 'kyclawzcatnip@gmail.com' || savedUser.email.toLowerCase() === 'catnip');
+      const isDev = savedUser.email && (savedUser.email.toLowerCase() === 'kyclawzcatnip@gmail.com' || savedUser.email.toLowerCase() === 'catnip' || savedUser.email.toLowerCase() === 'admin');
       if (isDev) {
         userCoins = 9999;
         ownedItems = ["golden-name", "purple-border", "crown-badge", "sound-pack"];
@@ -1861,13 +1861,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Fetch current local storage user profile safely
     const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
     const localEmail = (localUser && typeof localUser.email === 'string') ? localUser.email.toLowerCase() : '';
-    const isDevSession = localEmail === 'kyclawzcatnip@gmail.com' || localEmail === 'catnip';
+    const isDevSession = localEmail === 'kyclawzcatnip@gmail.com' || localEmail === 'catnip' || localEmail === 'admin';
 
     // 1. Add static mock accounts for flavor
     userProfiles.push({
       uid: "mock_dev",
-      username: "catnip (Dev)",
-      email: "kyclawzcatnip@gmail.com",
+      username: isDevSession ? `${localUser.displayName || localEmail} (Dev)` : "catnip (Dev)",
+      email: isDevSession ? localEmail : "kyclawzcatnip@gmail.com",
       coins: 9999,
       cosmetics: ["golden-name", "purple-border", "crown-badge", "sound-pack"],
       status: isDevSession ? "Staff / Online (Dev)" : "Staff / Offline"
