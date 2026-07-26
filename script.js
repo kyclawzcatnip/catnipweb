@@ -1217,7 +1217,10 @@ document.addEventListener('DOMContentLoaded', () => {
           
           const isDev = savedUser.email && (savedUser.email.toLowerCase() === 'kyclawzcatnip@gmail.com' || savedUser.email.toLowerCase() === 'catnip' || savedUser.email.toLowerCase() === 'admin');
           if (isDev) {
-            userCoins = 9999;
+            loadCoinsFromLocalStorage();
+            if (userCoins < 9999) {
+              userCoins = 9999;
+            }
             ownedItems = ["golden-name", "purple-border", "crown-badge", "sound-pack"];
             activeCosmetics = ["golden-name", "purple-border", "crown-badge", "sound-pack"];
             updateCoinUI();
@@ -1321,7 +1324,13 @@ document.addEventListener('DOMContentLoaded', () => {
             let existingCoins = 0;
             let existingItems = [];
             if (email.toLowerCase() === 'kyclawzcatnip@gmail.com' || email.toLowerCase() === 'catnip' || email.toLowerCase() === 'admin') {
-              existingCoins = 9999;
+              let stored = 0;
+              try {
+                const localDb = JSON.parse(localStorage.getItem('scw_local_profiles_database') || '[]');
+                const matched = localDb.find(u => u.email === email);
+                if (matched) stored = matched.coins || 0;
+              } catch(e) {}
+              existingCoins = Math.max(9999, stored);
               existingItems = ["golden-name", "purple-border", "crown-badge", "sound-pack"];
             } else {
               try {
@@ -1361,7 +1370,13 @@ document.addEventListener('DOMContentLoaded', () => {
         let existingCoins = 0;
         let existingItems = [];
         if (email.toLowerCase() === 'kyclawzcatnip@gmail.com' || email.toLowerCase() === 'catnip' || email.toLowerCase() === 'admin') {
-          existingCoins = 9999;
+          let stored = 0;
+          try {
+            const localDb = JSON.parse(localStorage.getItem('scw_local_profiles_database') || '[]');
+            const matched = localDb.find(u => u.email === email);
+            if (matched) stored = matched.coins || 0;
+          } catch(e) {}
+          existingCoins = Math.max(9999, stored);
           existingItems = ["golden-name", "purple-border", "crown-badge", "sound-pack"];
         } else {
           try {
@@ -1427,7 +1442,10 @@ document.addEventListener('DOMContentLoaded', () => {
       updateAuthStateUI(savedUser);
       const isDev = savedUser.email && (savedUser.email.toLowerCase() === 'kyclawzcatnip@gmail.com' || savedUser.email.toLowerCase() === 'catnip' || savedUser.email.toLowerCase() === 'admin');
       if (isDev) {
-        userCoins = 9999;
+        loadCoinsFromLocalStorage();
+        if (userCoins < 9999) {
+          userCoins = 9999;
+        }
         ownedItems = ["golden-name", "purple-border", "crown-badge", "sound-pack"];
         activeCosmetics = ["golden-name", "purple-border", "crown-badge", "sound-pack"];
         updateCoinUI();
@@ -1886,7 +1904,7 @@ document.addEventListener('DOMContentLoaded', () => {
       uid: "mock_dev",
       username: isDevSession ? `${localUser.displayName || localEmail} (Dev)` : "catnip (Dev)",
       email: isDevSession ? localEmail : "kyclawzcatnip@gmail.com",
-      coins: 9999,
+      coins: isDevSession ? userCoins : 9999,
       cosmetics: ["golden-name", "purple-border", "crown-badge", "sound-pack"],
       status: isDevSession ? "Staff / Online (Dev)" : "Staff / Offline"
     });
