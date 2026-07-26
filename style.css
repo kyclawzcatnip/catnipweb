@@ -871,6 +871,11 @@ p {
   border: 1px solid rgba(255, 82, 82, 0.4);
   box-shadow: 0 0 10px rgba(255, 82, 82, 0.1);
 }
+.beta-badge {
+  background: linear-gradient(135deg, #00E676, #00B0FF);
+  color: #030206 !important;
+  box-shadow: 0 0 15px rgba(0, 230, 118, 0.4);
+}
 
 .game-info {
   padding: 45px;
