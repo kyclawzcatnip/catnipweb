@@ -1010,6 +1010,12 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // Safe Firebase Initialization
+  let firebase = typeof window !== 'undefined' ? window.firebase : undefined;
+  const isMockKey = firebaseConfig.apiKey === "AIzaSy_CATNIP_STUDIOS_FIREBASE_KEY";
+  if (isMockKey) {
+    firebase = undefined;
+  }
+
   let firebaseAuth = null;
   if (typeof firebase !== 'undefined' && firebase.auth) {
     try {
