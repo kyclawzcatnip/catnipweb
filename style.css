@@ -938,7 +938,7 @@ p {
 /* Secondary Games Grid */
 .other-games-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 30px;
 }
 
@@ -2530,5 +2530,16 @@ p {
     gap: 20px;
     padding: 20px;
   }
+  .shop-dashboard {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+.shop-dashboard {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 30px;
+  width: 100%;
 }
 
