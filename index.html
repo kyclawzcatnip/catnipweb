@@ -269,30 +269,34 @@
           <!-- Secondary Grid for other games -->
           <div class="other-games-grid">
             
-            <!-- Game 2: Catnip -->
+            <!-- Game 2: Super Smash Cats -->
             <div class="game-showcase-card">
               <div class="game-media mini-media">
                 <svg width="100%" height="150" viewBox="0 0 300 150" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <rect width="100%" height="100%" fill="#14192d"/>
-                  <circle cx="150" cy="75" r="40" fill="rgba(124, 77, 255, 0.1)"/>
-                  <path d="M40 100H260" stroke="#7C4DFF" stroke-width="2" stroke-linecap="round"/>
-                  <!-- Cat vector -->
-                  <circle cx="150" cy="85" r="12" fill="#7C4DFF"/>
-                  <polygon points="140,78 144,65 148,76" fill="#7C4DFF"/>
-                  <polygon points="152,76 156,65 160,78" fill="#7C4DFF"/>
-                  <!-- Floating yarn ball -->
-                  <circle cx="200" cy="60" r="8" fill="#00E676"/>
+                  <rect width="100%" height="100%" fill="#1a1220"/>
+                  <!-- Battle ring circle -->
+                  <circle cx="150" cy="75" r="45" stroke="rgba(255, 82, 82, 0.15)" stroke-width="2" stroke-dasharray="6 3"/>
+                  <!-- Slashing clash effects (crossed claw slashes) -->
+                  <path d="M120 105L180 45" stroke="#FF5252" stroke-width="3" stroke-linecap="round"/>
+                  <path d="M125 105L185 45" stroke="#FF5252" stroke-width="1" stroke-linecap="round"/>
+                  <path d="M180 105L120 45" stroke="#7C4DFF" stroke-width="3" stroke-linecap="round"/>
+                  <path d="M175 105L115 45" stroke="#7C4DFF" stroke-width="1" stroke-linecap="round"/>
+                  <!-- Center burst highlight -->
+                  <circle cx="150" cy="75" r="12" fill="#fff" opacity="0.9" style="filter: drop-shadow(0 0 8px #FFD700);"/>
+                  <!-- Angry cat silhouettes -->
+                  <text x="75" y="105" font-size="24" transform="rotate(-15 75 105)">🐱</text>
+                  <text x="195" y="65" font-size="24" transform="rotate(15 195 65)">🐱</text>
                 </svg>
                 <div class="game-status-badge dev-badge">In Dev</div>
               </div>
               <div class="game-info-mini">
-                <h4 class="game-title">Catnip</h4>
-                <p class="game-description font-readable">Collect catnip yarn and navigate platform obstacles in our classic retro-style 2D side-scrolling platformer prototype.</p>
+                <h4 class="game-title">Super Smash Cats</h4>
+                <p class="game-description font-readable">Choose your champion feline and battle on shifting platforms. Use claw attacks, meow-powers, and explosive yarn to knock opponents out of the arena in this chaotic brawl prototype.</p>
                 <div class="mini-spec-row">
                   <span>Engine: Vanilla JS</span>
                   <span>Platform: Web</span>
                 </div>
-                <a href="https://kyclawzcatnip.github.io/catnip/" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">Play Prototype</a>
+                <a href="https://kyclawzcatnip.github.io/catnip/" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">Battle Now</a>
               </div>
             </div>
 
@@ -1341,6 +1345,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
   <!-- Main Script File -->
-  <script src="script.js?v=20260722z2"></script>
+  <script src="script.js?v=20260722z3"></script>
 </body>
 </html>
