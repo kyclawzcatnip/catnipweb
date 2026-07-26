@@ -2715,52 +2715,92 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Super Smash Cats Mini-Battle Arena
+  // Super Smash Cats Mini-Battle Arena (2D Canvas Platformer Brawler)
   function initSmashCatsBrawler() {
     const playBtn = document.getElementById('play-mini-battle-btn');
     const battleModal = document.getElementById('battle-modal');
     const closeBtn = document.getElementById('btn-close-battle-modal');
     const escapeBtn = document.getElementById('btn-battle-escape');
     const finishBtn = document.getElementById('btn-battle-finish');
-    
-    const scratchBtn = document.getElementById('btn-battle-scratch');
-    const stompBtn = document.getElementById('btn-battle-stomp');
-    const specialBtn = document.getElementById('btn-battle-special');
-    
-    const playerHpBar = document.getElementById('battle-player-hp-bar');
-    const playerHpText = document.getElementById('battle-player-hp-text');
-    const playerPowerBar = document.getElementById('battle-player-power-bar');
-    const playerPowerText = document.getElementById('battle-player-power-text');
-    
-    const enemyIconEl = document.getElementById('battle-enemy-icon');
-    const enemyNameEl = document.getElementById('battle-enemy-name');
-    const enemyHpBar = document.getElementById('battle-enemy-hp-bar');
-    const enemyHpText = document.getElementById('battle-enemy-hp-text');
-    
-    const turnBanner = document.getElementById('battle-turn-banner');
-    const combatLog = document.getElementById('battle-combat-log');
+    const canvas = document.getElementById('battle-canvas');
     const resultOverlay = document.getElementById('battle-result-overlay');
     
-    if (!playBtn || !battleModal) return;
+    if (!playBtn || !battleModal || !canvas) return;
     
-    let playerHP = 100;
-    let enemyHP = 100;
-    let playerPower = 0;
-    let isMyTurn = true;
+    const ctx = canvas.getContext('2d');
+    let animationFrameId = null;
     let isGameOver = false;
-    let currentEnemy = { name: "Miner Rat", icon: "🐭", maxHP: 100, dmgMultiplier: 1.0 };
+    let victoryClaimed = false;
     
-    const ratProfiles = [
-      { name: "Miner Rat", icon: "🐭", maxHP: 90, dmgMultiplier: 0.95 },
-      { name: "Pirate Rat", icon: "🏴‍☠️", maxHP: 110, dmgMultiplier: 1.15 },
-      { name: "Rat King", icon: "👑", maxHP: 140, dmgMultiplier: 1.3 }
-    ];
+    // Physics constants
+    const GRAVITY = 0.45;
+    const HORIZ_FRICTION = 0.82;
     
-    const addLog = (msg) => {
-      combatLog.innerHTML += `<br>* ${msg}`;
-      combatLog.scrollTop = combatLog.scrollHeight;
+    // Entity structures
+    const player = {
+      x: 100,
+      y: 150,
+      vx: 0,
+      vy: 0,
+      w: 24,
+      h: 24,
+      hp: 100,
+      maxHp: 100,
+      facing: 1, // 1 = right, -1 = left
+      isJumping: false,
+      lastAttackTime: 0,
+      attackActiveTime: 0,
+      attackCooldown: 250, // ms
+      attackDuration: 120, // ms
+      color: '#7C4DFF'
     };
     
+    const enemy = {
+      x: 370,
+      y: 150,
+      vx: 0,
+      vy: 0,
+      w: 24,
+      h: 24,
+      hp: 100,
+      maxHp: 100,
+      facing: -1,
+      isJumping: false,
+      lastAttackTime: 0,
+      attackActiveTime: 0,
+      attackCooldown: 1000,
+      attackDuration: 150,
+      color: '#FF5252',
+      aiState: 'wander',
+      aiTimer: 0,
+      icon: '🐭',
+      name: 'Miner Rat',
+      speed: 1.4
+    };
+    
+    const ratProfiles = [
+      { name: "Miner Rat", icon: "🐭", maxHP: 90, speed: 1.5, dmg: 8 },
+      { name: "Pirate Rat", icon: "🏴‍☠️", maxHP: 110, speed: 1.8, dmg: 12 },
+      { name: "Rat King", icon: "👑", maxHP: 145, speed: 2.1, dmg: 16 }
+    ];
+    
+    // Platforms list
+    const platforms = [
+      { x: 50, y: 220, w: 400, h: 15, color: '#151025', borderColor: '#7C4DFF' },
+      { x: 70, y: 150, w: 120, h: 10, color: '#151025', borderColor: '#00B0FF' },
+      { x: 310, y: 150, w: 120, h: 10, color: '#151025', borderColor: '#00B0FF' }
+    ];
+    
+    // Floating damage popup particles array
+    let damagePopups = [];
+    
+    // Keyboard inputs state
+    const keys = {
+      a: false, d: false, w: false, space: false, j: false,
+      ArrowLeft: false, ArrowRight: false, ArrowUp: false
+    };
+    
+    // Synthesizer Audio
     const synthAudio = (type) => {
       try {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -2770,32 +2810,32 @@ document.addEventListener('DOMContentLoaded', () => {
         const gain = ctx.createGain();
         osc.connect(gain);
         gain.connect(ctx.destination);
-        
         const now = ctx.currentTime;
-        if (type === 'hit') {
+        
+        if (type === 'jump') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(200, now);
+          osc.frequency.exponentialRampToValueAtTime(600, now + 0.12);
+          gain.gain.setValueAtTime(0.18, now);
+          gain.gain.linearRampToValueAtTime(0.01, now + 0.12);
+          osc.start(now);
+          osc.stop(now + 0.12);
+        } else if (type === 'hit') {
           osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(150, now);
-          osc.frequency.exponentialRampToValueAtTime(800, now + 0.1);
-          gain.gain.setValueAtTime(0.3, now);
-          gain.gain.linearRampToValueAtTime(0.01, now + 0.1);
+          osc.frequency.setValueAtTime(120, now);
+          osc.frequency.exponentialRampToValueAtTime(700, now + 0.08);
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.linearRampToValueAtTime(0.01, now + 0.08);
           osc.start(now);
-          osc.stop(now + 0.1);
-        } else if (type === 'stomp') {
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(100, now);
-          osc.frequency.exponentialRampToValueAtTime(40, now + 0.15);
-          gain.gain.setValueAtTime(0.4, now);
-          gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
-          osc.start(now);
-          osc.stop(now + 0.15);
-        } else if (type === 'special') {
+          osc.stop(now + 0.08);
+        } else if (type === 'fall') {
           osc.type = 'sine';
           osc.frequency.setValueAtTime(300, now);
-          osc.frequency.exponentialRampToValueAtTime(1200, now + 0.25);
+          osc.frequency.linearRampToValueAtTime(80, now + 0.35);
           gain.gain.setValueAtTime(0.3, now);
-          gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+          gain.gain.linearRampToValueAtTime(0.01, now + 0.35);
           osc.start(now);
-          osc.stop(now + 0.25);
+          osc.stop(now + 0.35);
         } else if (type === 'victory') {
           const notes = [261.63, 329.63, 392.00, 523.25];
           notes.forEach((freq, index) => {
@@ -2804,191 +2844,350 @@ document.addEventListener('DOMContentLoaded', () => {
             oscNote.connect(gainNote);
             gainNote.connect(ctx.destination);
             oscNote.type = 'square';
-            oscNote.frequency.setValueAtTime(freq, now + index * 0.1);
-            gainNote.gain.setValueAtTime(0.15, now + index * 0.1);
-            gainNote.gain.linearRampToValueAtTime(0.01, now + index * 0.1 + 0.18);
-            oscNote.start(now + index * 0.1);
-            oscNote.stop(now + index * 0.1 + 0.18);
+            oscNote.frequency.setValueAtTime(freq, now + index * 0.09);
+            gainNote.gain.setValueAtTime(0.12, now + index * 0.09);
+            gainNote.gain.linearRampToValueAtTime(0.01, now + index * 0.09 + 0.15);
+            oscNote.start(now + index * 0.09);
+            oscNote.stop(now + index * 0.09 + 0.15);
           });
         } else if (type === 'defeat') {
           osc.type = 'sine';
-          osc.frequency.setValueAtTime(400, now);
-          osc.frequency.linearRampToValueAtTime(100, now + 0.4);
-          gain.gain.setValueAtTime(0.3, now);
-          gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
+          osc.frequency.setValueAtTime(440, now);
+          osc.frequency.linearRampToValueAtTime(110, now + 0.5);
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.linearRampToValueAtTime(0.01, now + 0.5);
           osc.start(now);
-          osc.stop(now + 0.4);
+          osc.stop(now + 0.5);
         }
       } catch (e) {}
     };
     
-    const createDamagePopup = (elementId, dmg, isCrit = false) => {
-      const card = document.getElementById(elementId);
-      if (!card) return;
-      const rect = card.getBoundingClientRect();
-      const popup = document.createElement('div');
-      popup.className = 'floating-dmg';
-      popup.style.color = isCrit ? '#FF5252' : '#FFD700';
-      popup.textContent = isCrit ? `💥 CRIT -${dmg}!` : `-${dmg}`;
-      
-      const container = document.querySelector('.battle-arena-wrapper');
-      const containerRect = container.getBoundingClientRect();
-      const left = (rect.left - containerRect.left) + (rect.width / 2) - 30;
-      const top = (rect.top - containerRect.top) + 20;
-      
-      popup.style.left = `${left}px`;
-      popup.style.top = `${top}px`;
-      container.appendChild(popup);
-      
-      setTimeout(() => popup.remove(), 800);
+    // Add floating damage popup particle
+    const addDamagePopup = (x, y, text, color) => {
+      damagePopups.push({
+        x, y, text, color,
+        timer: 45, // frames
+        vy: -1
+      });
     };
     
-    const updateStatsUI = () => {
-      playerHpBar.style.width = `${Math.max(0, playerHP)}%`;
-      playerHpText.textContent = Math.max(0, playerHP);
-      
-      enemyHpBar.style.width = `${Math.max(0, (enemyHP / currentEnemy.maxHP) * 100)}%`;
-      enemyHpText.textContent = Math.max(0, enemyHP);
-      
-      playerPowerBar.style.width = `${playerPower}%`;
-      playerPowerText.textContent = playerPower;
-      
-      specialBtn.disabled = playerPower < 100 || !isMyTurn || isGameOver;
-      scratchBtn.disabled = !isMyTurn || isGameOver;
-      stompBtn.disabled = !isMyTurn || isGameOver;
-      
-      if (playerHP <= 30) {
-        playerHpBar.style.backgroundColor = '#FF5252';
-      } else {
-        playerHpBar.style.backgroundColor = '#00E676';
-      }
-      
-      if (enemyHP <= (currentEnemy.maxHP * 0.3)) {
-        enemyHpBar.style.backgroundColor = '#FF5252';
-      } else {
-        enemyHpBar.style.backgroundColor = '#00E676';
-      }
-    };
-    
+    // Setup and start brawler
     const startBattle = () => {
-      currentEnemy = ratProfiles[Math.floor(Math.random() * ratProfiles.length)];
-      enemyIconEl.textContent = currentEnemy.icon;
-      enemyNameEl.textContent = currentEnemy.name;
+      const selected = ratProfiles[Math.floor(Math.random() * ratProfiles.length)];
+      enemy.name = selected.name;
+      enemy.icon = selected.icon;
+      enemy.maxHp = selected.maxHP;
+      enemy.hp = selected.maxHP;
+      enemy.speed = selected.speed;
+      enemy.baseDmg = selected.dmg;
       
-      playerHP = 100;
-      enemyHP = currentEnemy.maxHP;
-      playerPower = 0;
-      isMyTurn = true;
+      // Reset positions
+      player.x = 100;
+      player.y = 150;
+      player.vx = 0;
+      player.vy = 0;
+      player.hp = 100;
+      player.attackActiveTime = 0;
+      
+      enemy.x = 370;
+      enemy.y = 150;
+      enemy.vx = 0;
+      enemy.vy = 0;
+      enemy.attackActiveTime = 0;
+      
+      damagePopups = [];
       isGameOver = false;
-      
-      combatLog.innerHTML = `* Battle started against ${currentEnemy.name}! Defeat him to claim 15 Catnip Coins!`;
-      turnBanner.textContent = "Your Turn! Choose your attack below.";
-      turnBanner.style.background = "rgba(255, 215, 0, 0.1)";
-      turnBanner.style.color = "#FFD700";
+      victoryClaimed = false;
       
       resultOverlay.style.display = 'none';
       battleModal.style.display = 'flex';
       
-      document.getElementById('battle-player-card').classList.add('attacker-active');
-      document.getElementById('battle-enemy-card').classList.remove('attacker-active');
+      // Stop old loop if any
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
       
-      updateStatsUI();
+      // Run brawler rendering/updating frame loop
+      animationFrameId = requestAnimationFrame(gameLoop);
     };
     
-    const triggerEnemyTurn = () => {
-      if (isGameOver) return;
-      isMyTurn = false;
-      updateStatsUI();
-      
-      turnBanner.textContent = `${currentEnemy.name} is planning...`;
-      turnBanner.style.background = "rgba(255, 82, 82, 0.1)";
-      turnBanner.style.color = "#FF5252";
-      
-      document.getElementById('battle-player-card').classList.remove('attacker-active');
-      document.getElementById('battle-enemy-card').classList.add('attacker-active');
-      
-      setTimeout(() => {
-        if (isGameOver) return;
-        
-        const critRoll = Math.random() < 0.15;
-        let baseDmg = Math.floor(Math.random() * 12) + 8;
-        if (critRoll) baseDmg = Math.floor(baseDmg * 1.5);
-        
-        const finalDmg = Math.floor(baseDmg * currentEnemy.dmgMultiplier);
-        playerHP -= finalDmg;
-        
-        const playerCard = document.getElementById('battle-player-card');
-        playerCard.classList.add('shake-battle-active', 'flash-hit');
-        synthAudio('stomp');
-        createDamagePopup('battle-player-card', finalDmg, critRoll);
-        
-        setTimeout(() => playerCard.classList.remove('shake-battle-active', 'flash-hit'), 250);
-        
-        addLog(`${currentEnemy.name} dealt ${finalDmg} damage to you!`);
-        
-        if (playerHP <= 0) {
-          endBattle(false);
-        } else {
-          isMyTurn = true;
-          turnBanner.textContent = "Your Turn! Choose your attack below.";
-          turnBanner.style.background = "rgba(255, 215, 0, 0.1)";
-          turnBanner.style.color = "#FFD700";
-          document.getElementById('battle-player-card').classList.add('attacker-active');
-          document.getElementById('battle-enemy-card').classList.remove('attacker-active');
-          updateStatsUI();
+    // Platform collision resolver
+    const checkPlatformCollisions = (ent) => {
+      let grounded = false;
+      platforms.forEach(plat => {
+        if (
+          ent.x + ent.w > plat.x &&
+          ent.x < plat.x + plat.w &&
+          ent.y + ent.h >= plat.y &&
+          ent.y + ent.h - ent.vy <= plat.y + 6
+        ) {
+          ent.y = plat.y - ent.h;
+          ent.vy = 0;
+          grounded = true;
         }
-      }, 1200);
+      });
+      ent.isJumping = !grounded;
     };
     
-    const executePlayerAttack = (type) => {
-      if (!isMyTurn || isGameOver) return;
+    // Attack collision hitbox checks
+    const checkAttackHitbox = (attacker, defender, isPlayerAttacker) => {
+      const slashRange = 36;
+      const attackLeft = attacker.facing === 1 ? attacker.x + attacker.w : attacker.x - slashRange;
+      const attackRight = attackLeft + slashRange;
+      const attackTop = attacker.y - 4;
+      const attackBottom = attacker.y + attacker.h + 4;
       
-      let dmg = 0;
-      let powerGain = 0;
-      let attackName = "";
-      let sound = "hit";
-      
-      if (type === 'scratch') {
-        dmg = Math.floor(Math.random() * 11) + 5;
-        powerGain = 20;
-        attackName = "Scratch";
-        sound = "hit";
-      } else if (type === 'stomp') {
-        dmg = Math.floor(Math.random() * 14) + 12;
-        attackName = "Heavy Stomp";
-        sound = "stomp";
-      } else if (type === 'special') {
-        dmg = Math.floor(Math.random() * 16) + 40;
-        playerPower = 0;
-        attackName = "SUPER CLAW";
-        sound = "special";
+      if (
+        attackRight > defender.x &&
+        attackLeft < defender.x + defender.w &&
+        attackBottom > defender.y &&
+        attackTop < defender.y + defender.h
+      ) {
+        const dmg = Math.floor(Math.random() * 8) + (isPlayerAttacker ? 9 : attacker.baseDmg - 3);
+        defender.hp = Math.max(0, defender.hp - dmg);
+        
+        defender.vx = attacker.facing * (isPlayerAttacker ? 8.5 : 7.5);
+        defender.vy = -3.2;
+        
+        addDamagePopup(defender.x + 10, defender.y - 12, `-${dmg}`, isPlayerAttacker ? '#FFD700' : '#FF5252');
+        synthAudio('hit');
+        
+        if (defender.hp <= 0) {
+          endBattle(isPlayerAttacker);
+        }
+        return true;
       }
+      return false;
+    };
+    
+    // Update frames
+    const updateGame = () => {
+      if (isGameOver) return;
       
-      enemyHP -= dmg;
-      if (type !== 'special') {
-        playerPower = Math.min(100, playerPower + powerGain);
-      }
-      
-      const enemyCard = document.getElementById('battle-enemy-card');
-      enemyCard.classList.add('shake-battle-active', 'flash-hit');
-      synthAudio(sound);
-      createDamagePopup('battle-enemy-card', dmg, type === 'special');
-      
-      setTimeout(() => enemyCard.classList.remove('shake-battle-active', 'flash-hit'), 250);
-      
-      addLog(`You used ${attackName} and dealt ${dmg} damage!`);
-      
-      if (enemyHP <= 0) {
-        endBattle(true);
+      // --- PLAYER MOVEMENT ---
+      let runSpeed = 2.4;
+      if (keys.a || keys.ArrowLeft) {
+        player.vx = -runSpeed;
+        player.facing = -1;
+      } else if (keys.d || keys.ArrowRight) {
+        player.vx = runSpeed;
+        player.facing = 1;
       } else {
-        triggerEnemyTurn();
+        player.vx *= HORIZ_FRICTION;
       }
+      
+      if ((keys.w || keys.space || keys.ArrowUp) && !player.isJumping) {
+        player.vy = -7.8;
+        player.isJumping = true;
+        synthAudio('jump');
+      }
+      
+      if (keys.j) {
+        const now = Date.now();
+        if (now - player.lastAttackTime > player.attackCooldown) {
+          player.lastAttackTime = now;
+          player.attackActiveTime = player.attackDuration;
+          checkAttackHitbox(player, enemy, true);
+        }
+      }
+      
+      player.vy += GRAVITY;
+      player.x += player.vx;
+      player.y += player.vy;
+      checkPlatformCollisions(player);
+      
+      if (player.attackActiveTime > 0) {
+        player.attackActiveTime -= 16.67;
+      }
+      
+      if (player.y > 300) {
+        player.x = 100;
+        player.y = 100;
+        player.vx = 0;
+        player.vy = 0;
+        player.hp = Math.max(0, player.hp - 20);
+        synthAudio('fall');
+        addDamagePopup(100, 100, "-20 FALL!", '#FF5252');
+        if (player.hp <= 0) endBattle(false);
+      }
+      
+      // --- ENEMY AI BEHAVIOR ---
+      enemy.aiTimer--;
+      if (enemy.aiTimer <= 0) {
+        const dist = Math.abs(player.x - enemy.x);
+        if (dist < 160) {
+          enemy.aiState = 'chase';
+          enemy.aiTimer = 60 + Math.random() * 40;
+        } else {
+          enemy.aiState = 'wander';
+          enemy.aiTargetX = enemy.x + (Math.random() * 160 - 80);
+          enemy.aiTimer = 90 + Math.random() * 90;
+        }
+      }
+      
+      if (enemy.aiState === 'chase') {
+        if (enemy.x < player.x - 8) {
+          enemy.vx = enemy.speed;
+          enemy.facing = 1;
+        } else if (enemy.x > player.x + 8) {
+          enemy.vx = -enemy.speed;
+          enemy.facing = -1;
+        } else {
+          enemy.vx *= HORIZ_FRICTION;
+        }
+        
+        const distToPlayer = Math.sqrt((player.x - enemy.x)**2 + (player.y - enemy.y)**2);
+        if (distToPlayer < 35) {
+          const now = Date.now();
+          if (now - enemy.lastAttackTime > enemy.attackCooldown) {
+            enemy.lastAttackTime = now;
+            enemy.attackActiveTime = enemy.attackDuration;
+            checkAttackHitbox(enemy, player, false);
+          }
+        }
+      } else {
+        if (Math.abs(enemy.x - enemy.aiTargetX) > 10) {
+          if (enemy.x < enemy.aiTargetX) {
+            enemy.vx = enemy.speed * 0.6;
+            enemy.facing = 1;
+          } else {
+            enemy.vx = -enemy.speed * 0.6;
+            enemy.facing = -1;
+          }
+        } else {
+          enemy.vx *= HORIZ_FRICTION;
+        }
+      }
+      
+      if (enemy.vx !== 0 && enemy.isJumping === false && Math.random() < 0.02) {
+        const checkAheadX = enemy.x + enemy.vx * 15;
+        let platformAhead = false;
+        platforms.forEach(plat => {
+          if (checkAheadX >= plat.x && checkAheadX <= plat.x + plat.w) {
+            platformAhead = true;
+          }
+        });
+        if (!platformAhead || enemy.x < 65 || enemy.x > 415) {
+          enemy.vy = -7.5;
+          enemy.isJumping = true;
+        }
+      }
+      
+      enemy.vy += GRAVITY;
+      enemy.x += enemy.vx;
+      enemy.y += enemy.vy;
+      checkPlatformCollisions(enemy);
+      
+      if (enemy.attackActiveTime > 0) {
+        enemy.attackActiveTime -= 16.67;
+      }
+      
+      if (enemy.y > 300) {
+        enemy.x = 350;
+        enemy.y = 100;
+        enemy.vx = 0;
+        enemy.vy = 0;
+        enemy.hp = Math.max(0, enemy.hp - 20);
+        synthAudio('fall');
+        addDamagePopup(350, 100, "-20 FALL!", '#FFD700');
+        if (enemy.hp <= 0) endBattle(true);
+      }
+      
+      damagePopups.forEach(pop => {
+        pop.y += pop.vy;
+        pop.timer--;
+      });
+      damagePopups = damagePopups.filter(pop => pop.timer > 0);
+    };
+    
+    // Draw frames
+    const renderGame = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      ctx.strokeStyle = 'rgba(124, 77, 255, 0.08)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i < canvas.width; i += 25) {
+        ctx.beginPath();
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i, canvas.height);
+        ctx.stroke();
+      }
+      for (let j = 0; j < canvas.height; j += 25) {
+        ctx.beginPath();
+        ctx.moveTo(0, j);
+        ctx.lineTo(canvas.width, j);
+        ctx.stroke();
+      }
+      
+      platforms.forEach(plat => {
+        ctx.fillStyle = plat.color;
+        ctx.fillRect(plat.x, plat.y, plat.w, plat.h);
+        
+        ctx.strokeStyle = plat.borderColor;
+        ctx.lineWidth = 2.5;
+        ctx.strokeRect(plat.x, plat.y, plat.w, plat.h);
+      });
+      
+      ctx.font = '24px serif';
+      ctx.fillText('🐱', player.x - 3, player.y + 20);
+      
+      ctx.fillStyle = 'rgba(0,0,0,0.5)';
+      ctx.fillRect(player.x - 8, player.y - 12, 40, 5);
+      ctx.fillStyle = player.hp > 30 ? '#00E676' : '#FF5252';
+      ctx.fillRect(player.x - 8, player.y - 12, (player.hp / player.maxHp) * 40, 5);
+      
+      ctx.fillText(enemy.icon, enemy.x - 3, enemy.y + 20);
+      
+      ctx.fillStyle = 'rgba(0,0,0,0.5)';
+      ctx.fillRect(enemy.x - 8, enemy.y - 12, 40, 5);
+      ctx.fillStyle = '#FF5252';
+      ctx.fillRect(enemy.x - 8, enemy.y - 12, (enemy.hp / enemy.maxHp) * 40, 5);
+      
+      if (player.attackActiveTime > 0) {
+        ctx.strokeStyle = 'rgba(0, 176, 255, 0.8)';
+        ctx.lineWidth = 3.5;
+        ctx.beginPath();
+        if (player.facing === 1) {
+          ctx.arc(player.x + player.w + 10, player.y + 10, 15, -Math.PI/2, Math.PI/2);
+        } else {
+          ctx.arc(player.x - 10, player.y + 10, 15, Math.PI/2, -Math.PI/2);
+        }
+        ctx.stroke();
+      }
+      
+      if (enemy.attackActiveTime > 0) {
+        ctx.strokeStyle = 'rgba(255, 82, 82, 0.8)';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        if (enemy.facing === 1) {
+          ctx.arc(enemy.x + enemy.w + 10, enemy.y + 10, 15, -Math.PI/2, Math.PI/2);
+        } else {
+          ctx.arc(enemy.x - 10, enemy.y + 10, 15, Math.PI/2, -Math.PI/2);
+        }
+        ctx.stroke();
+      }
+      
+      ctx.font = 'bold 12px sans-serif';
+      ctx.textAlign = 'center';
+      damagePopups.forEach(pop => {
+        ctx.fillStyle = pop.color;
+        ctx.fillText(pop.text, pop.x, pop.y);
+      });
+      ctx.textAlign = 'left';
+    };
+    
+    const gameLoop = () => {
+      if (isGameOver) return;
+      updateGame();
+      renderGame();
+      animationFrameId = requestAnimationFrame(gameLoop);
     };
     
     const endBattle = (victory) => {
       isGameOver = true;
-      isMyTurn = false;
-      updateStatsUI();
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
       
       const overlayIcon = document.getElementById('battle-result-icon');
       const overlayTitle = document.getElementById('battle-result-title');
@@ -2999,41 +3198,66 @@ document.addEventListener('DOMContentLoaded', () => {
         overlayIcon.textContent = "🏆";
         overlayTitle.textContent = "VICTORY";
         overlayTitle.style.color = "#FFD700";
-        overlayDesc.innerHTML = `You defeated the ${currentEnemy.name} and saved the day!<br><span style="font-size: 1.5rem; font-weight: 800; color: #00E676; display: block; margin: 10px 0;">+15 Catnip Coins</span>`;
+        overlayDesc.innerHTML = `You defeated the ${enemy.name} and saved the day!<br><span style="font-size: 1.5rem; font-weight: 800; color: #00E676; display: block; margin: 10px 0;">+15 Catnip Coins</span>`;
+        victoryClaimed = true;
       } else {
         synthAudio('defeat');
         overlayIcon.textContent = "💀";
         overlayTitle.textContent = "DEFEATED";
         overlayTitle.style.color = "#FF5252";
-        overlayDesc.innerHTML = `You were knocked out by the ${currentEnemy.name}!<br><br><span style="color: var(--color-text-secondary);">Practice your moves and try again to win Catnip Coins!</span>`;
+        overlayDesc.innerHTML = `You were knocked out by the ${enemy.name}!<br><br><span style="color: var(--color-text-secondary);">Practice your moves and try again to win Catnip Coins!</span>`;
+        victoryClaimed = false;
       }
       
       resultOverlay.style.display = 'flex';
     };
     
     const closeBattle = () => {
+      isGameOver = true;
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
       battleModal.style.display = 'none';
-      document.getElementById('battle-player-card').classList.remove('attacker-active');
-      document.getElementById('battle-enemy-card').classList.remove('attacker-active');
     };
     
+    const handleKeyDown = (e) => {
+      if (battleModal.style.display !== 'flex') return;
+      
+      const blocked = ['Space', 'KeyW', 'KeyA', 'KeyD', 'KeyJ', 'ArrowUp', 'ArrowLeft', 'ArrowRight'];
+      if (blocked.includes(e.code) || blocked.includes(e.key)) {
+        e.preventDefault();
+      }
+      
+      if (e.code === 'KeyA' || e.key === 'ArrowLeft') keys.a = true;
+      if (e.code === 'KeyD' || e.key === 'ArrowRight') keys.d = true;
+      if (e.code === 'KeyW' || e.key === 'ArrowUp') keys.w = true;
+      if (e.code === 'Space') keys.space = true;
+      if (e.code === 'KeyJ') keys.j = true;
+    };
+    
+    const handleKeyUp = (e) => {
+      if (e.code === 'KeyA' || e.key === 'ArrowLeft') keys.a = false;
+      if (e.code === 'KeyD' || e.key === 'ArrowRight') keys.d = false;
+      if (e.code === 'KeyW' || e.key === 'ArrowUp') keys.w = false;
+      if (e.code === 'Space') keys.space = false;
+      if (e.code === 'KeyJ') keys.j = false;
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    
     window.startSmashCatsBattle = startBattle;
-
     playBtn.addEventListener('click', startBattle);
     closeBtn.addEventListener('click', closeBattle);
     escapeBtn.addEventListener('click', () => {
-      if (confirm("Are you sure you want to flee? You will lose all battle progress!")) {
+      if (confirm("Are you sure you want to flee the arena?")) {
         closeBattle();
       }
     });
     
-    scratchBtn.addEventListener('click', () => executePlayerAttack('scratch'));
-    stompBtn.addEventListener('click', () => executePlayerAttack('stomp'));
-    specialBtn.addEventListener('click', () => executePlayerAttack('special'));
-    
     finishBtn.addEventListener('click', () => {
       closeBattle();
-      if (playerHP > 0 && enemyHP <= 0) {
+      if (victoryClaimed) {
         claimBrawlerVictoryReward();
       }
     });
