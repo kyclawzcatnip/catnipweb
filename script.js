@@ -2625,7 +2625,7 @@ document.addEventListener('DOMContentLoaded', () => {
             closeClaimModal();
             return;
           }
-          const expectedReward = base + Math.min(10, Math.max(0, activeCauExtraCats)) * 5;
+          const expectedReward = base + Math.min(29, Math.max(0, activeCauExtraCats)) * 5;
           if (activeCatnipReward !== expectedReward) {
             alert("🛡️ Security Alert: Reward mismatch detected!");
             closeClaimModal();
@@ -2726,7 +2726,7 @@ document.addEventListener('DOMContentLoaded', () => {
         alert("🛡️ Security Alert: Invalid Cats Among Us role detected!");
         return;
       }
-      const extraCats = Math.min(10, Math.max(0, claimAmongUsExtra));
+      const extraCats = Math.min(29, Math.max(0, claimAmongUsExtra));
       const totalReward = base + extraCats * 5;
 
       const today = new Date().toDateString();
