@@ -2883,14 +2883,14 @@ document.addEventListener('DOMContentLoaded', () => {
       
       // Reset positions
       player.x = 100;
-      player.y = 150;
+      player.y = 80;
       player.vx = 0;
       player.vy = 0;
       player.hp = 100;
       player.attackActiveTime = 0;
       
-      enemy.x = 370;
-      enemy.y = 150;
+      enemy.x = 350;
+      enemy.y = 80;
       enemy.vx = 0;
       enemy.vy = 0;
       enemy.attackActiveTime = 0;
@@ -2915,18 +2915,43 @@ document.addEventListener('DOMContentLoaded', () => {
     const checkPlatformCollisions = (ent) => {
       let grounded = false;
       platforms.forEach(plat => {
-        if (
-          ent.x + ent.w > plat.x &&
-          ent.x < plat.x + plat.w &&
-          ent.y + ent.h >= plat.y &&
-          ent.y + ent.h - ent.vy <= plat.y + 6
-        ) {
-          ent.y = plat.y - ent.h;
-          ent.vy = 0;
-          grounded = true;
+        if (ent.x + ent.w > plat.x && ent.x < plat.x + plat.w) {
+          const feetBefore = ent.y + ent.h - ent.vy;
+          const feetNow = ent.y + ent.h;
+          if (feetBefore <= plat.y + 2 && feetNow >= plat.y && ent.vy >= 0) {
+            ent.y = plat.y - ent.h;
+            ent.vy = 0;
+            grounded = true;
+          }
         }
       });
       ent.isJumping = !grounded;
+    };
+
+    // Solid body pushing collisions
+    const resolveEntityCollisions = (e1, e2) => {
+      if (
+        e1.x < e2.x + e2.w &&
+        e1.x + e1.w > e2.x &&
+        e1.y < e2.y + e2.h &&
+        e1.y + e1.h > e2.y
+      ) {
+        const overlapX = Math.min(e1.x + e1.w - e2.x, e2.x + e2.w - e1.x);
+        const overlapY = Math.min(e1.y + e1.h - e2.y, e2.y + e2.h - e1.y);
+        if (overlapX < overlapY) {
+          if (e1.x + e1.w / 2 < e2.x + e2.w / 2) {
+            e1.x -= overlapX / 2;
+            e2.x += overlapX / 2;
+            e1.vx = -1;
+            e2.vx = 1;
+          } else {
+            e1.x += overlapX / 2;
+            e2.x -= overlapX / 2;
+            e1.vx = 1;
+            e2.vx = -1;
+          }
+        }
+      }
     };
     
     // Attack collision hitbox checks
@@ -3002,7 +3027,7 @@ document.addEventListener('DOMContentLoaded', () => {
       
       if (player.y > 300) {
         player.x = 100;
-        player.y = 100;
+        player.y = 80;
         player.vx = 0;
         player.vy = 0;
         player.hp = Math.max(0, player.hp - 20);
@@ -3084,7 +3109,7 @@ document.addEventListener('DOMContentLoaded', () => {
       
       if (enemy.y > 300) {
         enemy.x = 350;
-        enemy.y = 100;
+        enemy.y = 80;
         enemy.vx = 0;
         enemy.vy = 0;
         enemy.hp = Math.max(0, enemy.hp - 20);
@@ -3092,6 +3117,9 @@ document.addEventListener('DOMContentLoaded', () => {
         addDamagePopup(350, 100, "-20 FALL!", '#FFD700');
         if (enemy.hp <= 0) endBattle(true);
       }
+
+      // Resolve solid body overlap collisions between entities
+      resolveEntityCollisions(player, enemy);
       
       damagePopups.forEach(pop => {
         pop.y += pop.vy;
@@ -3128,43 +3156,54 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.strokeRect(plat.x, plat.y, plat.w, plat.h);
       });
       
-      ctx.font = '24px serif';
-      ctx.fillText('🐱', player.x - 3, player.y + 20);
+      // Draw solid player hitbox
+      ctx.fillStyle = 'rgba(124, 77, 255, 0.22)';
+      ctx.fillRect(player.x, player.y, player.w, player.h);
+      ctx.strokeStyle = '#7C4DFF';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(player.x, player.y, player.w, player.h);
+
+      ctx.font = '20px serif';
+      ctx.fillText('🐱', player.x + 2, player.y + 19);
       
       ctx.fillStyle = 'rgba(0,0,0,0.5)';
       ctx.fillRect(player.x - 8, player.y - 12, 40, 5);
       ctx.fillStyle = player.hp > 30 ? '#00E676' : '#FF5252';
       ctx.fillRect(player.x - 8, player.y - 12, (player.hp / player.maxHp) * 40, 5);
       
-      ctx.fillText(enemy.icon, enemy.x - 3, enemy.y + 20);
+      // Draw solid enemy hitbox
+      ctx.fillStyle = 'rgba(255, 82, 82, 0.22)';
+      ctx.fillRect(enemy.x, enemy.y, enemy.w, enemy.h);
+      ctx.strokeStyle = '#FF5252';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(enemy.x, enemy.y, enemy.w, enemy.h);
+
+      ctx.fillText(enemy.icon, enemy.x + 2, enemy.y + 19);
       
       ctx.fillStyle = 'rgba(0,0,0,0.5)';
       ctx.fillRect(enemy.x - 8, enemy.y - 12, 40, 5);
       ctx.fillStyle = '#FF5252';
       ctx.fillRect(enemy.x - 8, enemy.y - 12, (enemy.hp / enemy.maxHp) * 40, 5);
       
+      // Draw attack range solid bounds when active
       if (player.attackActiveTime > 0) {
-        ctx.strokeStyle = 'rgba(0, 176, 255, 0.8)';
-        ctx.lineWidth = 3.5;
-        ctx.beginPath();
-        if (player.facing === 1) {
-          ctx.arc(player.x + player.w + 10, player.y + 10, 15, -Math.PI/2, Math.PI/2);
-        } else {
-          ctx.arc(player.x - 10, player.y + 10, 15, Math.PI/2, -Math.PI/2);
-        }
-        ctx.stroke();
+        const slashRange = 36;
+        const attackLeft = player.facing === 1 ? player.x + player.w : player.x - slashRange;
+        ctx.fillStyle = 'rgba(0, 176, 255, 0.2)';
+        ctx.fillRect(attackLeft, player.y - 4, slashRange, player.h + 8);
+        ctx.strokeStyle = '#00B0FF';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(attackLeft, player.y - 4, slashRange, player.h + 8);
       }
       
       if (enemy.attackActiveTime > 0) {
-        ctx.strokeStyle = 'rgba(255, 82, 82, 0.8)';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        if (enemy.facing === 1) {
-          ctx.arc(enemy.x + enemy.w + 10, enemy.y + 10, 15, -Math.PI/2, Math.PI/2);
-        } else {
-          ctx.arc(enemy.x - 10, enemy.y + 10, 15, Math.PI/2, -Math.PI/2);
-        }
-        ctx.stroke();
+        const slashRange = 36;
+        const attackLeft = enemy.facing === 1 ? enemy.x + enemy.w : enemy.x - slashRange;
+        ctx.fillStyle = 'rgba(255, 82, 82, 0.2)';
+        ctx.fillRect(attackLeft, enemy.y - 4, slashRange, enemy.h + 8);
+        ctx.strokeStyle = '#FF5252';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(attackLeft, enemy.y - 4, slashRange, enemy.h + 8);
       }
       
       ctx.font = 'bold 12px sans-serif';
