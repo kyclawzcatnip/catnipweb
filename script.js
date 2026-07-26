@@ -3015,6 +3015,8 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('battle-enemy-card').classList.remove('attacker-active');
     };
     
+    window.startSmashCatsBattle = startBattle;
+
     playBtn.addEventListener('click', startBattle);
     closeBtn.addEventListener('click', closeBattle);
     escapeBtn.addEventListener('click', () => {

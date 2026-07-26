@@ -298,7 +298,7 @@
                 </div>
                 <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px;">
                   <a href="https://kyclawzcatnip.github.io/catnip/" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">Battle Now</a>
-                  <button class="btn btn-glow btn-sm" id="play-mini-battle-btn">Play Mini-Battle</button>
+                  <button class="btn btn-glow btn-sm" id="play-mini-battle-btn" onclick="if(window.startSmashCatsBattle){window.startSmashCatsBattle();}else{alert('🎮 Game is loading. Please refresh the page to clear cache!');}">Play Mini-Battle</button>
                 </div>
               </div>
             </div>
@@ -1431,6 +1431,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
   <!-- Main Script File -->
-  <script src="script.js?v=20260722ze"></script>
+  <script src="script.js?v=20260722zf"></script>
 </body>
 </html>
