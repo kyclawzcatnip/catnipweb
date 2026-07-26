@@ -731,7 +731,7 @@ p {
 /* Highlights Grid */
 .highlights-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 25px;
 }
 
@@ -1076,7 +1076,7 @@ p {
 /* Wiki Grid */
 .wiki-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 25px;
 }
 
@@ -1328,7 +1328,7 @@ p {
 /* ==================== COMMUNITY SECTION STYLES ==================== */
 .community-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 30px;
 }
 
@@ -2074,6 +2074,14 @@ p {
 }
 
 @media (max-width: 480px) {
+  .container {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .hero-card {
+    padding: 20px 15px;
+    gap: 20px;
+  }
   .hero-cta {
     flex-direction: column;
     width: 100%;
@@ -2092,11 +2100,11 @@ p {
     gap: 10px;
   }
   .wiki-controls {
-    padding: 16px;
+    padding: 12px;
   }
   .cat-btn {
-    padding: 6px 12px;
-    font-size: 0.75rem;
+    padding: 6px 10px;
+    font-size: 0.72rem;
   }
   .security-actions {
     grid-template-columns: 1fr;
