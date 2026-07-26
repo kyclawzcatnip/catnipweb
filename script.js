@@ -2398,6 +2398,29 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnAcceptClaim) {
     btnAcceptClaim.addEventListener('click', () => {
       if (activeCatnipReward > 0) {
+        // Enforce anti-cheat validations
+        if (activeGameType === 'ssc') {
+          if (activeCatnipReward !== 15) {
+            alert("🛡️ Arena Judgement: Invalid claim reward amount! The judges only award exactly 15 coins per victory.");
+            closeClaimModal();
+            return;
+          }
+          
+          // Increment daily count
+          const today = new Date().toDateString();
+          let dailyClaims = JSON.parse(localStorage.getItem('ssc_daily_claims') || '{"date":"","count":0}');
+          if (dailyClaims.date !== today) {
+            dailyClaims = { date: today, count: 0 };
+          }
+          if (dailyClaims.count >= 5) {
+            alert("🛡️ Arena Judgement: Daily brawler limit reached! You can claim a maximum of 5 victory rewards (75 Catnip Coins) per day.");
+            closeClaimModal();
+            return;
+          }
+          dailyClaims.count++;
+          localStorage.setItem('ssc_daily_claims', JSON.stringify(dailyClaims));
+        }
+
         if (typeof addCoins === 'function') {
           addCoins(activeCatnipReward, btnAcceptClaim);
         }
@@ -2443,7 +2466,24 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } else if (claimSmashParam) {
       const smashReward = parseInt(claimSmashParam, 10) || 0;
-      if (smashReward <= 0) return;
+      
+      // 1. CHEAT PREVENTION: Validate exact victory reward amount (must be exactly 15)
+      if (smashReward !== 15) {
+        alert("🛡️ Arena Judgement: Invalid coin claim amount detected! The judges only award exactly 15 coins per victory.");
+        return;
+      }
+
+      // 2. RATE LIMITING: Check daily cap
+      const today = new Date().toDateString();
+      let dailyClaims = JSON.parse(localStorage.getItem('ssc_daily_claims') || '{"date":"","count":0}');
+      if (dailyClaims.date !== today) {
+        dailyClaims = { date: today, count: 0 };
+      }
+
+      if (dailyClaims.count >= 5) {
+        alert("🛡️ Arena Judgement: Daily brawler limit reached! You can claim a maximum of 5 victory rewards (75 Catnip Coins) per day. Check back tomorrow!");
+        return;
+      }
 
       if (user) {
         setTimeout(() => {
