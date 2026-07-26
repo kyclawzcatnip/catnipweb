@@ -1226,7 +1226,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const isEmail = email.includes('@');
 
-      if (firebaseAuth && isEmail) {
+      if (firebaseAuth && isEmail && !isMockKey) {
         try {
           const userCred = await firebaseAuth.createUserWithEmailAndPassword(email, password);
           await userCred.user.updateProfile({ displayName: username });
@@ -1278,7 +1278,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const isEmail = email.includes('@');
 
-      if (firebaseAuth && isEmail) {
+      if (firebaseAuth && isEmail && !isMockKey) {
         try {
           await firebaseAuth.signInWithEmailAndPassword(email, password);
           loginFeedback.innerHTML = '<span style="color: #00E676;">Welcome back!</span>';
@@ -1541,6 +1541,10 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       localDb = JSON.parse(localStorage.getItem('scw_local_profiles_database') || '[]');
     } catch(e) {}
+    
+    if (!Array.isArray(localDb)) {
+      localDb = [];
+    }
     
     const existingIdx = localDb.findIndex(u => u.email === email);
     const profile = {
