@@ -31,6 +31,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let ownedItems = [];
   let activeCosmetics = [];
   let lastClaimTimestamp = 0;
+  let activeCauRole = '';
+  let activeCauExtraCats = 0;
 
   // ==================== WIKI ARTICLES DATA ====================
   const wikiArticles = {
@@ -1160,6 +1162,20 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
           showExchangeConfirmationModal(0, pendingSSC, 'ssc');
         }, 1200);
+      } else {
+        const pendingCAU = parseInt(localStorage.getItem('cau_pending_claim_coins') || '0', 10);
+        const pendingCAURole = localStorage.getItem('cau_pending_claim_role') || 'innocent';
+        const pendingCAUExtra = parseInt(localStorage.getItem('cau_pending_claim_extra') || '0', 10);
+        if (pendingCAU > 0) {
+          localStorage.removeItem('cau_pending_claim_coins');
+          localStorage.removeItem('cau_pending_claim_role');
+          localStorage.removeItem('cau_pending_claim_extra');
+          activeCauRole = pendingCAURole;
+          activeCauExtraCats = pendingCAUExtra;
+          setTimeout(() => {
+            showExchangeConfirmationModal(0, pendingCAU, 'cau');
+          }, 1200);
+        }
       }
     }
   }
@@ -2529,6 +2545,18 @@ document.addEventListener('DOMContentLoaded', () => {
           <span style="font-size: 1.8rem; font-weight: 800; color: var(--color-primary); display: block; margin: 10px 0;">+<span id="confirm-catnip-reward">${reward}</span> Catnip Coins</span>
         `;
       }
+    } else if (gameType === 'cau') {
+      if (claimModalTag) claimModalTag.textContent = '🚀 Cats Among Us Victory';
+      if (claimModalTitle) claimModalTitle.textContent = 'Crew Victory';
+      if (claimModalDesc) {
+        claimModalDesc.innerHTML = `
+          You survived and won a match in <strong>Cats Among Us</strong>!
+          <br><br>
+          Claim your victory reward:
+          <br>
+          <span style="font-size: 1.8rem; font-weight: 800; color: var(--color-primary); display: block; margin: 10px 0;">+<span id="confirm-catnip-reward">${reward}</span> Catnip Coins</span>
+        `;
+      }
     } else {
       if (claimModalTag) claimModalTag.textContent = '🎮 Game Session Detected';
       if (claimModalTitle) claimModalTitle.textContent = 'Convert Game Coins';
@@ -2577,7 +2605,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
           }
           
-          // Increment daily count
           const today = new Date().toDateString();
           let dailyClaims = JSON.parse(localStorage.getItem('ssc_daily_claims') || '{"date":"","count":0}');
           if (dailyClaims.date !== today) {
@@ -2590,6 +2617,32 @@ document.addEventListener('DOMContentLoaded', () => {
           }
           dailyClaims.count++;
           localStorage.setItem('ssc_daily_claims', JSON.stringify(dailyClaims));
+        } else if (activeGameType === 'cau') {
+          const validRoles = { innocent: 25, impostor: 45, engineer: 30, captain: 50, guard: 35, medic: 30, detective: 25 };
+          const base = validRoles[activeCauRole];
+          if (!base) {
+            alert("🛡️ Security Alert: Invalid Cats Among Us role detected!");
+            closeClaimModal();
+            return;
+          }
+          const expectedReward = base + Math.min(10, Math.max(0, activeCauExtraCats)) * 5;
+          if (activeCatnipReward !== expectedReward) {
+            alert("🛡️ Security Alert: Reward mismatch detected!");
+            closeClaimModal();
+            return;
+          }
+          const today = new Date().toDateString();
+          let dailyClaims = JSON.parse(localStorage.getItem('cau_daily_claims') || '{"date":"","count":0}');
+          if (dailyClaims.date !== today) {
+            dailyClaims = { date: today, count: 0 };
+          }
+          if (dailyClaims.count >= 5) {
+            alert("🛡️ Security Alert: Daily Cats Among Us reward limit reached! You can claim a maximum of 5 victory rewards per day.");
+            closeClaimModal();
+            return;
+          }
+          dailyClaims.count++;
+          localStorage.setItem('cau_daily_claims', JSON.stringify(dailyClaims));
         }
 
         if (typeof addCoins === 'function') {
@@ -2604,8 +2657,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const claimCoinsParam = urlParams.get('claim_coins');
     const claimSmashParam = urlParams.get('claim_smash_coins');
+    const claimAmongUsRole = urlParams.get('claim_amongus_role');
+    const claimAmongUsExtra = parseInt(urlParams.get('claim_amongus_extra_cats') || '0', 10);
 
-    if (!claimCoinsParam && !claimSmashParam) return;
+    if (!claimCoinsParam && !claimSmashParam && !claimAmongUsRole) return;
 
     // Clean URL query parameters immediately using history API to prevent refresh double-claim
     const newUrl = window.location.pathname + window.location.hash;
@@ -2637,25 +2692,19 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } else if (claimSmashParam) {
       const smashReward = parseInt(claimSmashParam, 10) || 0;
-      
-      // 1. CHEAT PREVENTION: Validate exact victory reward amount (must be exactly 15)
       if (smashReward !== 15) {
         alert("🛡️ Arena Judgement: Invalid coin claim amount detected! The judges only award exactly 15 coins per victory.");
         return;
       }
-
-      // 2. RATE LIMITING: Check daily cap
       const today = new Date().toDateString();
       let dailyClaims = JSON.parse(localStorage.getItem('ssc_daily_claims') || '{"date":"","count":0}');
       if (dailyClaims.date !== today) {
         dailyClaims = { date: today, count: 0 };
       }
-
       if (dailyClaims.count >= 5) {
         alert("🛡️ Arena Judgement: Daily brawler limit reached! You can claim a maximum of 5 victory rewards (75 Catnip Coins) per day. Check back tomorrow!");
         return;
       }
-
       if (user) {
         setTimeout(() => {
           showExchangeConfirmationModal(0, smashReward, 'ssc');
@@ -2663,6 +2712,45 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         localStorage.setItem('ssc_pending_claim_coins', smashReward.toString());
         alert(`💥 Battle Victory Found!\n\nYou have +${smashReward} Catnip Coins pending from Super Smash Cats! Please Sign In or Create an Account above to claim them.`);
+        const authModal = document.getElementById('auth-modal');
+        if (authModal) {
+          authModal.style.display = 'flex';
+          document.body.style.overflow = 'hidden';
+        }
+      }
+    } else if (claimAmongUsRole) {
+      const role = claimAmongUsRole.toLowerCase();
+      const validRoles = { innocent: 25, impostor: 45, engineer: 30, captain: 50, guard: 35, medic: 30, detective: 25 };
+      const base = validRoles[role];
+      if (!base) {
+        alert("🛡️ Security Alert: Invalid Cats Among Us role detected!");
+        return;
+      }
+      const extraCats = Math.min(10, Math.max(0, claimAmongUsExtra));
+      const totalReward = base + extraCats * 5;
+
+      const today = new Date().toDateString();
+      let dailyClaims = JSON.parse(localStorage.getItem('cau_daily_claims') || '{"date":"","count":0}');
+      if (dailyClaims.date !== today) {
+        dailyClaims = { date: today, count: 0 };
+      }
+      if (dailyClaims.count >= 5) {
+        alert("🛡️ Security Alert: Daily Cats Among Us reward limit reached! You can claim a maximum of 5 victory rewards per day. Check back tomorrow!");
+        return;
+      }
+
+      activeCauRole = role;
+      activeCauExtraCats = extraCats;
+
+      if (user) {
+        setTimeout(() => {
+          showExchangeConfirmationModal(0, totalReward, 'cau');
+        }, 1000);
+      } else {
+        localStorage.setItem('cau_pending_claim_coins', totalReward.toString());
+        localStorage.setItem('cau_pending_claim_role', role);
+        localStorage.setItem('cau_pending_claim_extra', extraCats.toString());
+        alert(`🚀 Cats Among Us Session Found!\n\nYou have +${totalReward} Catnip Coins pending! Please Sign In or Create an Account above to claim them.`);
         const authModal = document.getElementById('auth-modal');
         if (authModal) {
           authModal.style.display = 'flex';
