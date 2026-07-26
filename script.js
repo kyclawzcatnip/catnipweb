@@ -1101,12 +1101,19 @@ document.addEventListener('DOMContentLoaded', () => {
       updateExchangeTerminal();
     }
     if (user && typeof showExchangeConfirmationModal === 'function') {
-      const pending = parseInt(localStorage.getItem('scw_pending_claim_coins') || '0', 10);
-      if (pending > 0) {
+      const pendingSCW = parseInt(localStorage.getItem('scw_pending_claim_coins') || '0', 10);
+      const pendingSSC = parseInt(localStorage.getItem('ssc_pending_claim_coins') || '0', 10);
+      
+      if (pendingSCW > 0) {
         localStorage.removeItem('scw_pending_claim_coins');
-        const reward = Math.floor(pending / 5);
+        const reward = Math.floor(pendingSCW / 5);
         setTimeout(() => {
-          showExchangeConfirmationModal(pending, reward);
+          showExchangeConfirmationModal(pendingSCW, reward, 'scw');
+        }, 1200);
+      } else if (pendingSSC > 0) {
+        localStorage.removeItem('ssc_pending_claim_coins');
+        setTimeout(() => {
+          showExchangeConfirmationModal(0, pendingSSC, 'ssc');
         }, 1200);
       }
     }
@@ -2323,17 +2330,47 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnAcceptClaim = document.getElementById('btn-accept-claim');
   const confirmScwDisplay = document.getElementById('confirm-scw-coins');
   const confirmRewardDisplay = document.getElementById('confirm-catnip-reward');
+  const claimModalTag = document.getElementById('claim-modal-tag');
+  const claimModalTitle = document.getElementById('claim-modal-title');
+  const claimModalDesc = document.getElementById('claim-modal-desc');
 
   let activeScwCoins = 0;
   let activeCatnipReward = 0;
+  let activeGameType = 'scw';
 
-  function showExchangeConfirmationModal(scwCoins, reward) {
+  function showExchangeConfirmationModal(scwCoins, reward, gameType = 'scw') {
     if (!claimModal) return;
     activeScwCoins = scwCoins;
     activeCatnipReward = reward;
+    activeGameType = gameType;
 
-    if (confirmScwDisplay) confirmScwDisplay.textContent = scwCoins;
     if (confirmRewardDisplay) confirmRewardDisplay.textContent = reward;
+
+    if (gameType === 'ssc') {
+      if (claimModalTag) claimModalTag.textContent = '💥 Smash Brawl Victory';
+      if (claimModalTitle) claimModalTitle.textContent = 'Defeated Opponent';
+      if (claimModalDesc) {
+        claimModalDesc.innerHTML = `
+          You defeated an opponent in <strong>Super Smash Cats</strong>!
+          <br><br>
+          Claim your victory reward:
+          <br>
+          <span style="font-size: 1.8rem; font-weight: 800; color: var(--color-primary); display: block; margin: 10px 0;">+<span id="confirm-catnip-reward">${reward}</span> Catnip Coins</span>
+        `;
+      }
+    } else {
+      if (claimModalTag) claimModalTag.textContent = '🎮 Game Session Detected';
+      if (claimModalTitle) claimModalTitle.textContent = 'Convert Game Coins';
+      if (claimModalDesc) {
+        claimModalDesc.innerHTML = `
+          You cleared levels in <strong>Super Cat World</strong> and collected <strong><span id="confirm-scw-coins" style="color: #FFD700; font-weight: 700;">${scwCoins}</span> SCW Coins</strong>!
+          <br><br>
+          Convert them now to claim:
+          <br>
+          <span style="font-size: 1.8rem; font-weight: 800; color: var(--color-primary); display: block; margin: 10px 0;">+<span id="confirm-catnip-reward">${reward}</span> Catnip Coins</span>
+        `;
+      }
+    }
 
     claimModal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
@@ -2372,10 +2409,9 @@ document.addEventListener('DOMContentLoaded', () => {
   function handleUrlCoinClaims() {
     const urlParams = new URLSearchParams(window.location.search);
     const claimCoinsParam = urlParams.get('claim_coins');
-    if (!claimCoinsParam) return;
+    const claimSmashParam = urlParams.get('claim_smash_coins');
 
-    const coinsToExchange = parseInt(claimCoinsParam, 10) || 0;
-    if (coinsToExchange <= 0) return;
+    if (!claimCoinsParam && !claimSmashParam) return;
 
     // Clean URL query parameters immediately using history API to prevent refresh double-claim
     const newUrl = window.location.pathname + window.location.hash;
@@ -2387,24 +2423,40 @@ document.addEventListener('DOMContentLoaded', () => {
       user = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
     } catch(e) {}
 
-    const reward = Math.floor(coinsToExchange / 5);
+    if (claimCoinsParam) {
+      const coinsToExchange = parseInt(claimCoinsParam, 10) || 0;
+      if (coinsToExchange <= 0) return;
+      const reward = Math.floor(coinsToExchange / 5);
 
-    if (user) {
-      setTimeout(() => {
-        showExchangeConfirmationModal(coinsToExchange, reward);
-      }, 1000);
-    } else {
-      // Save pending claim in LocalStorage
-      localStorage.setItem('scw_pending_claim_coins', coinsToExchange.toString());
-      
-      // Prompt user to sign in
-      alert(`🎮 Game Session Found!\n\nYou have +${reward} Catnip Coins (${coinsToExchange} SCW Coins) pending! Please Sign In or Create an Account above to claim them.`);
-      
-      // Open auth modal automatically to help them log in!
-      const authModal = document.getElementById('auth-modal');
-      if (authModal) {
-        authModal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
+      if (user) {
+        setTimeout(() => {
+          showExchangeConfirmationModal(coinsToExchange, reward, 'scw');
+        }, 1000);
+      } else {
+        localStorage.setItem('scw_pending_claim_coins', coinsToExchange.toString());
+        alert(`🎮 Game Session Found!\n\nYou have +${reward} Catnip Coins (${coinsToExchange} SCW Coins) pending! Please Sign In or Create an Account above to claim them.`);
+        const authModal = document.getElementById('auth-modal');
+        if (authModal) {
+          authModal.style.display = 'flex';
+          document.body.style.overflow = 'hidden';
+        }
+      }
+    } else if (claimSmashParam) {
+      const smashReward = parseInt(claimSmashParam, 10) || 0;
+      if (smashReward <= 0) return;
+
+      if (user) {
+        setTimeout(() => {
+          showExchangeConfirmationModal(0, smashReward, 'ssc');
+        }, 1000);
+      } else {
+        localStorage.setItem('ssc_pending_claim_coins', smashReward.toString());
+        alert(`💥 Battle Victory Found!\n\nYou have +${smashReward} Catnip Coins pending from Super Smash Cats! Please Sign In or Create an Account above to claim them.`);
+        const authModal = document.getElementById('auth-modal');
+        if (authModal) {
+          authModal.style.display = 'flex';
+          document.body.style.overflow = 'hidden';
+        }
       }
     }
   }
