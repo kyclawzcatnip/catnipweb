@@ -26,6 +26,12 @@ document.addEventListener('DOMContentLoaded', () => {
   let wikiSearchQuery = '';
   let lockTimerInterval = null;
 
+  // ==================== CATNIP COINS & SHOP ENGINE STATE ====================
+  let userCoins = 0;
+  let ownedItems = [];
+  let activeCosmetics = [];
+  let lastClaimTimestamp = 0;
+
   // ==================== WIKI ARTICLES DATA ====================
   const wikiArticles = {
     'super-cat-world': {
@@ -1460,10 +1466,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==================== CATNIP COINS & SHOP ENGINE ====================
-  let userCoins = 0;
-  let ownedItems = [];
-  let activeCosmetics = [];
-  let lastClaimTimestamp = 0;
 
   // Sound Synth Utility (Dynamic Web Audio API)
   function playRetroSound(type) {
