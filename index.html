@@ -296,7 +296,10 @@
                   <span>Engine: Vanilla JS</span>
                   <span>Platform: Web</span>
                 </div>
-                <a href="https://kyclawzcatnip.github.io/catnip/" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">Battle Now</a>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px;">
+                  <a href="https://kyclawzcatnip.github.io/catnip/" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">Battle Now</a>
+                  <button class="btn btn-glow btn-sm" id="play-mini-battle-btn">Play Mini-Battle</button>
+                </div>
               </div>
             </div>
 
@@ -1341,6 +1344,85 @@
     </div>
   </div>
 
+  <!-- ==================== SUPER SMASH CATS MINI-BATTLE ARENA MODAL ==================== -->
+  <div class="security-modal" id="battle-modal" style="display: none;">
+    <div class="security-card-modal" style="max-width: 550px; width: 95%; padding: 25px; position: relative;">
+      <!-- Close button -->
+      <button class="auth-close-btn" id="btn-close-battle-modal" style="position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 1.8rem; color: var(--color-text-muted); cursor: pointer;">&times;</button>
+      
+      <span class="secrets-cat" style="color: var(--color-primary); font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px;">⚡ Interactive Mini-Brawler</span>
+      <h3 style="margin-top: 5px; margin-bottom: 20px; color: var(--color-text-primary); text-align: center;">Super Smash Cats Arena</h3>
+      
+      <!-- Battle Arena Box -->
+      <div class="battle-arena-wrapper" style="background: rgba(16, 12, 30, 0.6); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 15px; margin-bottom: 20px; position: relative; overflow: hidden;">
+        <!-- Turn Indicator Banner -->
+        <div id="battle-turn-banner" style="text-align: center; font-size: 0.85rem; font-weight: 700; color: #FFD700; padding: 4px; background: rgba(255, 215, 0, 0.1); border-radius: 4px; margin-bottom: 15px;">Your Turn! Choose your attack below.</div>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-bottom: 10px;">
+          <!-- Left: Player (Cat) -->
+          <div class="battle-char-card" id="battle-player-card" style="flex: 1; text-align: center; padding: 10px; border-radius: var(--radius-sm); transition: transform 0.15s ease;">
+            <div style="font-size: 2.2rem; margin-bottom: 5px;">🐱</div>
+            <div style="font-weight: 700; font-size: 0.9rem; color: #fff; margin-bottom: 6px;">Smash Cat (You)</div>
+            <!-- Player Health Bar -->
+            <div style="background: rgba(255,255,255,0.1); height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 4px;">
+              <div id="battle-player-hp-bar" style="background: #00E676; width: 100%; height: 100%; transition: width 0.3s ease;"></div>
+            </div>
+            <div style="font-size: 0.75rem; color: var(--color-text-muted);"><span id="battle-player-hp-text">100</span> / 100 HP</div>
+            
+            <!-- Player Special Power Bar -->
+            <div style="background: rgba(255,255,255,0.1); height: 4px; border-radius: 2px; overflow: hidden; margin-top: 6px;">
+              <div id="battle-player-power-bar" style="background: #00B0FF; width: 0%; height: 100%; transition: width 0.3s ease;"></div>
+            </div>
+            <div style="font-size: 0.65rem; color: #00B0FF; margin-top: 2px; font-weight: 700;">POWER: <span id="battle-player-power-text">0</span>%</div>
+          </div>
+          
+          <!-- VS Separator -->
+          <div style="font-style: italic; font-weight: 800; color: #FF5252; font-size: 1.2rem; opacity: 0.8;">VS</div>
+          
+          <!-- Right: Opponent (Rat) -->
+          <div class="battle-char-card" id="battle-enemy-card" style="flex: 1; text-align: center; padding: 10px; border-radius: var(--radius-sm); transition: transform 0.15s ease;">
+            <div style="font-size: 2.2rem; margin-bottom: 5px;" id="battle-enemy-icon">🐭</div>
+            <div style="font-weight: 700; font-size: 0.9rem; color: #fff; margin-bottom: 6px;" id="battle-enemy-name">Miner Rat</div>
+            <!-- Enemy Health Bar -->
+            <div style="background: rgba(255,255,255,0.1); height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 4px;">
+              <div id="battle-enemy-hp-bar" style="background: #00E676; width: 100%; height: 100%; transition: width 0.3s ease;"></div>
+            </div>
+            <div style="font-size: 0.75rem; color: var(--color-text-muted);"><span id="battle-enemy-hp-text">100</span> / 100 HP</div>
+            <div style="font-size: 0.65rem; color: #FF5252; margin-top: 6px; font-weight: 700;" id="battle-enemy-status">COIN THIEF</div>
+          </div>
+        </div>
+        
+        <!-- Combat Log Messages -->
+        <div id="battle-combat-log" style="height: 60px; overflow-y: auto; background: rgba(0,0,0,0.4); border-radius: 4px; padding: 6px 10px; font-size: 0.78rem; font-family: monospace; color: #00E676; line-height: 1.4; border: 1px solid rgba(255,255,255,0.05); margin-top: 15px;">
+          * Battle initialized! The dirty Miner Rat is trying to steal Catnip Coins!
+        </div>
+      </div>
+      
+      <!-- Battle Controls Grid -->
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px;" id="battle-actions-container">
+        <button class="btn btn-secondary btn-sm" id="btn-battle-scratch" style="padding: 10px 4px; font-weight: 700; font-size: 0.75rem;">🐱 Scratch<br><span style="font-weight: 400; opacity: 0.7; font-size: 0.65rem;">5-15 DMG / +20% PWR</span></button>
+        <button class="btn btn-secondary btn-sm" id="btn-battle-stomp" style="padding: 10px 4px; font-weight: 700; font-size: 0.75rem;">💥 Heavy Stomp<br><span style="font-weight: 400; opacity: 0.7; font-size: 0.65rem;">12-25 DMG</span></button>
+        <button class="btn btn-primary btn-sm" id="btn-battle-special" style="padding: 10px 4px; font-weight: 700; font-size: 0.75rem;" disabled>⚡ Super Claw<br><span style="font-weight: 400; opacity: 0.7; font-size: 0.65rem;">40-55 DMG (Needs 100%)</span></button>
+      </div>
+      
+      <div style="text-align: center;">
+        <button class="btn btn-secondary btn-sm" id="btn-battle-escape" style="min-width: 120px; border-color: rgba(255,255,255,0.15);">Flee Battle</button>
+      </div>
+
+      <!-- Victory/Defeat Overlay Screen -->
+      <div id="battle-result-overlay" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 5, 22, 0.95); border-radius: var(--radius-md); flex-direction: column; justify-content: center; align-items: center; padding: 30px; text-align: center; z-index: 10;">
+        <div id="battle-result-icon" style="font-size: 3.5rem; margin-bottom: 10px; animation: bounce 1s infinite alternate;">🏆</div>
+        <h2 id="battle-result-title" style="color: #FFD700; font-weight: 800; font-size: 1.8rem; text-shadow: 0 0 10px rgba(255,215,0,0.3); margin-bottom: 10px;">VICTORY</h2>
+        <p id="battle-result-desc" style="font-size: 0.95rem; color: var(--color-text-secondary); line-height: 1.5; margin-bottom: 25px; max-width: 320px;">
+          You defeated the Miner Rat and recovered the stolen goods!
+          <br>
+          <span style="font-size: 1.5rem; font-weight: 800; color: #00E676; display: block; margin: 10px 0;">+15 Catnip Coins</span>
+        </p>
+        <button class="btn btn-primary" id="btn-battle-finish" style="min-width: 150px; font-weight: 700;">Claim & Exit</button>
+      </div>
+    </div>
+  </div>
+
 
 
   <!-- Firebase Web SDK Compat Libraries -->
@@ -1349,6 +1431,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
   <!-- Main Script File -->
-  <script src="script.js?v=20260722zd"></script>
+  <script src="script.js?v=20260722ze"></script>
 </body>
 </html>
