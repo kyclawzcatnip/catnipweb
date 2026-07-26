@@ -254,6 +254,20 @@ document.addEventListener('DOMContentLoaded', () => {
     devVisibilityLeaveTimer = null;
   }
 
+  function unlockDevPortalUI() {
+    if (secretsNavTrigger) {
+      secretsNavTrigger.classList.add('unlocked');
+      secretsNavTrigger.innerHTML = `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          <circle cx="12" cy="16" r="1.5"></circle>
+        </svg>
+        Dev Panel
+      `;
+    }
+  }
+
   // ==================== STRESS JOURNAL RENDERERS ====================
   function displayJournalEntries(entries) {
     const containers = [
@@ -317,7 +331,11 @@ document.addEventListener('DOMContentLoaded', () => {
   function navigateTo(sectionId) {
     // Check if section is secrets and if authorized
     if (sectionId === 'secrets') {
-      const isAuth = sessionStorage.getItem('dev_auth') === 'true';
+      const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
+      const localEmail = (localUser && typeof localUser.email === 'string') ? localUser.email.toLowerCase() : '';
+      const isDevSession = localEmail === 'kyclawzcatnip@gmail.com' || localEmail === 'catnip';
+      const isAuth = sessionStorage.getItem('dev_auth') === 'true' || isDevSession;
+      
       if (!isAuth) {
         // Stop navigation, open gate modal
         openSecurityGate();
@@ -468,8 +486,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Open security gate modal
   function openSecurityGate() {
-    // If already authenticated, jump straight to panel
-    if (sessionStorage.getItem('dev_auth') === 'true') {
+    // Check if the current logged-in user is the developer (catnip)
+    const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
+    const localEmail = (localUser && typeof localUser.email === 'string') ? localUser.email.toLowerCase() : '';
+    const isDevSession = localEmail === 'kyclawzcatnip@gmail.com' || localEmail === 'catnip';
+
+    // If already authenticated or logged in as Dev, jump straight to panel
+    if (sessionStorage.getItem('dev_auth') === 'true' || isDevSession) {
+      sessionStorage.setItem('dev_auth', 'true');
       window.location.hash = 'secrets';
       return;
     }
@@ -1090,6 +1114,13 @@ document.addEventListener('DOMContentLoaded', () => {
       if (authLoggedInView) authLoggedInView.style.display = 'block';
       if (profileDisplayName) profileDisplayName.textContent = displayName;
       if (profileEmail) profileEmail.textContent = user.email;
+
+      // Automatically unlock Dev Portal if user is the dev (catnip)
+      const localEmail = typeof user.email === 'string' ? user.email.toLowerCase() : '';
+      const isDevSession = localEmail === 'kyclawzcatnip@gmail.com' || localEmail === 'catnip';
+      if (isDevSession) {
+        unlockDevPortalUI();
+      }
     } else {
       // User is logged out
       if (accountNavLabel) accountNavLabel.textContent = 'Sign In';
@@ -1097,6 +1128,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (authLoggedOutView) authLoggedOutView.style.display = 'block';
       if (authLoggedInView) authLoggedInView.style.display = 'none';
+
+      // Lock Dev Portal
+      lockDevPortal();
     }
     if (typeof applyActiveCosmetics === 'function') {
       applyActiveCosmetics();
