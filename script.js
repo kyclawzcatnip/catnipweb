@@ -1822,6 +1822,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 1. Add static mock accounts for flavor
     userProfiles.push({
+      uid: "mock_dev",
       username: "catnip (Dev)",
       email: "kyclawzcatnip@gmail.com",
       coins: 9999,
@@ -1835,6 +1836,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (localUser) {
       if (!isDevSession) {
         userProfiles.push({
+          uid: "local_user",
           username: localUser.displayName || "Local Fallback User",
           email: localUser.email || "local@localStorage",
           coins: userCoins,
@@ -1844,6 +1846,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } else {
       userProfiles.push({
+        uid: "guest_user",
         username: "Guest Profile (You)",
         email: "guest@localStorage",
         coins: userCoins,
@@ -1869,6 +1872,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Add or overwrite local user reference with cloud synced data
             const existingIdx = userProfiles.findIndex(p => p.email === email);
             const profile = {
+              uid: uid,
               username: username,
               email: email,
               coins: data.coins || 0,
@@ -1921,9 +1925,131 @@ document.addEventListener('DOMContentLoaded', () => {
           <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: ${statusColor}; margin-right: 6px; vertical-align: middle;"></span>
           <span style="font-size: 0.85rem; color: ${statusColor}; font-weight: 600;">${escapeHtml(profile.status)}</span>
         </td>
+        <td>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-primary btn-admin-add-coins" data-uid="${profile.uid}" data-username="${escapeHtml(profile.username)}" style="padding: 2px 8px; font-size: 0.75rem; min-height: auto; font-weight: 700;">+ Add</button>
+            <button class="btn btn-secondary btn-admin-remove-coins" data-uid="${profile.uid}" data-username="${escapeHtml(profile.username)}" style="padding: 2px 8px; font-size: 0.75rem; min-height: auto; border-color: #FF5252; color: #FF5252; font-weight: 700;">- Remove</button>
+          </div>
+        </td>
       `;
       tbody.appendChild(row);
     });
+
+    // Add click listeners to admin buttons
+    const addBtns = tbody.querySelectorAll('.btn-admin-add-coins');
+    const removeBtns = tbody.querySelectorAll('.btn-admin-remove-coins');
+
+    addBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const uid = btn.getAttribute('data-uid');
+        const username = btn.getAttribute('data-username');
+        adminModifyCoins(uid, username, 'add');
+      });
+    });
+
+    removeBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const uid = btn.getAttribute('data-uid');
+        const username = btn.getAttribute('data-username');
+        adminModifyCoins(uid, username, 'remove');
+      });
+    });
+  }
+
+  function adminModifyCoins(uid, username, action) {
+    const actionLabel = action === 'add' ? 'ADD to' : 'REMOVE from';
+    const input = prompt(`🛡️ Admin Console\n\nEnter the number of Catnip Coins to ${actionLabel} ${username}'s balance:`);
+    if (input === null) return; // cancel
+
+    const amount = parseInt(input, 10);
+    if (isNaN(amount) || amount <= 0) {
+      alert("❌ Invalid amount specified.");
+      return;
+    }
+
+    // Play coin synthesizer sound effect
+    try {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      const now = audioCtx.currentTime;
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(action === 'add' ? 987.77 : 587.33, now); // B5 or D5
+      osc.frequency.setValueAtTime(action === 'add' ? 1318.51 : 293.66, now + 0.08); // E6 or D4
+      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.linearRampToValueAtTime(0.01, now + 0.35);
+      osc.start(now);
+      osc.stop(now + 0.35);
+    } catch(e) {}
+
+    if (uid === 'mock_dev') {
+      alert(`🛡️ Mock Action: Simulating successfully modifying coins for dev.`);
+      return;
+    }
+
+    if (uid === 'local_user' || uid === 'guest_user') {
+      // Modify local coin state
+      if (action === 'add') {
+        userCoins += amount;
+      } else {
+        userCoins = Math.max(0, userCoins - amount);
+      }
+      localStorage.setItem('scw_coins_balance', userCoins.toString());
+      
+      // Update portal UI elements
+      updateCoinUI();
+      
+      // Reload directory
+      loadUserDirectory();
+      alert(`🛡️ Local user coins updated! New balance: ${userCoins}`);
+    } else {
+      // Modify Firestore user account
+      if (typeof firebase !== 'undefined' && firebase.firestore) {
+        const db = firebase.firestore();
+        const userRef = db.collection('users').doc(uid);
+
+        userRef.get().then(doc => {
+          if (doc.exists) {
+            const currentCoins = doc.data().coins || 0;
+            let newCoins = currentCoins;
+            if (action === 'add') {
+              newCoins += amount;
+            } else {
+              newCoins = Math.max(0, currentCoins - amount);
+            }
+            
+            userRef.update({ coins: newCoins }).then(() => {
+              alert(`🛡️ Firestore balance updated successfully for ${username}! New balance: ${newCoins}`);
+              // If we edited ourselves, update local state too
+              const currentUser = firebase.auth().currentUser;
+              if (currentUser && currentUser.uid === uid) {
+                userCoins = newCoins;
+                localStorage.setItem('scw_coins_balance', userCoins.toString());
+                updateCoinUI();
+              }
+              loadUserDirectory();
+            }).catch(err => {
+              alert(`❌ Failed to update Firestore: ${err.message}`);
+            });
+          } else {
+            // User document doesn't exist yet, initialize it
+            let newCoins = action === 'add' ? amount : 0;
+            userRef.set({ coins: newCoins, username: username }).then(() => {
+              alert(`🛡️ Firestore document created and balance set for ${username}! Balance: ${newCoins}`);
+              loadUserDirectory();
+            }).catch(err => {
+              alert(`❌ Failed to create document in Firestore: ${err.message}`);
+            });
+          }
+        }).catch(err => {
+          alert(`❌ Failed to retrieve user doc: ${err.message}`);
+        });
+      } else {
+        alert("❌ Firestore is not initialized.");
+      }
+    }
   }
 
   // ==================== AMBIENT MUSIC SYNTHESIZER (MINECRAFT C418 STYLE) ====================
