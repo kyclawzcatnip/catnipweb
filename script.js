@@ -14,9 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
     messagingSenderId: "109876543210",
     appId: "1:109876543210:web:catnipweb000111"
   };
+  let firebase = typeof window !== 'undefined' ? window.firebase : undefined;
   const isMockKey = firebaseConfig.apiKey === "AIzaSy_CATNIP_STUDIOS_FIREBASE_KEY";
-  if (isMockKey && typeof window !== 'undefined') {
-    window.firebase = undefined;
+  if (isMockKey) {
+    firebase = undefined;
   }
 
   // ==================== STATE VARIABLES ====================
