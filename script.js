@@ -5,6 +5,20 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
+  // Firebase Configuration Object (declared at the top to avoid TDZ issues)
+  const firebaseConfig = {
+    apiKey: "AIzaSy_CATNIP_STUDIOS_FIREBASE_KEY",
+    authDomain: "catnip-studios-web.firebaseapp.com",
+    projectId: "catnip-studios-web",
+    storageBucket: "catnip-studios-web.appspot.com",
+    messagingSenderId: "109876543210",
+    appId: "1:109876543210:web:catnipweb000111"
+  };
+  const isMockKey = firebaseConfig.apiKey === "AIzaSy_CATNIP_STUDIOS_FIREBASE_KEY";
+  if (isMockKey && typeof window !== 'undefined') {
+    window.firebase = undefined;
+  }
+
   // ==================== STATE VARIABLES ====================
   let currentSection = 'home';
   let activeWikiCategory = 'all';
@@ -999,23 +1013,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadLeaderboard();
 
   // ==================== FIREBASE AUTH & USER PROFILES ====================
-  // Firebase Configuration Object
-  const firebaseConfig = {
-    apiKey: "AIzaSy_CATNIP_STUDIOS_FIREBASE_KEY",
-    authDomain: "catnip-studios-web.firebaseapp.com",
-    projectId: "catnip-studios-web",
-    storageBucket: "catnip-studios-web.appspot.com",
-    messagingSenderId: "109876543210",
-    appId: "1:109876543210:web:catnipweb000111"
-  };
-
   // Safe Firebase Initialization
-  let firebase = typeof window !== 'undefined' ? window.firebase : undefined;
-  const isMockKey = firebaseConfig.apiKey === "AIzaSy_CATNIP_STUDIOS_FIREBASE_KEY";
-  if (isMockKey) {
-    firebase = undefined;
-  }
-
   let firebaseAuth = null;
   if (typeof firebase !== 'undefined' && firebase.auth) {
     try {
