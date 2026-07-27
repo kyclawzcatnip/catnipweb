@@ -3031,4 +3031,158 @@ p {
   box-shadow: 0 0 10px rgba(124, 77, 255, 0.4);
 }
 
+/* ==================== SEASONAL EVENTS THEMES & EFFECTS ==================== */
+@keyframes pulseEventGlow {
+  0% { box-shadow: 0 0 5px var(--color-primary); }
+  50% { box-shadow: 0 0 15px var(--color-primary); border-color: var(--color-accent); }
+  100% { box-shadow: 0 0 5px var(--color-primary); }
+}
 
+.falling-particle-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 99999;
+  overflow: hidden;
+}
+
+.falling-particle {
+  position: absolute;
+  font-size: 1.5rem;
+  user-select: none;
+  pointer-events: none;
+  animation: fallDown linear forwards;
+}
+
+@keyframes fallDown {
+  0% {
+    transform: translateY(-50px) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(105vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Halloween Theme overrides */
+body.theme-halloween {
+  --color-primary: #FF6D00; /* Spooky Orange */
+  --color-accent: #D500F9; /* Witch Purple */
+  background: radial-gradient(circle at center, #1b0a24 0%, #08020a 100%) !important;
+}
+body.theme-halloween .event-banner {
+  background: rgba(255, 109, 0, 0.15) !important;
+  border-color: #FF6D00 !important;
+}
+
+/* Winter Theme overrides */
+body.theme-winter {
+  --color-primary: #00B0FF; /* Ice Blue */
+  --color-accent: #E0F7FA; /* Snowy White */
+  background: radial-gradient(circle at center, #0a1e29 0%, #02080f 100%) !important;
+}
+body.theme-winter .event-banner {
+  background: rgba(0, 176, 255, 0.15) !important;
+  border-color: #00B0FF !important;
+}
+
+/* Spring Theme overrides */
+body.theme-spring {
+  --color-primary: #00E676; /* Blossom Green */
+  --color-accent: #FF80AB; /* Sakura Pink */
+  background: radial-gradient(circle at center, #0a2416 0%, #020a05 100%) !important;
+}
+body.theme-spring .event-banner {
+  background: rgba(0, 230, 118, 0.15) !important;
+  border-color: #00E676 !important;
+}
+
+/* Anniversary Theme overrides */
+body.theme-anniversary {
+  --color-primary: #FFD700; /* Birthday Gold */
+  --color-accent: #00E5FF; /* Cyan Neon Party */
+  background: radial-gradient(circle at center, #241c0a 0%, #0a0802 100%) !important;
+}
+body.theme-anniversary .event-banner {
+  background: rgba(255, 215, 0, 0.15) !important;
+  border-color: #FFD700 !important;
+}
+
+/* Seasonal Frames */
+.frame-halloween-web {
+  border: 3px solid #FF6D00 !important;
+  animation: pulseWeb 3s infinite ease-in-out !important;
+}
+@keyframes pulseWeb {
+  0% { transform: scale(1); box-shadow: 0 0 5px rgba(255, 109, 0, 0.4); }
+  50% { transform: scale(1.02); box-shadow: 0 0 16px rgba(213, 0, 249, 0.85); }
+  100% { transform: scale(1); box-shadow: 0 0 5px rgba(255, 109, 0, 0.4); }
+}
+
+.frame-winter-candy {
+  border: 3px dashed #FF5252 !important;
+  animation: rotateCandy 6s linear infinite !important;
+}
+@keyframes rotateCandy {
+  0% { border-color: #FF5252; box-shadow: 0 0 15px #00B0FF; }
+  50% { border-color: #FFF; box-shadow: 0 0 15px #FFF59D; }
+  100% { border-color: #FF5252; box-shadow: 0 0 15px #00B0FF; }
+}
+
+.frame-spring-vines {
+  border: 3px solid #00E676 !important;
+  animation: breatheVines 4s infinite ease-in-out !important;
+}
+@keyframes breatheVines {
+  0% { box-shadow: 0 0 5px rgba(0, 230, 118, 0.4); }
+  50% { box-shadow: 0 0 15px rgba(255, 128, 171, 0.8); }
+  100% { box-shadow: 0 0 5px rgba(0, 230, 118, 0.4); }
+}
+
+.frame-anniversary-confetti {
+  border: 3px solid #FFD700 !important;
+  animation: confettiFlash 1.5s infinite linear !important;
+}
+@keyframes confettiFlash {
+  0% { border-color: #FFD700; box-shadow: 0 0 12px #FFD700; }
+  33% { border-color: #00E5FF; box-shadow: 0 0 12px #00E5FF; }
+  66% { border-color: #D500F9; box-shadow: 0 0 12px #D500F9; }
+  100% { border-color: #FFD700; box-shadow: 0 0 12px #FFD700; }
+}
+
+/* Event Badges next to usernames */
+body.theme-halloween .crown-badge-active::before {
+  content: "👑🎃 " !important;
+}
+body.theme-winter .crown-badge-active::before {
+  content: "👑🎄 " !important;
+}
+body.theme-spring .crown-badge-active::before {
+  content: "👑🐣 " !important;
+}
+body.theme-anniversary .crown-badge-active::before {
+  content: "👑🎆 " !important;
+}
+
+body.theme-halloween #profile-display-name:not(.crown-badge-active)::before {
+  content: "🎃 ";
+}
+body.theme-winter #profile-display-name:not(.crown-badge-active)::before {
+  content: "🎄 ";
+}
+body.theme-spring #profile-display-name:not(.crown-badge-active)::before {
+  content: "🐣 ";
+}
+body.theme-anniversary #profile-display-name:not(.crown-badge-active)::before {
+  content: "🎆 ";
+}

@@ -67,6 +67,10 @@ document.addEventListener('DOMContentLoaded', () => {
   let activeTitle = '';
   let unlockedTitles = [];
 
+  // Seasonal Events State variables
+  let activeEvent = 'none';
+  let overrideEventSetting = 'auto'; // 'auto', 'none', 'halloween', 'winter', 'spring', 'anniversary'
+
   const catsData = [
     { id: 'cat_basic', emoji: '🐱', name: 'Basic Cat', type: 'basic', cost: 0 },
     { id: 'cat_orange', emoji: '🟠', name: 'Orange Tabby', type: 'basic', cost: 0 },
@@ -105,7 +109,11 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'cat_pizza', emoji: '🍕', name: 'Pizza Cat', type: 'funny', cost: 120 },
     { id: 'cat_fish', emoji: '🐟', name: 'Fish Lover Cat', type: 'funny', cost: 120 },
     { id: 'cat_sleepy', emoji: '😴', name: 'Sleepy Cat', type: 'funny', cost: 120 },
-    { id: 'cat_scientist', emoji: '🥽', name: 'Scientist Cat', type: 'funny', cost: 120 }
+    { id: 'cat_scientist', emoji: '🥽', name: 'Scientist Cat', type: 'funny', cost: 120 },
+    { id: 'halloween-ghost', emoji: '👻', name: 'Ghost Cat', type: 'event', cost: 250 },
+    { id: 'winter-santa', emoji: '🎅', name: 'Santa Cat', type: 'event', cost: 250 },
+    { id: 'spring-flower', emoji: '🌸', name: 'Flower Crown Cat', type: 'event', cost: 250 },
+    { id: 'anniversary-party', emoji: '🥳', name: 'Party Hat Cat', type: 'event', cost: 250 }
   ];
 
   const framesData = [
@@ -119,7 +127,11 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'frame_electric_sparks', emoji: '⚡', name: 'Sparks (Anim)', cost: 250, css: 'frame-electric-sparks' },
     { id: 'frame_snowflakes', emoji: '❄️', name: 'Snow (Anim)', cost: 250, css: 'frame-snowflakes' },
     { id: 'frame_flames', emoji: '🔥', name: 'Flames (Anim)', cost: 250, css: 'frame-flames' },
-    { id: 'frame_floating_stars', emoji: '⭐', name: 'Stars (Anim)', cost: 250, css: 'frame-floating-stars' }
+    { id: 'frame_floating_stars', emoji: '⭐', name: 'Stars (Anim)', cost: 250, css: 'frame-floating-stars' },
+    { id: 'halloween-web', emoji: '🕷️', name: 'Spooky Web (Anim)', cost: 200, css: 'frame-halloween-web' },
+    { id: 'winter-candy', emoji: '🍬', name: 'Candy Cane (Anim)', cost: 200, css: 'frame-winter-candy' },
+    { id: 'spring-vines', emoji: '🌿', name: 'Vines (Anim)', cost: 200, css: 'frame-spring-vines' },
+    { id: 'anniversary-confetti', emoji: '🎉', name: 'Confetti (Anim)', cost: 200, css: 'frame-anniversary-confetti' }
   ];
 
   const exprsData = [
@@ -130,7 +142,11 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'expr_confident', emoji: '😼', name: 'Confident' },
     { id: 'expr_angry', emoji: '😾', name: 'Angry' },
     { id: 'expr_surprised', emoji: '😮', name: 'Surprised' },
-    { id: 'expr_laughing', emoji: '😂', name: 'Laughing' }
+    { id: 'expr_laughing', emoji: '😂', name: 'Laughing' },
+    { id: 'expression-scared', emoji: '🙀', name: 'Scared' },
+    { id: 'expression-frosty', emoji: '🥶', name: 'Frosty' },
+    { id: 'expression-blossom', emoji: '🌸', name: 'Blossom' },
+    { id: 'expression-exuberant', emoji: '🥳', name: 'Exuberant' }
   ];
 
   // ==================== WIKI ARTICLES DATA ====================
@@ -2491,11 +2507,142 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  let particleInterval = null;
+  function startFallingEffects(event) {
+    if (particleInterval) clearInterval(particleInterval);
+    const oldContainer = document.querySelector('.falling-particle-container');
+    if (oldContainer) oldContainer.remove();
+
+    if (event === 'none') return;
+
+    const container = document.createElement('div');
+    container.className = 'falling-particle-container';
+    document.body.appendChild(container);
+
+    let emojis = [];
+    if (event === 'halloween') emojis = ['🦇', '🎃', '🍂', '👻'];
+    else if (event === 'winter') emojis = ['❄️', '☃️', '🔔', '✨'];
+    else if (event === 'spring') emojis = ['🌸', '🍃', '🌷', '🦋'];
+    else if (event === 'anniversary') emojis = ['🎉', '🎈', '✨', '🎈'];
+
+    particleInterval = setInterval(() => {
+      if (document.hidden) return;
+      const p = document.createElement('div');
+      p.className = 'falling-particle';
+      p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      p.style.left = Math.random() * 100 + 'vw';
+      
+      const duration = 5 + Math.random() * 5;
+      p.style.animationDuration = duration + 's';
+      p.style.fontSize = (1 + Math.random() * 1.5) + 'rem';
+      
+      container.appendChild(p);
+      setTimeout(() => p.remove(), duration * 1000);
+    }, 400);
+  }
+
+  function updateActiveEvent() {
+    let selectedSetting = overrideEventSetting;
+    if (selectedSetting === 'auto') {
+      const now = new Date();
+      const month = now.getMonth(); // 0-11
+      const date = now.getDate(); // 1-31
+
+      // Halloween: Oct 1 - Nov 5
+      if (month === 9 || (month === 10 && date <= 5)) {
+        selectedSetting = 'halloween';
+      }
+      // Winter: Dec 1 - Jan 15
+      else if (month === 11 || (month === 0 && date <= 15)) {
+        selectedSetting = 'winter';
+      }
+      // Spring: Mar 20 - Apr 30
+      else if ((month === 2 && date >= 20) || month === 3) {
+        selectedSetting = 'spring';
+      }
+      // Anniversary: July 15 - July 25
+      else if (month === 6 && date >= 15 && date <= 25) {
+        selectedSetting = 'anniversary';
+      }
+      else {
+        selectedSetting = 'none';
+      }
+    }
+
+    activeEvent = selectedSetting;
+
+    // Apply Active Event CSS Classes to document.body
+    document.body.classList.remove('theme-halloween', 'theme-winter', 'theme-spring', 'theme-anniversary');
+    if (activeEvent !== 'none') {
+      document.body.classList.add(`theme-${activeEvent}`);
+    }
+
+    // Update Header Banner
+    const banner = document.getElementById('event-header-banner');
+    if (banner) {
+      if (activeEvent === 'none') {
+        banner.style.display = 'none';
+      } else {
+        banner.style.display = 'inline-flex';
+        const icon = banner.querySelector('.event-icon');
+        const name = banner.querySelector('.event-name');
+        
+        let labelName = 'Event';
+        let labelIcon = '🐾';
+        
+        if (activeEvent === 'halloween') { labelName = 'Halloween Event'; labelIcon = '🎃'; }
+        else if (activeEvent === 'winter') { labelName = 'Winter Event'; labelIcon = '🎄'; }
+        else if (activeEvent === 'spring') { labelName = 'Spring Event'; labelIcon = '🐣'; }
+        else if (activeEvent === 'anniversary') { labelName = 'Anniversary Event'; labelIcon = '🎆'; }
+        
+        if (icon) icon.textContent = labelIcon;
+        if (name) name.textContent = labelName;
+      }
+    }
+
+    // Toggle Seasonal Shop Items Visibility
+    document.querySelectorAll('.seasonal-item').forEach(item => {
+      const itemEv = item.getAttribute('data-event');
+      if (itemEv === activeEvent) {
+        item.style.display = 'block';
+      } else {
+        item.style.display = 'none';
+      }
+    });
+
+    // Start Particles
+    startFallingEffects(activeEvent);
+
+    // Evaluate Achievements
+    if (typeof checkAchievements === 'function') {
+      checkAchievements();
+    }
+  }
+
   // Track Daily Chest Cooldown periodically
   setInterval(updateChestUI, 30000); // refresh chest timer every 30s
 
   // Initial load
   loadCoinsFromLocalStorage();
+
+  // Initialize Active Seasonal Event
+  updateActiveEvent();
+
+  // Bind override selector event listener
+  const devEventSelect = document.getElementById('dev-event-override');
+  if (devEventSelect) {
+    const savedOverride = localStorage.getItem('scw_event_override') || 'auto';
+    devEventSelect.value = savedOverride;
+    overrideEventSetting = savedOverride;
+    updateActiveEvent();
+    
+    devEventSelect.addEventListener('change', () => {
+      const val = devEventSelect.value;
+      localStorage.setItem('scw_event_override', val);
+      overrideEventSetting = val;
+      updateActiveEvent();
+    });
+  }
 
   // Load and query user directory (for Dev secrets accounts viewer)
   function loadUserDirectory() {
@@ -3423,6 +3570,10 @@ document.addEventListener('DOMContentLoaded', () => {
         case 'expr_laughing': baseEmoji = '😹'; break;
         case 'expr_sleepy': baseEmoji = '😿'; break;
         case 'expr_cool': baseEmoji = '😼'; break;
+        case 'expression-scared': baseEmoji = '🙀'; break;
+        case 'expression-frosty': baseEmoji = '🥶'; break;
+        case 'expression-blossom': baseEmoji = '😸'; break;
+        case 'expression-exuberant': baseEmoji = '🥳'; break;
         default: baseEmoji = '🐱'; break;
       }
     }
@@ -3576,6 +3727,36 @@ document.addEventListener('DOMContentLoaded', () => {
           decorElement.style.fontSize = '1.0rem';
         }
         break;
+      case 'halloween-ghost':
+        catElement.style.filter = 'opacity(0.4) grayscale(1) brightness(1.6)';
+        catElement.style.textShadow = '0 0 10px rgba(124, 77, 255, 0.7)';
+        if (decorElement) {
+          decorElement.textContent = '👻';
+          decorElement.style.top = '-14px';
+          decorElement.style.fontSize = '1.3rem';
+        }
+        break;
+      case 'winter-santa':
+        if (decorElement) {
+          decorElement.textContent = '🎅';
+          decorElement.style.top = '-16px';
+          decorElement.style.fontSize = '1.3rem';
+        }
+        break;
+      case 'spring-flower':
+        if (decorElement) {
+          decorElement.textContent = '🌸';
+          decorElement.style.top = '-12px';
+          decorElement.style.fontSize = '1.2rem';
+        }
+        break;
+      case 'anniversary-party':
+        if (decorElement) {
+          decorElement.textContent = '🥳';
+          decorElement.style.top = '-14px';
+          decorElement.style.fontSize = '1.3rem';
+        }
+        break;
       case 'cat_rainbow':
         catElement.style.filter = 'saturate(3) hue-rotate(45deg)';
         catElement.style.textShadow = '0 0 12px rgba(255, 23, 68, 0.6)';
@@ -3677,6 +3858,30 @@ document.addEventListener('DOMContentLoaded', () => {
       exprElement.style.right = '-4px';
       exprElement.style.fontSize = '0.9rem';
       exprElement.style.zIndex = '2';
+    } else if (expressionId === 'expression-scared' && exprElement) {
+      exprElement.textContent = '💦';
+      exprElement.style.top = '-8px';
+      exprElement.style.right = '-6px';
+      exprElement.style.fontSize = '0.9rem';
+      exprElement.style.zIndex = '2';
+    } else if (expressionId === 'expression-frosty' && exprElement) {
+      exprElement.textContent = '❄️';
+      exprElement.style.top = '10px';
+      exprElement.style.left = '-8px';
+      exprElement.style.fontSize = '0.9rem';
+      exprElement.style.zIndex = '2';
+    } else if (expressionId === 'expression-blossom' && exprElement) {
+      exprElement.textContent = '🌸';
+      exprElement.style.top = '-4px';
+      exprElement.style.right = '-4px';
+      exprElement.style.fontSize = '0.8rem';
+      exprElement.style.zIndex = '2';
+    } else if (expressionId === 'expression-exuberant' && exprElement) {
+      exprElement.textContent = '🎉';
+      exprElement.style.top = '-6px';
+      exprElement.style.left = '-6px';
+      exprElement.style.fontSize = '0.9rem';
+      exprElement.style.zIndex = '2';
     }
   }
 
@@ -3761,7 +3966,11 @@ document.addEventListener('DOMContentLoaded', () => {
         rich_kitty: { name: 'Rich Kitty', emoji: '💰', desc: 'Accumulated 1,000 Catnip Coins. (+200 Coins, "Merchant" Title)' },
         rat_slayer: { name: 'Rat Slayer', emoji: '⚔️', desc: 'Beat 50 brawler enemies in Super Cat World. (+300 Coins, "Slayer" Title)' },
         lore_explorer: { name: 'Lore Explorer', emoji: '📖', desc: 'Read 25 wiki pages. (+150 Coins, "Scholar" Title)' },
-        cat_emperor: { name: 'Cat Emperor', emoji: '👑', desc: 'Unlocked all customization items. ("Emperor" Title)' }
+        cat_emperor: { name: 'Cat Emperor', emoji: '👑', desc: 'Unlocked all customization items. ("Emperor" Title)' },
+        'ach-halloween': { name: 'Spooky Season', emoji: '🎃', desc: 'Unlock any Halloween event item. (+100 Coins, "Gravekeeper" Title)' },
+        'ach-winter': { name: 'Winter Wonderland', emoji: '🎄', desc: 'Unlock any Winter event item. (+100 Coins, "Yeti" Title)' },
+        'ach-spring': { name: 'Spring Awakening', emoji: '🐣', desc: 'Unlock any Spring event item. (+100 Coins, "Florist" Title)' },
+        'ach-anniversary': { name: 'Happy Birthday!', emoji: '🎆', desc: 'Log in during the Anniversary event. (+200 Coins, "Celebrity" Title)' }
       };
 
       if (achievements.length === 0) {
@@ -3842,6 +4051,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if ((unlockedCats.length >= 38 && unlockedFrames.length >= 11) || isDev) {
       addAch('cat_emperor', 'Cat Emperor', '👑', 0, 'Emperor');
+    }
+
+    // Seasonal Event Achievements
+    const hasHalloweenItem = ownedItems.includes('halloween-ghost') || ownedItems.includes('halloween-web') || ownedItems.includes('expression-scared');
+    if (hasHalloweenItem) {
+      addAch('ach-halloween', 'Spooky Season', '🎃', 100, 'Gravekeeper');
+    }
+
+    const hasWinterItem = ownedItems.includes('winter-santa') || ownedItems.includes('winter-candy') || ownedItems.includes('expression-frosty');
+    if (hasWinterItem) {
+      addAch('ach-winter', 'Winter Wonderland', '🎄', 100, 'Yeti');
+    }
+
+    const hasSpringItem = ownedItems.includes('spring-flower') || ownedItems.includes('spring-vines') || ownedItems.includes('expression-blossom');
+    if (hasSpringItem) {
+      addAch('ach-spring', 'Spring Awakening', '🐣', 100, 'Florist');
+    }
+
+    if (activeEvent === 'anniversary' && hasAccount) {
+      addAch('ach-anniversary', 'Happy Birthday!', '🎆', 200, 'Celebrity');
     }
 
     if (isDev) {

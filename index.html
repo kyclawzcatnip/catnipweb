@@ -36,6 +36,9 @@
         <img src="logo.jpg" alt="Catnip Studios Logo" class="header-logo-img" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border-light); box-shadow: var(--shadow-neon-green);" />
         <span class="logo-text">Catnip<span>Studios</span></span>
       </a>
+      <div class="event-banner" id="event-header-banner" style="display: none; align-items: center; gap: 6px; background: rgba(124, 77, 255, 0.15); border: 1.5px solid var(--color-primary); padding: 5px 12px; border-radius: 20px; font-family: var(--font-headings); font-weight: 700; font-size: 0.75rem; letter-spacing: 0.5px; text-transform: uppercase; margin-left: 10px; animation: pulseEventGlow 2s infinite ease-in-out;">
+        <span class="event-icon">🎃</span> <span class="event-name" style="color: #FFF;">Halloween Event</span>
+      </div>
       <nav class="nav-menu" id="nav-menu">
         <a href="#home" class="nav-link active" data-target="home">Home</a>
         <a href="#games" class="nav-link" data-target="games">Games</a>
@@ -1058,6 +1061,175 @@
             <button class="btn btn-secondary btn-sm btn-buy-item" data-item-id="sound-pack" data-cost="300">Unlock Item</button>
           </div>
 
+          <!-- ==================== SEASONAL LIMITED ITEMS ==================== -->
+          <!-- Halloween: Ghost Cat -->
+          <div class="secrets-card shop-item-card seasonal-item" data-item-id="halloween-ghost" data-event="halloween" style="display: none;">
+            <div class="item-badge-cost">
+              <img src="coin.png" class="item-cost-coin" alt="Coin" />
+              <span>250</span>
+            </div>
+            <div class="shop-item-preview" style="height: 100px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.2); border-radius: var(--radius-md); margin-bottom: 15px; border: 1px dashed var(--border-light);">
+              <span style="font-size: 2.8rem; filter: drop-shadow(0 0 10px rgba(124,77,255,0.6));">👻</span>
+            </div>
+            <h3>👻 Ghost Cat (Limited)</h3>
+            <p>Halloween Special: A translucent ghost cat breed with glowing eyes.</p>
+            <button class="btn btn-secondary btn-sm btn-buy-item" data-item-id="halloween-ghost" data-cost="250">Unlock Item</button>
+          </div>
+
+          <!-- Halloween: Spooky Spiderweb Frame -->
+          <div class="secrets-card shop-item-card seasonal-item" data-item-id="halloween-web" data-event="halloween" style="display: none;">
+            <div class="item-badge-cost">
+              <img src="coin.png" class="item-cost-coin" alt="Coin" />
+              <span>200</span>
+            </div>
+            <div class="shop-item-preview" style="height: 100px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.2); border-radius: var(--radius-md); margin-bottom: 15px; border: 1px dashed var(--border-light);">
+              <span style="font-size: 2.8rem; filter: drop-shadow(0 0 10px rgba(255,109,0,0.6));">🕷️</span>
+            </div>
+            <h3>🕷️ Spooky Spiderweb (Limited)</h3>
+            <p>Halloween Special: A dark, cobweb-patterned profile frame with spider drops.</p>
+            <button class="btn btn-secondary btn-sm btn-buy-item" data-item-id="halloween-web" data-cost="200">Unlock Item</button>
+          </div>
+
+          <!-- Halloween: Scared Expression -->
+          <div class="secrets-card shop-item-card seasonal-item" data-item-id="expression-scared" data-event="halloween" style="display: none;">
+            <div class="item-badge-cost">
+              <img src="coin.png" class="item-cost-coin" alt="Coin" />
+              <span>100</span>
+            </div>
+            <div class="shop-item-preview" style="height: 100px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.2); border-radius: var(--radius-md); margin-bottom: 15px; border: 1px dashed var(--border-light);">
+              <span style="font-size: 2.8rem;">🙀</span>
+            </div>
+            <h3>🙀 Scared Expression (Limited)</h3>
+            <p>Halloween Special: Displays a horrified shocked cat expression.</p>
+            <button class="btn btn-secondary btn-sm btn-buy-item" data-item-id="expression-scared" data-cost="100">Unlock Item</button>
+          </div>
+
+          <!-- Winter: Santa Cat -->
+          <div class="secrets-card shop-item-card seasonal-item" data-item-id="winter-santa" data-event="winter" style="display: none;">
+            <div class="item-badge-cost">
+              <img src="coin.png" class="item-cost-coin" alt="Coin" />
+              <span>250</span>
+            </div>
+            <div class="shop-item-preview" style="height: 100px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.2); border-radius: var(--radius-md); margin-bottom: 15px; border: 1px dashed var(--border-light);">
+              <span style="font-size: 2.8rem; filter: drop-shadow(0 0 10px rgba(0,176,255,0.6));">🎅</span>
+            </div>
+            <h3>🎅 Santa Cat (Limited)</h3>
+            <p>Winter Special: A festive cat wearing Santa Claus's famous red hat.</p>
+            <button class="btn btn-secondary btn-sm btn-buy-item" data-item-id="winter-santa" data-cost="250">Unlock Item</button>
+          </div>
+
+          <!-- Winter: Candy Cane Frame -->
+          <div class="secrets-card shop-item-card seasonal-item" data-item-id="winter-candy" data-event="winter" style="display: none;">
+            <div class="item-badge-cost">
+              <img src="coin.png" class="item-cost-coin" alt="Coin" />
+              <span>200</span>
+            </div>
+            <div class="shop-item-preview" style="height: 100px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.2); border-radius: var(--radius-md); margin-bottom: 15px; border: 1px dashed var(--border-light);">
+              <span style="font-size: 2.8rem; filter: drop-shadow(0 0 10px #FF5252);">🍬</span>
+            </div>
+            <h3>🍬 Candy Cane Frame (Limited)</h3>
+            <p>Winter Special: A red and white candy-striped animated border.</p>
+            <button class="btn btn-secondary btn-sm btn-buy-item" data-item-id="winter-candy" data-cost="200">Unlock Item</button>
+          </div>
+
+          <!-- Winter: Frosty Expression -->
+          <div class="secrets-card shop-item-card seasonal-item" data-item-id="expression-frosty" data-event="winter" style="display: none;">
+            <div class="item-badge-cost">
+              <img src="coin.png" class="item-cost-coin" alt="Coin" />
+              <span>100</span>
+            </div>
+            <div class="shop-item-preview" style="height: 100px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.2); border-radius: var(--radius-md); margin-bottom: 15px; border: 1px dashed var(--border-light);">
+              <span style="font-size: 2.8rem;">🥶</span>
+            </div>
+            <h3>🥶 Frosty Expression (Limited)</h3>
+            <p>Winter Special: Shivering ice-blue feline expression with freezing vapors.</p>
+            <button class="btn btn-secondary btn-sm btn-buy-item" data-item-id="expression-frosty" data-cost="100">Unlock Item</button>
+          </div>
+
+          <!-- Spring: Flower Crown Cat -->
+          <div class="secrets-card shop-item-card seasonal-item" data-item-id="spring-flower" data-event="spring" style="display: none;">
+            <div class="item-badge-cost">
+              <img src="coin.png" class="item-cost-coin" alt="Coin" />
+              <span>250</span>
+            </div>
+            <div class="shop-item-preview" style="height: 100px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.2); border-radius: var(--radius-md); margin-bottom: 15px; border: 1px dashed var(--border-light);">
+              <span style="font-size: 2.8rem; filter: drop-shadow(0 0 10px rgba(0,230,118,0.6));">🌸</span>
+            </div>
+            <h3>🌸 Flower Crown (Limited)</h3>
+            <p>Spring Special: A lovely, colorful spring cherry blossom crown breed decoration.</p>
+            <button class="btn btn-secondary btn-sm btn-buy-item" data-item-id="spring-flower" data-cost="250">Unlock Item</button>
+          </div>
+
+          <!-- Spring: Blooming Vines Frame -->
+          <div class="secrets-card shop-item-card seasonal-item" data-item-id="spring-vines" data-event="spring" style="display: none;">
+            <div class="item-badge-cost">
+              <img src="coin.png" class="item-cost-coin" alt="Coin" />
+              <span>200</span>
+            </div>
+            <div class="shop-item-preview" style="height: 100px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.2); border-radius: var(--radius-md); margin-bottom: 15px; border: 1px dashed var(--border-light);">
+              <span style="font-size: 2.8rem; filter: drop-shadow(0 0 10px #00E676);">🌿</span>
+            </div>
+            <h3>🌿 Blooming Vines Frame (Limited)</h3>
+            <p>Spring Special: A leafy green garden-themed border with growing pink buds.</p>
+            <button class="btn btn-secondary btn-sm btn-buy-item" data-item-id="spring-vines" data-cost="200">Unlock Item</button>
+          </div>
+
+          <!-- Spring: Happy Blossom Expression -->
+          <div class="secrets-card shop-item-card seasonal-item" data-item-id="expression-blossom" data-event="spring" style="display: none;">
+            <div class="item-badge-cost">
+              <img src="coin.png" class="item-cost-coin" alt="Coin" />
+              <span>100</span>
+            </div>
+            <div class="shop-item-preview" style="height: 100px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.2); border-radius: var(--radius-md); margin-bottom: 15px; border: 1px dashed var(--border-light);">
+              <span style="font-size: 2.8rem; filter: drop-shadow(0 0 5px rgba(255,105,180,0.5));">🌸</span>
+            </div>
+            <h3>🌸 Blossom Expression (Limited)</h3>
+            <p>Spring Special: A joyful smiling cat with pink cherry blossoms in its eyes.</p>
+            <button class="btn btn-secondary btn-sm btn-buy-item" data-item-id="expression-blossom" data-cost="100">Unlock Item</button>
+          </div>
+
+          <!-- Anniversary: Party Hat Cat -->
+          <div class="secrets-card shop-item-card seasonal-item" data-item-id="anniversary-party" data-event="anniversary" style="display: none;">
+            <div class="item-badge-cost">
+              <img src="coin.png" class="item-cost-coin" alt="Coin" />
+              <span>250</span>
+            </div>
+            <div class="shop-item-preview" style="height: 100px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.2); border-radius: var(--radius-md); margin-bottom: 15px; border: 1px dashed var(--border-light);">
+              <span style="font-size: 2.8rem; filter: drop-shadow(0 0 10px rgba(255,215,0,0.6));">🥳</span>
+            </div>
+            <h3>🥳 Party Hat Cat (Limited)</h3>
+            <p>Anniversary Special: A happy birthday cat breed wearing a festive party hat.</p>
+            <button class="btn btn-secondary btn-sm btn-buy-item" data-item-id="anniversary-party" data-cost="250">Unlock Item</button>
+          </div>
+
+          <!-- Anniversary: Confetti Flash Frame -->
+          <div class="secrets-card shop-item-card seasonal-item" data-item-id="anniversary-confetti" data-event="anniversary" style="display: none;">
+            <div class="item-badge-cost">
+              <img src="coin.png" class="item-cost-coin" alt="Coin" />
+              <span>200</span>
+            </div>
+            <div class="shop-item-preview" style="height: 100px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.2); border-radius: var(--radius-md); margin-bottom: 15px; border: 1px dashed var(--border-light);">
+              <span style="font-size: 2.8rem; filter: drop-shadow(0 0 10px #7C4DFF);">🎉</span>
+            </div>
+            <h3>🎉 Confetti Flash Frame (Limited)</h3>
+            <p>Anniversary Special: Dynamic, multi-colored flashing confetti animation border.</p>
+            <button class="btn btn-secondary btn-sm btn-buy-item" data-item-id="anniversary-confetti" data-cost="200">Unlock Item</button>
+          </div>
+
+          <!-- Anniversary: Exuberant Party Expression -->
+          <div class="secrets-card shop-item-card seasonal-item" data-item-id="expression-exuberant" data-event="anniversary" style="display: none;">
+            <div class="item-badge-cost">
+              <img src="coin.png" class="item-cost-coin" alt="Coin" />
+              <span>100</span>
+            </div>
+            <div class="shop-item-preview" style="height: 100px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.2); border-radius: var(--radius-md); margin-bottom: 15px; border: 1px dashed var(--border-light);">
+              <span style="font-size: 2.8rem;">🥳</span>
+            </div>
+            <h3>🥳 Exuberant Party (Limited)</h3>
+            <p>Anniversary Special: Feline blowing a birthday party whistle with confetti drops.</p>
+            <button class="btn btn-secondary btn-sm btn-buy-item" data-item-id="expression-exuberant" data-cost="100">Unlock Item</button>
+          </div>
+
         </div>
       </section>
 
@@ -1231,6 +1403,19 @@
               <div class="cheat-item">
                 <div class="cheat-key">bug code 0</div>
                 <div class="cheat-desc"><strong>Bug Free Status:</strong> 0 Bugs detected in Super Cat World. All major issues & glitch land routines resolved.</div>
+              </div>
+
+              <div class="cheat-item" style="border-top: 1px dashed rgba(124, 77, 255, 0.2); margin-top: 15px; padding-top: 15px;">
+                <div class="cheat-key" style="color: var(--color-accent); font-size: 0.9rem;">🔮 Seasonal Event Override</div>
+                <div class="cheat-desc" style="margin-bottom: 8px;">Force-activate any seasonal event to test limited cosmetics, achievements, and themes.</div>
+                <select id="dev-event-override" class="form-input" style="width: 100%; padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); background: rgba(0,0,0,0.25); color: #fff; font-family: inherit; font-size: 0.85rem; font-weight: 600; cursor: pointer; height: auto;">
+                  <option value="auto">Auto (Calendar Date)</option>
+                  <option value="none">None (Off-Season)</option>
+                  <option value="halloween">🎃 Halloween Event</option>
+                  <option value="winter">🎄 Winter Event</option>
+                  <option value="spring">🐣 Spring Event</option>
+                  <option value="anniversary">🎆 Anniversary Event (July 20)</option>
+                </select>
               </div>
             </div>
           </div>
@@ -1629,6 +1814,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
   <!-- Main Script File -->
-  <script src="script.js?v=20260726zk21"></script>
+  <script src="script.js?v=20260726zk22"></script>
 </body>
 </html>
