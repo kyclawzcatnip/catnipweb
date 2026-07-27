@@ -3762,7 +3762,16 @@ document.addEventListener('DOMContentLoaded', () => {
       addAch('first_cat', 'First Cat', '🥉', 50, 'Kitty');
     }
 
-    if (totalCoinsEarned >= 1000) {
+    let currentEmail = '';
+    if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
+      currentEmail = firebase.auth().currentUser.email;
+    }
+    if (!currentEmail && savedUser) {
+      currentEmail = savedUser.email;
+    }
+    const isDev = isDeveloperEmail(currentEmail);
+
+    if (totalCoinsEarned >= 1000 || userCoins >= 1000) {
       addAch('rich_kitty', 'Rich Kitty', '💰', 200, 'Merchant');
     }
 
@@ -3774,18 +3783,11 @@ document.addEventListener('DOMContentLoaded', () => {
       addAch('lore_explorer', 'Lore Explorer', '📖', 150, 'Scholar');
     }
 
-    if (unlockedCats.length >= 38 && unlockedFrames.length >= 11) {
+    if ((unlockedCats.length >= 38 && unlockedFrames.length >= 11) || isDev) {
       addAch('cat_emperor', 'Cat Emperor', '👑', 0, 'Emperor');
     }
 
-    let currentEmail = '';
-    if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
-      currentEmail = firebase.auth().currentUser.email;
-    }
-    if (!currentEmail && savedUser) {
-      currentEmail = savedUser.email;
-    }
-    if (isDeveloperEmail(currentEmail)) {
+    if (isDev) {
       if (!unlockedTitles.includes('Staff')) unlockedTitles.push('Staff');
       if (!activeTitle) activeTitle = 'Staff';
     }
