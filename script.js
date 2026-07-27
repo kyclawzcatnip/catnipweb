@@ -52,6 +52,72 @@ document.addEventListener('DOMContentLoaded', () => {
   let favouriteGame = 'Super Smash Cats';
   let achievements = [];
 
+  const catsData = [
+    { id: 'cat_basic', emoji: '🐱', name: 'Basic Cat', type: 'basic', cost: 0 },
+    { id: 'cat_orange', emoji: '🟠', name: 'Orange Tabby', type: 'basic', cost: 0 },
+    { id: 'cat_black', emoji: '⚫', name: 'Black Cat', type: 'basic', cost: 0 },
+    { id: 'cat_white', emoji: '⚪', name: 'White Cat', type: 'basic', cost: 0 },
+    { id: 'cat_tuxedo', emoji: '⚪⚫', name: 'Tuxedo Cat', type: 'basic', cost: 0 },
+    { id: 'cat_brown', emoji: '🟤', name: 'Brown Tabby', type: 'basic', cost: 0 },
+    { id: 'cat_calico', emoji: '🧡', name: 'Calico', type: 'basic', cost: 0 },
+    { id: 'cat_grey', emoji: '🩶', name: 'Grey Cat', type: 'basic', cost: 0 },
+    { id: 'cat_siamese', emoji: '🤍', name: 'Siamese Cat', type: 'basic', cost: 0 },
+    { id: 'cat_king', emoji: '👑', name: 'King Cat', type: 'unlockable', cost: 150 },
+    { id: 'cat_robot', emoji: '🤖', name: 'Robot Cat', type: 'unlockable', cost: 150 },
+    { id: 'cat_ghost', emoji: '👻', name: 'Ghost Cat', type: 'unlockable', cost: 150 },
+    { id: 'cat_wizard', emoji: '🧙', name: 'Wizard Cat', type: 'unlockable', cost: 150 },
+    { id: 'cat_pirate', emoji: '🏴‍☠️', name: 'Pirate Cat', type: 'unlockable', cost: 150 },
+    { id: 'cat_knight', emoji: '🛡️', name: 'Knight Cat', type: 'unlockable', cost: 150 },
+    { id: 'cat_galaxy', emoji: '🌌', name: 'Galaxy Cat', type: 'unlockable', cost: 150 },
+    { id: 'cat_electric', emoji: '⚡', name: 'Electric Cat', type: 'unlockable', cost: 150 },
+    { id: 'cat_ice', emoji: '❄️', name: 'Ice Cat', type: 'unlockable', cost: 150 },
+    { id: 'cat_fire', emoji: '🔥', name: 'Fire Cat', type: 'unlockable', cost: 150 },
+    { id: 'cat_pumpkin', emoji: '🎃', name: 'Pumpkin Cat', type: 'event', cost: 200 },
+    { id: 'cat_santa', emoji: '🎅', name: 'Santa Cat', type: 'event', cost: 200 },
+    { id: 'cat_bunny', emoji: '🐰', name: 'Bunny Cat', type: 'event', cost: 200 },
+    { id: 'cat_valentine', emoji: '❤️', name: 'Valentine Cat', type: 'event', cost: 200 },
+    { id: 'cat_rainbow', emoji: '🌈', name: 'Rainbow Cat', type: 'event', cost: 200 },
+    { id: 'cat_neon', emoji: '💜', name: 'Neon Cat', type: 'rare', cost: 300 },
+    { id: 'cat_golden', emoji: '🌟', name: 'Golden Cat', type: 'rare', cost: 300 },
+    { id: 'cat_crystal', emoji: '💎', name: 'Crystal Cat', type: 'rare', cost: 300 },
+    { id: 'cat_moon', emoji: '🌙', name: 'Moon Cat', type: 'rare', cost: 300 },
+    { id: 'cat_sun', emoji: '☀️', name: 'Sun Cat', type: 'rare', cost: 300 },
+    { id: 'cat_god', emoji: '😺', name: 'God Cat', type: 'rare', cost: 300 },
+    { id: 'cat_grumpy', emoji: '😾', name: 'Grumpy Cat', type: 'funny', cost: 120 },
+    { id: 'cat_silly', emoji: '😸', name: 'Silly Cat', type: 'funny', cost: 120 },
+    { id: 'cat_detective', emoji: '😼', name: 'Detective Cat', type: 'funny', cost: 120 },
+    { id: 'cat_gamer', emoji: '😺', name: 'Gamer Cat', type: 'funny', cost: 120 },
+    { id: 'cat_pizza', emoji: '🍕', name: 'Pizza Cat', type: 'funny', cost: 120 },
+    { id: 'cat_fish', emoji: '🐟', name: 'Fish Lover Cat', type: 'funny', cost: 120 },
+    { id: 'cat_sleepy', emoji: '😴', name: 'Sleepy Cat', type: 'funny', cost: 120 },
+    { id: 'cat_scientist', emoji: '🥽', name: 'Scientist Cat', type: 'funny', cost: 120 }
+  ];
+
+  const framesData = [
+    { id: 'frame_none', emoji: '⚪', name: 'No Frame', cost: 0, css: 'frame-none' },
+    { id: 'frame_neon_purple', emoji: '🟣', name: 'Neon Purple', cost: 100, css: 'frame-neon-purple' },
+    { id: 'frame_electric_blue', emoji: '🔵', name: 'Electric Blue', cost: 100, css: 'frame-electric-blue' },
+    { id: 'frame_emerald', emoji: '🟢', name: 'Emerald', cost: 100, css: 'frame-emerald' },
+    { id: 'frame_gold', emoji: '🟡', name: 'Gold', cost: 100, css: 'frame-gold' },
+    { id: 'frame_ruby', emoji: '🔴', name: 'Ruby', cost: 100, css: 'frame-ruby' },
+    { id: 'frame_rainbow', emoji: '🌈', name: 'Rainbow (Anim)', cost: 250, css: 'frame-rainbow' },
+    { id: 'frame_electric_sparks', emoji: '⚡', name: 'Sparks (Anim)', cost: 250, css: 'frame-electric-sparks' },
+    { id: 'frame_snowflakes', emoji: '❄️', name: 'Snow (Anim)', cost: 250, css: 'frame-snowflakes' },
+    { id: 'frame_flames', emoji: '🔥', name: 'Flames (Anim)', cost: 250, css: 'frame-flames' },
+    { id: 'frame_floating_stars', emoji: '⭐', name: 'Stars (Anim)', cost: 250, css: 'frame-floating-stars' }
+  ];
+
+  const exprsData = [
+    { id: 'expr_happy', emoji: '😀', name: 'Happy' },
+    { id: 'expr_cool', emoji: '😎', name: 'Cool' },
+    { id: 'expr_excited', emoji: '😺', name: 'Excited' },
+    { id: 'expr_sleepy', emoji: '😴', name: 'Sleepy' },
+    { id: 'expr_confident', emoji: '😼', name: 'Confident' },
+    { id: 'expr_angry', emoji: '😾', name: 'Angry' },
+    { id: 'expr_surprised', emoji: '😮', name: 'Surprised' },
+    { id: 'expr_laughing', emoji: '😂', name: 'Laughing' }
+  ];
+
   // ==================== WIKI ARTICLES DATA ====================
   const wikiArticles = {
     'super-cat-world': {
@@ -2916,71 +2982,6 @@ document.addEventListener('DOMContentLoaded', () => {
   setTimeout(handleUrlCoinClaims, 1500);
 
   // ==================== AVATAR MIX-AND-MATCH PROFILE CUSTOMS SYSTEM ====================
-  const catsData = [
-    { id: 'cat_basic', emoji: '🐱', name: 'Basic Cat', type: 'basic', cost: 0 },
-    { id: 'cat_orange', emoji: '🟠', name: 'Orange Tabby', type: 'basic', cost: 0 },
-    { id: 'cat_black', emoji: '⚫', name: 'Black Cat', type: 'basic', cost: 0 },
-    { id: 'cat_white', emoji: '⚪', name: 'White Cat', type: 'basic', cost: 0 },
-    { id: 'cat_tuxedo', emoji: '⚪⚫', name: 'Tuxedo Cat', type: 'basic', cost: 0 },
-    { id: 'cat_brown', emoji: '🟤', name: 'Brown Tabby', type: 'basic', cost: 0 },
-    { id: 'cat_calico', emoji: '🧡', name: 'Calico', type: 'basic', cost: 0 },
-    { id: 'cat_grey', emoji: '🩶', name: 'Grey Cat', type: 'basic', cost: 0 },
-    { id: 'cat_siamese', emoji: '🤍', name: 'Siamese Cat', type: 'basic', cost: 0 },
-    { id: 'cat_king', emoji: '👑', name: 'King Cat', type: 'unlockable', cost: 150 },
-    { id: 'cat_robot', emoji: '🤖', name: 'Robot Cat', type: 'unlockable', cost: 150 },
-    { id: 'cat_ghost', emoji: '👻', name: 'Ghost Cat', type: 'unlockable', cost: 150 },
-    { id: 'cat_wizard', emoji: '🧙', name: 'Wizard Cat', type: 'unlockable', cost: 150 },
-    { id: 'cat_pirate', emoji: '🏴‍☠️', name: 'Pirate Cat', type: 'unlockable', cost: 150 },
-    { id: 'cat_knight', emoji: '🛡️', name: 'Knight Cat', type: 'unlockable', cost: 150 },
-    { id: 'cat_galaxy', emoji: '🌌', name: 'Galaxy Cat', type: 'unlockable', cost: 150 },
-    { id: 'cat_electric', emoji: '⚡', name: 'Electric Cat', type: 'unlockable', cost: 150 },
-    { id: 'cat_ice', emoji: '❄️', name: 'Ice Cat', type: 'unlockable', cost: 150 },
-    { id: 'cat_fire', emoji: '🔥', name: 'Fire Cat', type: 'unlockable', cost: 150 },
-    { id: 'cat_pumpkin', emoji: '🎃', name: 'Pumpkin Cat', type: 'event', cost: 200 },
-    { id: 'cat_santa', emoji: '🎅', name: 'Santa Cat', type: 'event', cost: 200 },
-    { id: 'cat_bunny', emoji: '🐰', name: 'Bunny Cat', type: 'event', cost: 200 },
-    { id: 'cat_valentine', emoji: '❤️', name: 'Valentine Cat', type: 'event', cost: 200 },
-    { id: 'cat_rainbow', emoji: '🌈', name: 'Rainbow Cat', type: 'event', cost: 200 },
-    { id: 'cat_neon', emoji: '💜', name: 'Neon Cat', type: 'rare', cost: 300 },
-    { id: 'cat_golden', emoji: '🌟', name: 'Golden Cat', type: 'rare', cost: 300 },
-    { id: 'cat_crystal', emoji: '💎', name: 'Crystal Cat', type: 'rare', cost: 300 },
-    { id: 'cat_moon', emoji: '🌙', name: 'Moon Cat', type: 'rare', cost: 300 },
-    { id: 'cat_sun', emoji: '☀️', name: 'Sun Cat', type: 'rare', cost: 300 },
-    { id: 'cat_god', emoji: '😺', name: 'God Cat', type: 'rare', cost: 300 },
-    { id: 'cat_grumpy', emoji: '😾', name: 'Grumpy Cat', type: 'funny', cost: 120 },
-    { id: 'cat_silly', emoji: '😸', name: 'Silly Cat', type: 'funny', cost: 120 },
-    { id: 'cat_detective', emoji: '😼', name: 'Detective Cat', type: 'funny', cost: 120 },
-    { id: 'cat_gamer', emoji: '😺', name: 'Gamer Cat', type: 'funny', cost: 120 },
-    { id: 'cat_pizza', emoji: '🍕', name: 'Pizza Cat', type: 'funny', cost: 120 },
-    { id: 'cat_fish', emoji: '🐟', name: 'Fish Lover Cat', type: 'funny', cost: 120 },
-    { id: 'cat_sleepy', emoji: '😴', name: 'Sleepy Cat', type: 'funny', cost: 120 },
-    { id: 'cat_scientist', emoji: '🥽', name: 'Scientist Cat', type: 'funny', cost: 120 }
-  ];
-
-  const framesData = [
-    { id: 'frame_none', emoji: '⚪', name: 'No Frame', cost: 0, css: 'frame-none' },
-    { id: 'frame_neon_purple', emoji: '🟣', name: 'Neon Purple', cost: 100, css: 'frame-neon-purple' },
-    { id: 'frame_electric_blue', emoji: '🔵', name: 'Electric Blue', cost: 100, css: 'frame-electric-blue' },
-    { id: 'frame_emerald', emoji: '🟢', name: 'Emerald', cost: 100, css: 'frame-emerald' },
-    { id: 'frame_gold', emoji: '🟡', name: 'Gold', cost: 100, css: 'frame-gold' },
-    { id: 'frame_ruby', emoji: '🔴', name: 'Ruby', cost: 100, css: 'frame-ruby' },
-    { id: 'frame_rainbow', emoji: '🌈', name: 'Rainbow (Anim)', cost: 250, css: 'frame-rainbow' },
-    { id: 'frame_electric_sparks', emoji: '⚡', name: 'Sparks (Anim)', cost: 250, css: 'frame-electric-sparks' },
-    { id: 'frame_snowflakes', emoji: '❄️', name: 'Snow (Anim)', cost: 250, css: 'frame-snowflakes' },
-    { id: 'frame_flames', emoji: '🔥', name: 'Flames (Anim)', cost: 250, css: 'frame-flames' },
-    { id: 'frame_floating_stars', emoji: '⭐', name: 'Stars (Anim)', cost: 250, css: 'frame-floating-stars' }
-  ];
-
-  const exprsData = [
-    { id: 'expr_happy', emoji: '😀', name: 'Happy' },
-    { id: 'expr_cool', emoji: '😎', name: 'Cool' },
-    { id: 'expr_excited', emoji: '😺', name: 'Excited' },
-    { id: 'expr_sleepy', emoji: '😴', name: 'Sleepy' },
-    { id: 'expr_confident', emoji: '😼', name: 'Confident' },
-    { id: 'expr_angry', emoji: '😾', name: 'Angry' },
-    { id: 'expr_surprised', emoji: '😮', name: 'Surprised' },
-    { id: 'expr_laughing', emoji: '😂', name: 'Laughing' }
-  ];
 
   let tempSelectedCat = '';
   let tempSelectedExpression = '';
