@@ -10,6 +10,10 @@ window.onerror = function(message, source, lineno, colno, error) {
 
 document.addEventListener('DOMContentLoaded', () => {
 
+  if (localStorage.getItem('scw_lockdown_active') === 'true') {
+    showLockdownScreen();
+  }
+
   // Firebase Configuration Object (declared at the top to avoid TDZ issues)
   const firebaseConfig = {
     apiKey: "AIzaSy_CATNIP_STUDIOS_FIREBASE_KEY",
@@ -479,6 +483,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const cleanEmail = email.trim().toLowerCase();
     const devHash = '475439de95c9296c038b5fea203be30c0e4ff4ea619771a4e525136bc8a11360';
     return sha256(cleanEmail) === devHash;
+  }
+
+  function triggerLockdown() {
+    localStorage.setItem('scw_lockdown_active', 'true');
+    showLockdownScreen();
+  }
+
+  function showLockdownScreen() {
+    if (document.getElementById('lockdown-overlay')) return;
+    const overlay = document.createElement('div');
+    overlay.id = 'lockdown-overlay';
+    overlay.style.cssText = 'position: fixed; inset: 0; background: rgba(5, 2, 10, 0.98); backdrop-filter: blur(25px); z-index: 9999999; display: flex; align-items: center; justify-content: center; color: #FFF; font-family: "Space Grotesk", sans-serif; padding: 20px; text-align: center;';
+    overlay.innerHTML = `
+      <div style="max-width: 500px; padding: 30px; background: rgba(255, 61, 0, 0.05); border: 2px dashed #FF3D00; border-radius: 12px; box-shadow: 0 0 30px rgba(255, 61, 0, 0.2);">
+        <span style="font-size: 3.5rem; display: block; margin-bottom: 15px; filter: drop-shadow(0 0 10px #FF3D00);">⚠️</span>
+        <h2 style="color: #FF3D00; font-weight: 800; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 1px;">Security Lockdown</h2>
+        <p style="font-size: 0.95rem; color: #FFF; line-height: 1.6; margin-bottom: 20px;">
+          This session has been flagged and locked down for unauthorized developer access spoofing.
+        </p>
+        <p style="font-size: 0.85rem; color: var(--color-text-muted); line-height: 1.5; margin-bottom: 25px;">
+          To reactivate this account, please contact the administrator on our official Discord server.
+        </p>
+        <a href="https://discord.gg/catnipstudios" target="_blank" class="btn btn-primary" style="background: #FF3D00; border-color: #FF3D00; box-shadow: 0 0 15px rgba(255, 61, 0, 0.4); text-transform: uppercase; font-weight: 700; padding: 8px 20px; font-size: 0.82rem;">Discord Server</a>
+      </div>
+    `;
+    document.body.style.overflow = 'hidden';
+    document.body.appendChild(overlay);
   }
 
   // ==================== SPA NAVIGATION SYSTEM ====================
@@ -1413,6 +1444,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const email = document.getElementById('reg-email').value.trim();
       const password = document.getElementById('reg-password').value;
 
+      if (email.toLowerCase() === 'dev@catnipstudios.com') {
+        triggerLockdown();
+        return;
+      }
+
       regFeedback.innerHTML = '<span style="color: #00E676;">Creating user account...</span>';
 
       const isEmail = email.includes('@');
@@ -1464,6 +1500,11 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       const email = document.getElementById('login-email').value.trim();
       const password = document.getElementById('login-password').value;
+
+      if (email.toLowerCase() === 'dev@catnipstudios.com') {
+        triggerLockdown();
+        return;
+      }
 
       loginFeedback.innerHTML = '<span style="color: #00E676;">Authenticating...</span>';
 
