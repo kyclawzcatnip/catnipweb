@@ -62,6 +62,10 @@ document.addEventListener('DOMContentLoaded', () => {
   let victoryCount = 0;
   let favouriteGame = 'Super Smash Cats';
   let achievements = [];
+  let ratKillsCount = 0;
+  let wikiPagesRead = 0;
+  let activeTitle = '';
+  let unlockedTitles = [];
 
   const catsData = [
     { id: 'cat_basic', emoji: '🐱', name: 'Basic Cat', type: 'basic', cost: 0 },
@@ -985,6 +989,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const article = wikiArticles[articleKey];
 
     if (article) {
+      wikiPagesRead++;
+      saveCoinsToLocalStorage();
+      syncCoinsToFirestore();
+      checkAchievements();
+
       // Injects details inside the modal body
       wikiReaderBody.innerHTML = `
         <div class="wiki-article-body">
@@ -1390,6 +1399,10 @@ document.addEventListener('DOMContentLoaded', () => {
               if (typeof data.victoryCount === 'number') victoryCount = data.victoryCount;
               if (data.favouriteGame) favouriteGame = data.favouriteGame;
               if (Array.isArray(data.achievements)) achievements = data.achievements;
+              if (typeof data.ratKillsCount === 'number') ratKillsCount = data.ratKillsCount;
+              if (typeof data.wikiPagesRead === 'number') wikiPagesRead = data.wikiPagesRead;
+              if (data.activeTitle) activeTitle = data.activeTitle;
+              if (Array.isArray(data.unlockedTitles)) unlockedTitles = data.unlockedTitles;
               
               updateCoinUI();
               applyActiveCosmetics();
@@ -1574,6 +1587,10 @@ document.addEventListener('DOMContentLoaded', () => {
                   if (typeof matched.victoryCount === 'number') victoryCount = matched.victoryCount;
                   if (matched.favouriteGame) favouriteGame = matched.favouriteGame;
                   if (Array.isArray(matched.achievements)) achievements = matched.achievements;
+                  if (typeof matched.ratKillsCount === 'number') ratKillsCount = matched.ratKillsCount;
+                  if (typeof matched.wikiPagesRead === 'number') wikiPagesRead = matched.wikiPagesRead;
+                  if (matched.activeTitle) activeTitle = matched.activeTitle;
+                  if (Array.isArray(matched.unlockedTitles)) unlockedTitles = matched.unlockedTitles;
                 }
               } catch(e) {}
             }
@@ -1860,7 +1877,11 @@ document.addEventListener('DOMContentLoaded', () => {
       gamesPlayed: gamesPlayed,
       victoryCount: victoryCount,
       favouriteGame: favouriteGame,
-      achievements: achievements
+      achievements: achievements,
+      ratKillsCount: ratKillsCount,
+      wikiPagesRead: wikiPagesRead,
+      activeTitle: activeTitle,
+      unlockedTitles: unlockedTitles
     };
 
     if (existingIdx >= 0) {
@@ -1878,6 +1899,10 @@ document.addEventListener('DOMContentLoaded', () => {
       localDb[existingIdx].victoryCount = victoryCount;
       localDb[existingIdx].favouriteGame = favouriteGame;
       localDb[existingIdx].achievements = achievements;
+      localDb[existingIdx].ratKillsCount = ratKillsCount;
+      localDb[existingIdx].wikiPagesRead = wikiPagesRead;
+      localDb[existingIdx].activeTitle = activeTitle;
+      localDb[existingIdx].unlockedTitles = unlockedTitles;
     } else {
       localDb.push(profile);
     }
@@ -1903,6 +1928,10 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem('scw_victory_count', victoryCount.toString());
       localStorage.setItem('scw_favourite_game', favouriteGame);
       localStorage.setItem('scw_achievements', JSON.stringify(achievements));
+      localStorage.setItem('scw_rat_kills_count', ratKillsCount.toString());
+      localStorage.setItem('scw_wiki_pages_read', wikiPagesRead.toString());
+      localStorage.setItem('scw_active_title', activeTitle);
+      localStorage.setItem('scw_unlocked_titles', JSON.stringify(unlockedTitles));
 
       const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
       if (localUser) {
@@ -1932,6 +1961,10 @@ document.addEventListener('DOMContentLoaded', () => {
       victoryCount = parseInt(localStorage.getItem('scw_victory_count') || '0', 10);
       favouriteGame = localStorage.getItem('scw_favourite_game') || 'Super Smash Cats';
       achievements = JSON.parse(localStorage.getItem('scw_achievements') || '[]');
+      ratKillsCount = parseInt(localStorage.getItem('scw_rat_kills_count') || '0', 10);
+      wikiPagesRead = parseInt(localStorage.getItem('scw_wiki_pages_read') || '0', 10);
+      activeTitle = localStorage.getItem('scw_active_title') || '';
+      unlockedTitles = JSON.parse(localStorage.getItem('scw_unlocked_titles') || '[]');
       
       updateCoinUI();
       applyActiveCosmetics();
@@ -1963,7 +1996,11 @@ document.addEventListener('DOMContentLoaded', () => {
           gamesPlayed: gamesPlayed,
           victoryCount: victoryCount,
           favouriteGame: favouriteGame,
-          achievements: achievements
+          achievements: achievements,
+          ratKillsCount: ratKillsCount,
+          wikiPagesRead: wikiPagesRead,
+          activeTitle: activeTitle,
+          unlockedTitles: unlockedTitles
         }, { merge: true }).catch(err => {
           console.warn("Firestore sync error:", err);
         });
@@ -3409,6 +3446,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const avatarFrameEl = document.getElementById('profile-avatar-frame-element');
     
     if (nameEl) {
+      let displayName = user.displayName || user.email.split('@')[0];
+      if (activeTitle) {
+        nameEl.innerHTML = `${escapeHtml(displayName)} <span style="font-size: 0.72rem; vertical-align: middle; background: rgba(124, 77, 255, 0.15); color: var(--color-primary); border: 1.5px solid var(--color-primary); padding: 2px 7px; border-radius: 4px; font-weight: 800; margin-left: 5px; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 0 8px rgba(124, 77, 255, 0.3); font-family: var(--font-headings);">${escapeHtml(activeTitle)}</span>`;
+      } else {
+        nameEl.textContent = displayName;
+      }
+      
       if (activeCosmetics.includes('golden-name')) {
         nameEl.classList.add('gold-glow-active');
       } else {
@@ -3461,13 +3505,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (shelf) {
       shelf.innerHTML = '';
       const achievementData = {
-        welcome_kitty: { name: 'Welcome Kitty', emoji: '🐱', desc: 'Welcome! Logged in or created your account' },
-        first_victory: { name: 'First Victory', emoji: '🏅', desc: 'Won a game of Smash Cats or survived Among Us' },
-        mega_rich: { name: 'Mega Rich', emoji: '👑', desc: 'Accumulated 1,000 or more Catnip Coins' },
-        codex_master: { name: 'Codex Master', emoji: '📚', desc: 'Explored all 9 wiki codex articles' },
-        daily_logger: { name: 'Daily Logger', emoji: '✍️', desc: 'Submitted a daily journal note entry' },
-        lobby_legend: { name: 'Lobby Legend', emoji: '🚀', desc: 'Won Cats Among Us in a massive 30-cat lobby' },
-        brawler_master: { name: 'Brawler Master', emoji: '🥊', desc: 'Defeated brawler enemies 5 times' }
+        first_cat: { name: 'First Cat', emoji: '🥉', desc: 'Create an account. (+50 Coins, "Kitty" Title)' },
+        rich_kitty: { name: 'Rich Kitty', emoji: '💰', desc: 'Accumulated 1,000 Catnip Coins. (+200 Coins, "Merchant" Title)' },
+        rat_slayer: { name: 'Rat Slayer', emoji: '⚔️', desc: 'Beat 50 brawler enemies in Super Cat World. (+300 Coins, "Slayer" Title)' },
+        lore_explorer: { name: 'Lore Explorer', emoji: '📖', desc: 'Read 25 wiki pages. (+150 Coins, "Scholar" Title)' },
+        cat_emperor: { name: 'Cat Emperor', emoji: '👑', desc: 'Unlocked all customization items. ("Emperor" Title)' }
       };
 
       if (achievements.length === 0) {
@@ -3489,67 +3531,72 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function checkAchievements() {
     let unlockedAny = false;
+    let earnedCoins = 0;
     const currentList = [...achievements];
 
-    const addAch = (id, name, emoji) => {
+    const addAch = (id, name, emoji, coinReward, titleReward) => {
       if (!currentList.includes(id)) {
         currentList.push(id);
         achievements = currentList;
         unlockedAny = true;
-        showAchievementToast(name, emoji);
+        
+        if (coinReward > 0) {
+          userCoins += coinReward;
+          totalCoinsEarned += coinReward;
+          earnedCoins += coinReward;
+        }
+        
+        if (titleReward && !unlockedTitles.includes(titleReward)) {
+          unlockedTitles.push(titleReward);
+        }
+        
+        showAchievementToast(name, emoji, coinReward > 0 ? `+${coinReward} Coins, "${titleReward}" Title` : `"${titleReward}" Title`);
         playRetroSound('victory');
       }
     };
 
     const savedUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
     if (savedUser) {
-      addAch('welcome_kitty', 'Welcome Kitty', '🐱');
+      addAch('first_cat', 'First Cat', '🥉', 50, 'Kitty');
     }
 
-    if (userCoins >= 1000) {
-      addAch('mega_rich', 'Mega Rich', '👑');
+    if (totalCoinsEarned >= 1000) {
+      addAch('rich_kitty', 'Rich Kitty', '💰', 200, 'Merchant');
     }
 
-    let readArticles = [];
-    try {
-      readArticles = JSON.parse(localStorage.getItem('scw_read_articles') || '[]');
-    } catch(e) {}
-    if (readArticles.length >= 9) {
-      addAch('codex_master', 'Codex Master', '📚');
+    if (ratKillsCount >= 50) {
+      addAch('rat_slayer', 'Rat Slayer', '⚔️', 300, 'Slayer');
     }
 
-    const username = savedUser ? (savedUser.displayName || savedUser.email.split('@')[0] || '') : '';
-    if (username) {
-      let history = [];
-      try {
-        history = JSON.parse(localStorage.getItem('scw_journal_history_' + username.toLowerCase()) || '[]');
-      } catch(e) {}
-      if (history.length > 0) {
-        addAch('daily_logger', 'Daily Logger', '✍️');
-      }
+    if (wikiPagesRead >= 25) {
+      addAch('lore_explorer', 'Lore Explorer', '📖', 150, 'Scholar');
     }
 
-    if (victoryCount >= 1) {
-      addAch('first_victory', 'First Victory', '🏅');
+    if (unlockedCats.length >= 38 && unlockedFrames.length >= 11) {
+      addAch('cat_emperor', 'Cat Emperor', '👑', 0, 'Emperor');
     }
 
-    if (victoryCount >= 5) {
-      addAch('brawler_master', 'Brawler Master', '🥊');
+    let currentEmail = '';
+    if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
+      currentEmail = firebase.auth().currentUser.email;
     }
-
-    const maxLobbyCats = parseInt(localStorage.getItem('scw_max_lobby_cats') || '0', 10);
-    if (maxLobbyCats >= 29) {
-      addAch('lobby_legend', 'Lobby Legend', '🚀');
+    if (!currentEmail && savedUser) {
+      currentEmail = savedUser.email;
+    }
+    if (isDeveloperEmail(currentEmail)) {
+      if (!unlockedTitles.includes('Staff')) unlockedTitles.push('Staff');
+      if (!activeTitle) activeTitle = 'Staff';
     }
 
     if (unlockedAny) {
+      updateCoinUI();
       saveCoinsToLocalStorage();
       syncCoinsToFirestore();
-      renderProfileCustoms(savedUser);
+      if (savedUser) renderProfileCustoms(savedUser);
     }
   }
 
-  function showAchievementToast(name, emoji) {
+  function showAchievementToast(name, emoji, desc = '') {
     const toast = document.createElement('div');
     toast.style.cssText = `
       position: fixed;
@@ -3573,6 +3620,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <div style="text-align: left;">
         <span style="font-size: 0.65rem; color: var(--color-primary); font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; display: block;">Achievement Unlocked!</span>
         <strong style="font-size: 1.05rem; color: #FFF; font-family: var(--font-headings); display: block; margin-top: 1px;">${name}</strong>
+        ${desc ? `<span style="font-size: 0.72rem; color: var(--color-text-secondary); display: block; margin-top: 2px;">${desc}</span>` : ''}
       </div>
     `;
     document.body.appendChild(toast);
@@ -3605,6 +3653,18 @@ document.addEventListener('DOMContentLoaded', () => {
       currentEmail = localUser ? localUser.email : '';
     }
     const isDev = isDeveloperEmail(currentEmail);
+
+    const selectTitle = document.getElementById('avatar-select-title');
+    if (selectTitle) {
+      selectTitle.innerHTML = '<option value="">None (No Title)</option>';
+      unlockedTitles.forEach(title => {
+        const option = document.createElement('option');
+        option.value = title;
+        option.textContent = title;
+        if (title === activeTitle) option.selected = true;
+        selectTitle.appendChild(option);
+      });
+    }
 
     const updatePreview = () => {
       const editPreviewFrame = document.getElementById('edit-avatar-preview-frame');
@@ -3766,6 +3826,9 @@ document.addEventListener('DOMContentLoaded', () => {
       
       const selectGame = document.getElementById('avatar-select-game');
       if (selectGame) favouriteGame = selectGame.value;
+
+      const selectTitle = document.getElementById('avatar-select-title');
+      if (selectTitle) activeTitle = selectTitle.value;
 
       const inputName = document.getElementById('avatar-input-name');
       const savedUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
