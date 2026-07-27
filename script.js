@@ -3750,12 +3750,12 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     };
 
+    const savedUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
     let hasAccount = false;
     if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
       hasAccount = true;
-    } else {
-      const savedUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
-      if (savedUser) hasAccount = true;
+    } else if (savedUser) {
+      hasAccount = true;
     }
 
     if (hasAccount) {
