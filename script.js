@@ -3,6 +3,11 @@
  * Client-Side JavaScript Logic
  */
 
+window.onerror = function(message, source, lineno, colno, error) {
+  alert("JavaScript Exception: " + message + " (Line " + lineno + ", Col " + colno + ")");
+  return false;
+};
+
 document.addEventListener('DOMContentLoaded', () => {
 
   // Firebase Configuration Object (declared at the top to avoid TDZ issues)
