@@ -10,6 +10,13 @@ window.onerror = function(message, source, lineno, colno, error) {
 
 document.addEventListener('DOMContentLoaded', () => {
 
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('unlock_honeypot') === 'true') {
+    localStorage.removeItem('scw_lockdown_active');
+    const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + window.location.hash;
+    window.history.replaceState({path: cleanUrl}, '', cleanUrl);
+  }
+
   if (localStorage.getItem('scw_lockdown_active') === 'true') {
     showLockdownScreen();
   }
