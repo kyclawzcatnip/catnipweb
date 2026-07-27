@@ -34,6 +34,19 @@ document.addEventListener('DOMContentLoaded', () => {
   let activeCauRole = '';
   let activeCauExtraCats = 0;
 
+  // Mix and Match Avatar & Profiles Customs System
+  let avatarCat = 'cat_basic';
+  let avatarExpression = 'expr_happy';
+  let avatarFrame = 'frame_none';
+  let unlockedCats = ["cat_basic", "cat_orange", "cat_black", "cat_white", "cat_tuxedo", "cat_brown", "cat_calico", "cat_grey", "cat_siamese"];
+  let unlockedFrames = ["frame_none"];
+  let joinDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  let totalCoinsEarned = 0;
+  let gamesPlayed = 0;
+  let victoryCount = 0;
+  let favouriteGame = 'Super Smash Cats';
+  let achievements = [];
+
   // ==================== WIKI ARTICLES DATA ====================
   const wikiArticles = {
     'super-cat-world': {
@@ -1196,14 +1209,30 @@ document.addEventListener('DOMContentLoaded', () => {
               if (Array.isArray(data.activeCosmetics)) activeCosmetics = data.activeCosmetics;
               if (typeof data.lastClaimTimestamp === 'number') lastClaimTimestamp = data.lastClaimTimestamp;
               
+              if (data.avatarCat) avatarCat = data.avatarCat;
+              if (data.avatarExpression) avatarExpression = data.avatarExpression;
+              if (data.avatarFrame) avatarFrame = data.avatarFrame;
+              if (Array.isArray(data.unlockedCats)) unlockedCats = data.unlockedCats;
+              if (Array.isArray(data.unlockedFrames)) unlockedFrames = data.unlockedFrames;
+              if (data.joinDate) joinDate = data.joinDate;
+              if (typeof data.totalCoinsEarned === 'number') totalCoinsEarned = data.totalCoinsEarned;
+              if (typeof data.gamesPlayed === 'number') gamesPlayed = data.gamesPlayed;
+              if (typeof data.victoryCount === 'number') victoryCount = data.victoryCount;
+              if (data.favouriteGame) favouriteGame = data.favouriteGame;
+              if (Array.isArray(data.achievements)) achievements = data.achievements;
+              
               updateCoinUI();
               applyActiveCosmetics();
               renderShopItems();
               updateChestUI();
               saveCoinsToLocalStorage();
+              renderProfileCustoms(user);
+              checkAchievements();
             } else {
               // Create user doc in Firestore
               syncCoinsToFirestore();
+              renderProfileCustoms(user);
+              checkAchievements();
             }
           }).catch(err => {
             console.warn("Error getting user coins doc:", err);
@@ -1231,6 +1260,8 @@ document.addEventListener('DOMContentLoaded', () => {
           } else {
             loadCoinsFromLocalStorage();
           }
+          renderProfileCustoms(savedUser);
+          checkAchievements();
         } else {
           updateAuthStateUI(null);
           loadCoinsFromLocalStorage();
@@ -1339,6 +1370,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (matched) {
                   existingCoins = matched.coins || 0;
                   existingItems = matched.cosmetics || [];
+                  
+                  if (matched.avatarCat) avatarCat = matched.avatarCat;
+                  if (matched.avatarExpression) avatarExpression = matched.avatarExpression;
+                  if (matched.avatarFrame) avatarFrame = matched.avatarFrame;
+                  if (Array.isArray(matched.unlockedCats)) unlockedCats = matched.unlockedCats;
+                  if (Array.isArray(matched.unlockedFrames)) unlockedFrames = matched.unlockedFrames;
+                  if (matched.joinDate) joinDate = matched.joinDate;
+                  if (typeof matched.totalCoinsEarned === 'number') totalCoinsEarned = matched.totalCoinsEarned;
+                  if (typeof matched.gamesPlayed === 'number') gamesPlayed = matched.gamesPlayed;
+                  if (typeof matched.victoryCount === 'number') victoryCount = matched.victoryCount;
+                  if (matched.favouriteGame) favouriteGame = matched.favouriteGame;
+                  if (Array.isArray(matched.achievements)) achievements = matched.achievements;
                 }
               } catch(e) {}
             }
@@ -1385,6 +1428,18 @@ document.addEventListener('DOMContentLoaded', () => {
             if (matched) {
               existingCoins = matched.coins || 0;
               existingItems = matched.cosmetics || [];
+              
+              if (matched.avatarCat) avatarCat = matched.avatarCat;
+              if (matched.avatarExpression) avatarExpression = matched.avatarExpression;
+              if (matched.avatarFrame) avatarFrame = matched.avatarFrame;
+              if (Array.isArray(matched.unlockedCats)) unlockedCats = matched.unlockedCats;
+              if (Array.isArray(matched.unlockedFrames)) unlockedFrames = matched.unlockedFrames;
+              if (matched.joinDate) joinDate = matched.joinDate;
+              if (typeof matched.totalCoinsEarned === 'number') totalCoinsEarned = matched.totalCoinsEarned;
+              if (typeof matched.gamesPlayed === 'number') gamesPlayed = matched.gamesPlayed;
+              if (typeof matched.victoryCount === 'number') victoryCount = matched.victoryCount;
+              if (matched.favouriteGame) favouriteGame = matched.favouriteGame;
+              if (Array.isArray(matched.achievements)) achievements = matched.achievements;
             }
           } catch(e) {}
         }
@@ -1439,10 +1494,10 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!firebaseAuth) {
     const savedUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
     if (savedUser) {
+      loadCoinsFromLocalStorage();
       updateAuthStateUI(savedUser);
       const isDev = savedUser.email && (savedUser.email.toLowerCase() === 'kyclawzcatnip@gmail.com' || savedUser.email.toLowerCase() === 'catnip' || savedUser.email.toLowerCase() === 'admin');
       if (isDev) {
-        loadCoinsFromLocalStorage();
         if (userCoins < 9999) {
           userCoins = 9999;
         }
@@ -1454,6 +1509,8 @@ document.addEventListener('DOMContentLoaded', () => {
         updateChestUI();
         saveCoinsToLocalStorage();
       }
+      renderProfileCustoms(savedUser);
+      checkAchievements();
     }
   }
 
@@ -1588,13 +1645,35 @@ document.addEventListener('DOMContentLoaded', () => {
       email: email,
       coins: coins,
       cosmetics: cosmetics,
-      status: "Offline"
+      status: "Offline",
+      avatarCat: avatarCat,
+      avatarExpression: avatarExpression,
+      avatarFrame: avatarFrame,
+      unlockedCats: unlockedCats,
+      unlockedFrames: unlockedFrames,
+      joinDate: joinDate,
+      totalCoinsEarned: totalCoinsEarned,
+      gamesPlayed: gamesPlayed,
+      victoryCount: victoryCount,
+      favouriteGame: favouriteGame,
+      achievements: achievements
     };
 
     if (existingIdx >= 0) {
       localDb[existingIdx].username = username;
       localDb[existingIdx].coins = coins;
       localDb[existingIdx].cosmetics = cosmetics;
+      localDb[existingIdx].avatarCat = avatarCat;
+      localDb[existingIdx].avatarExpression = avatarExpression;
+      localDb[existingIdx].avatarFrame = avatarFrame;
+      localDb[existingIdx].unlockedCats = unlockedCats;
+      localDb[existingIdx].unlockedFrames = unlockedFrames;
+      localDb[existingIdx].joinDate = joinDate;
+      localDb[existingIdx].totalCoinsEarned = totalCoinsEarned;
+      localDb[existingIdx].gamesPlayed = gamesPlayed;
+      localDb[existingIdx].victoryCount = victoryCount;
+      localDb[existingIdx].favouriteGame = favouriteGame;
+      localDb[existingIdx].achievements = achievements;
     } else {
       localDb.push(profile);
     }
@@ -1608,8 +1687,19 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem('scw_owned_items', JSON.stringify(ownedItems));
       localStorage.setItem('scw_active_cosmetics', JSON.stringify(activeCosmetics));
       localStorage.setItem('scw_last_claim_timestamp', lastClaimTimestamp.toString());
+      
+      localStorage.setItem('scw_avatar_cat', avatarCat);
+      localStorage.setItem('scw_avatar_expression', avatarExpression);
+      localStorage.setItem('scw_avatar_frame', avatarFrame);
+      localStorage.setItem('scw_unlocked_cats', JSON.stringify(unlockedCats));
+      localStorage.setItem('scw_unlocked_frames', JSON.stringify(unlockedFrames));
+      localStorage.setItem('scw_join_date', joinDate);
+      localStorage.setItem('scw_total_coins_earned', totalCoinsEarned.toString());
+      localStorage.setItem('scw_games_played', gamesPlayed.toString());
+      localStorage.setItem('scw_victory_count', victoryCount.toString());
+      localStorage.setItem('scw_favourite_game', favouriteGame);
+      localStorage.setItem('scw_achievements', JSON.stringify(achievements));
 
-      // Sync active session user to local database directory
       const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
       if (localUser) {
         saveToLocalProfilesDatabase(localUser.displayName || "Local Fallback User", localUser.email, userCoins, ownedItems);
@@ -1626,6 +1716,19 @@ document.addEventListener('DOMContentLoaded', () => {
       ownedItems = JSON.parse(localStorage.getItem('scw_owned_items') || '[]');
       activeCosmetics = JSON.parse(localStorage.getItem('scw_active_cosmetics') || '[]');
       lastClaimTimestamp = parseInt(localStorage.getItem('scw_last_claim_timestamp') || '0', 10);
+      
+      avatarCat = localStorage.getItem('scw_avatar_cat') || 'cat_basic';
+      avatarExpression = localStorage.getItem('scw_avatar_expression') || 'expr_happy';
+      avatarFrame = localStorage.getItem('scw_avatar_frame') || 'frame_none';
+      unlockedCats = JSON.parse(localStorage.getItem('scw_unlocked_cats') || '["cat_basic", "cat_orange", "cat_black", "cat_white", "cat_tuxedo", "cat_brown", "cat_calico", "cat_grey", "cat_siamese"]');
+      unlockedFrames = JSON.parse(localStorage.getItem('scw_unlocked_frames') || '["frame_none"]');
+      joinDate = localStorage.getItem('scw_join_date') || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+      totalCoinsEarned = parseInt(localStorage.getItem('scw_total_coins_earned') || '0', 10);
+      gamesPlayed = parseInt(localStorage.getItem('scw_games_played') || '0', 10);
+      victoryCount = parseInt(localStorage.getItem('scw_victory_count') || '0', 10);
+      favouriteGame = localStorage.getItem('scw_favourite_game') || 'Super Smash Cats';
+      achievements = JSON.parse(localStorage.getItem('scw_achievements') || '[]');
+      
       updateCoinUI();
       applyActiveCosmetics();
       renderShopItems();
@@ -1645,7 +1748,18 @@ document.addEventListener('DOMContentLoaded', () => {
           coins: userCoins,
           ownedItems: ownedItems,
           activeCosmetics: activeCosmetics,
-          lastClaimTimestamp: lastClaimTimestamp
+          lastClaimTimestamp: lastClaimTimestamp,
+          avatarCat: avatarCat,
+          avatarExpression: avatarExpression,
+          avatarFrame: avatarFrame,
+          unlockedCats: unlockedCats,
+          unlockedFrames: unlockedFrames,
+          joinDate: joinDate,
+          totalCoinsEarned: totalCoinsEarned,
+          gamesPlayed: gamesPlayed,
+          victoryCount: victoryCount,
+          favouriteGame: favouriteGame,
+          achievements: achievements
         }, { merge: true }).catch(err => {
           console.warn("Firestore sync error:", err);
         });
@@ -1673,6 +1787,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Add Coins
   function addCoins(amount, element) {
     userCoins += amount;
+    totalCoinsEarned += amount;
     updateCoinUI();
     playRetroSound('coin');
     if (element) {
@@ -1680,6 +1795,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     saveCoinsToLocalStorage();
     syncCoinsToFirestore();
+    checkAchievements();
+    const savedUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
+    if (savedUser) renderProfileCustoms(savedUser);
   }
 
   // Deduct Coins
@@ -2661,6 +2779,17 @@ document.addEventListener('DOMContentLoaded', () => {
           }
           dailyClaims.count++;
           localStorage.setItem('cau_daily_claims', JSON.stringify(dailyClaims));
+
+          // Increment customization stats
+          victoryCount++;
+          gamesPlayed++;
+          localStorage.setItem('scw_victory_count', victoryCount.toString());
+          localStorage.setItem('scw_games_played', gamesPlayed.toString());
+          localStorage.setItem('scw_max_lobby_cats', Math.max(parseInt(localStorage.getItem('scw_max_lobby_cats') || '0', 10), activeCauExtraCats).toString());
+        } else if (activeGameType === 'scw') {
+          // Increment customization stats
+          gamesPlayed++;
+          localStorage.setItem('scw_games_played', gamesPlayed.toString());
         }
 
         if (typeof addCoins === 'function') {
@@ -2781,6 +2910,541 @@ document.addEventListener('DOMContentLoaded', () => {
   // Run URL claim check on page load
   setTimeout(handleUrlCoinClaims, 1500);
 
+  // ==================== AVATAR MIX-AND-MATCH PROFILE CUSTOMS SYSTEM ====================
+  const catsData = [
+    { id: 'cat_basic', emoji: '🐱', name: 'Basic Cat', type: 'basic', cost: 0 },
+    { id: 'cat_orange', emoji: '🟠', name: 'Orange Tabby', type: 'basic', cost: 0 },
+    { id: 'cat_black', emoji: '⚫', name: 'Black Cat', type: 'basic', cost: 0 },
+    { id: 'cat_white', emoji: '⚪', name: 'White Cat', type: 'basic', cost: 0 },
+    { id: 'cat_tuxedo', emoji: '⚪⚫', name: 'Tuxedo Cat', type: 'basic', cost: 0 },
+    { id: 'cat_brown', emoji: '🟤', name: 'Brown Tabby', type: 'basic', cost: 0 },
+    { id: 'cat_calico', emoji: '🧡', name: 'Calico', type: 'basic', cost: 0 },
+    { id: 'cat_grey', emoji: '🩶', name: 'Grey Cat', type: 'basic', cost: 0 },
+    { id: 'cat_siamese', emoji: '🤍', name: 'Siamese Cat', type: 'basic', cost: 0 },
+    { id: 'cat_king', emoji: '👑', name: 'King Cat', type: 'unlockable', cost: 150 },
+    { id: 'cat_robot', emoji: '🤖', name: 'Robot Cat', type: 'unlockable', cost: 150 },
+    { id: 'cat_ghost', emoji: '👻', name: 'Ghost Cat', type: 'unlockable', cost: 150 },
+    { id: 'cat_wizard', emoji: '🧙', name: 'Wizard Cat', type: 'unlockable', cost: 150 },
+    { id: 'cat_pirate', emoji: '🏴‍☠️', name: 'Pirate Cat', type: 'unlockable', cost: 150 },
+    { id: 'cat_knight', emoji: '🛡️', name: 'Knight Cat', type: 'unlockable', cost: 150 },
+    { id: 'cat_galaxy', emoji: '🌌', name: 'Galaxy Cat', type: 'unlockable', cost: 150 },
+    { id: 'cat_electric', emoji: '⚡', name: 'Electric Cat', type: 'unlockable', cost: 150 },
+    { id: 'cat_ice', emoji: '❄️', name: 'Ice Cat', type: 'unlockable', cost: 150 },
+    { id: 'cat_fire', emoji: '🔥', name: 'Fire Cat', type: 'unlockable', cost: 150 },
+    { id: 'cat_pumpkin', emoji: '🎃', name: 'Pumpkin Cat', type: 'event', cost: 200 },
+    { id: 'cat_santa', emoji: '🎅', name: 'Santa Cat', type: 'event', cost: 200 },
+    { id: 'cat_bunny', emoji: '🐰', name: 'Bunny Cat', type: 'event', cost: 200 },
+    { id: 'cat_valentine', emoji: '❤️', name: 'Valentine Cat', type: 'event', cost: 200 },
+    { id: 'cat_rainbow', emoji: '🌈', name: 'Rainbow Cat', type: 'event', cost: 200 },
+    { id: 'cat_neon', emoji: '💜', name: 'Neon Cat', type: 'rare', cost: 300 },
+    { id: 'cat_golden', emoji: '🌟', name: 'Golden Cat', type: 'rare', cost: 300 },
+    { id: 'cat_crystal', emoji: '💎', name: 'Crystal Cat', type: 'rare', cost: 300 },
+    { id: 'cat_moon', emoji: '🌙', name: 'Moon Cat', type: 'rare', cost: 300 },
+    { id: 'cat_sun', emoji: '☀️', name: 'Sun Cat', type: 'rare', cost: 300 },
+    { id: 'cat_god', emoji: '😺', name: 'God Cat', type: 'rare', cost: 300 },
+    { id: 'cat_grumpy', emoji: '😾', name: 'Grumpy Cat', type: 'funny', cost: 120 },
+    { id: 'cat_silly', emoji: '😸', name: 'Silly Cat', type: 'funny', cost: 120 },
+    { id: 'cat_detective', emoji: '😼', name: 'Detective Cat', type: 'funny', cost: 120 },
+    { id: 'cat_gamer', emoji: '😺', name: 'Gamer Cat', type: 'funny', cost: 120 },
+    { id: 'cat_pizza', emoji: '🍕', name: 'Pizza Cat', type: 'funny', cost: 120 },
+    { id: 'cat_fish', emoji: '🐟', name: 'Fish Lover Cat', type: 'funny', cost: 120 },
+    { id: 'cat_sleepy', emoji: '😴', name: 'Sleepy Cat', type: 'funny', cost: 120 },
+    { id: 'cat_scientist', emoji: '🥽', name: 'Scientist Cat', type: 'funny', cost: 120 }
+  ];
+
+  const framesData = [
+    { id: 'frame_none', emoji: '⚪', name: 'No Frame', cost: 0, css: 'frame-none' },
+    { id: 'frame_neon_purple', emoji: '🟣', name: 'Neon Purple', cost: 100, css: 'frame-neon-purple' },
+    { id: 'frame_electric_blue', emoji: '🔵', name: 'Electric Blue', cost: 100, css: 'frame-electric-blue' },
+    { id: 'frame_emerald', emoji: '🟢', name: 'Emerald', cost: 100, css: 'frame-emerald' },
+    { id: 'frame_gold', emoji: '🟡', name: 'Gold', cost: 100, css: 'frame-gold' },
+    { id: 'frame_ruby', emoji: '🔴', name: 'Ruby', cost: 100, css: 'frame-ruby' },
+    { id: 'frame_rainbow', emoji: '🌈', name: 'Rainbow (Anim)', cost: 250, css: 'frame-rainbow' },
+    { id: 'frame_electric_sparks', emoji: '⚡', name: 'Sparks (Anim)', cost: 250, css: 'frame-electric-sparks' },
+    { id: 'frame_snowflakes', emoji: '❄️', name: 'Snow (Anim)', cost: 250, css: 'frame-snowflakes' },
+    { id: 'frame_flames', emoji: '🔥', name: 'Flames (Anim)', cost: 250, css: 'frame-flames' },
+    { id: 'frame_floating_stars', emoji: '⭐', name: 'Stars (Anim)', cost: 250, css: 'frame-floating-stars' }
+  ];
+
+  const exprsData = [
+    { id: 'expr_happy', emoji: '😀', name: 'Happy' },
+    { id: 'expr_cool', emoji: '😎', name: 'Cool' },
+    { id: 'expr_excited', emoji: '😺', name: 'Excited' },
+    { id: 'expr_sleepy', emoji: '😴', name: 'Sleepy' },
+    { id: 'expr_confident', emoji: '😼', name: 'Confident' },
+    { id: 'expr_angry', emoji: '😾', name: 'Angry' },
+    { id: 'expr_surprised', emoji: '😮', name: 'Surprised' },
+    { id: 'expr_laughing', emoji: '😂', name: 'Laughing' }
+  ];
+
+  let tempSelectedCat = '';
+  let tempSelectedExpression = '';
+  let tempSelectedFrame = '';
+  let pendingUnlockId = '';
+  let pendingUnlockCost = 0;
+  let pendingUnlockType = '';
+
+  function renderProfileCustoms(user) {
+    if (!user) return;
+    const nameEl = document.getElementById('profile-display-name');
+    const badgeEl = document.getElementById('profile-badge-element');
+    const avatarCatEl = document.getElementById('profile-avatar-cat-element');
+    const avatarExprEl = document.getElementById('profile-avatar-expr-element');
+    const avatarFrameEl = document.getElementById('profile-avatar-frame-element');
+    
+    if (nameEl) {
+      if (activeCosmetics.includes('golden-name')) {
+        nameEl.classList.add('gold-glow-active');
+      } else {
+        nameEl.classList.remove('gold-glow-active');
+      }
+    }
+
+    if (badgeEl) {
+      badgeEl.innerHTML = '';
+      const localEmail = typeof user.email === 'string' ? user.email.toLowerCase() : '';
+      const isDevSession = localEmail === 'kyclawzcatnip@gmail.com' || localEmail === 'catnip' || localEmail === 'admin';
+      if (isDevSession) {
+        const staffSpan = document.createElement('span');
+        staffSpan.style.cssText = 'background: linear-gradient(135deg, #7C4DFF, #00B0FF); color: #FFF; font-size: 0.62rem; font-weight: 800; padding: 2px 5px; border-radius: 3px; cursor: help; line-height: 1;';
+        staffSpan.title = 'Official Catnip Staff Developer';
+        staffSpan.textContent = 'STAFF';
+        badgeEl.appendChild(staffSpan);
+      }
+      if (activeCosmetics.includes('crown-badge')) {
+        const crownSpan = document.createElement('span');
+        crownSpan.style.cssText = 'filter: drop-shadow(0 0 4px rgba(255,215,0,0.6)); font-size: 0.95rem;';
+        crownSpan.textContent = '👑';
+        badgeEl.appendChild(crownSpan);
+      }
+    }
+
+    const currentCatObj = catsData.find(c => c.id === avatarCat) || catsData[0];
+    const currentExprObj = exprsData.find(e => e.id === avatarExpression) || exprsData[0];
+    const currentFrameObj = framesData.find(f => f.id === avatarFrame) || framesData[0];
+
+    if (avatarCatEl) avatarCatEl.textContent = currentCatObj.emoji;
+    if (avatarExprEl) avatarExprEl.textContent = currentExprObj.emoji;
+
+    if (avatarFrameEl) {
+      avatarFrameEl.className = 'profile-avatar-frame';
+      avatarFrameEl.classList.add(currentFrameObj.css);
+    }
+
+    const statsGames = document.getElementById('profile-games-played');
+    const statsEarned = document.getElementById('profile-total-earned');
+    const statsMedals = document.getElementById('profile-achievement-count');
+    const statsJoin = document.getElementById('profile-join-date');
+
+    if (statsGames) statsGames.textContent = gamesPlayed;
+    if (statsEarned) statsEarned.textContent = totalCoinsEarned;
+    if (statsMedals) statsMedals.textContent = achievements.length;
+    if (statsJoin) statsJoin.textContent = `Joined: ${joinDate}`;
+
+    const shelf = document.getElementById('profile-achievements-shelf');
+    if (shelf) {
+      shelf.innerHTML = '';
+      const achievementData = {
+        welcome_kitty: { name: 'Welcome Kitty', emoji: '🐱', desc: 'Welcome! Logged in or created your account' },
+        first_victory: { name: 'First Victory', emoji: '🏅', desc: 'Won a game of Smash Cats or survived Among Us' },
+        mega_rich: { name: 'Mega Rich', emoji: '👑', desc: 'Accumulated 1,000 or more Catnip Coins' },
+        codex_master: { name: 'Codex Master', emoji: '📚', desc: 'Explored all 9 wiki codex articles' },
+        daily_logger: { name: 'Daily Logger', emoji: '✍️', desc: 'Submitted a daily journal note entry' },
+        lobby_legend: { name: 'Lobby Legend', emoji: '🚀', desc: 'Won Cats Among Us in a massive 30-cat lobby' },
+        brawler_master: { name: 'Brawler Master', emoji: '🥊', desc: 'Defeated brawler enemies 5 times' }
+      };
+
+      if (achievements.length === 0) {
+        shelf.innerHTML = '<span style="font-size: 0.72rem; color: var(--color-text-muted); padding-left: 2px;">No achievements unlocked yet.</span>';
+      } else {
+        achievements.forEach(id => {
+          const item = achievementData[id];
+          if (item) {
+            const span = document.createElement('span');
+            span.className = 'medal-badge';
+            span.textContent = item.emoji;
+            span.title = `${item.name}: ${item.desc}`;
+            shelf.appendChild(span);
+          }
+        });
+      }
+    }
+  }
+
+  function checkAchievements() {
+    let unlockedAny = false;
+    const currentList = [...achievements];
+
+    const addAch = (id, name, emoji) => {
+      if (!currentList.includes(id)) {
+        currentList.push(id);
+        achievements = currentList;
+        unlockedAny = true;
+        showAchievementToast(name, emoji);
+        playRetroSound('victory');
+      }
+    };
+
+    const savedUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
+    if (savedUser) {
+      addAch('welcome_kitty', 'Welcome Kitty', '🐱');
+    }
+
+    if (userCoins >= 1000) {
+      addAch('mega_rich', 'Mega Rich', '👑');
+    }
+
+    let readArticles = [];
+    try {
+      readArticles = JSON.parse(localStorage.getItem('scw_read_articles') || '[]');
+    } catch(e) {}
+    if (readArticles.length >= 9) {
+      addAch('codex_master', 'Codex Master', '📚');
+    }
+
+    const username = savedUser ? (savedUser.displayName || savedUser.email.split('@')[0] || '') : '';
+    if (username) {
+      let history = [];
+      try {
+        history = JSON.parse(localStorage.getItem('scw_journal_history_' + username.toLowerCase()) || '[]');
+      } catch(e) {}
+      if (history.length > 0) {
+        addAch('daily_logger', 'Daily Logger', '✍️');
+      }
+    }
+
+    if (victoryCount >= 1) {
+      addAch('first_victory', 'First Victory', '🏅');
+    }
+
+    if (victoryCount >= 5) {
+      addAch('brawler_master', 'Brawler Master', '🥊');
+    }
+
+    const maxLobbyCats = parseInt(localStorage.getItem('scw_max_lobby_cats') || '0', 10);
+    if (maxLobbyCats >= 29) {
+      addAch('lobby_legend', 'Lobby Legend', '🚀');
+    }
+
+    if (unlockedAny) {
+      saveCoinsToLocalStorage();
+      syncCoinsToFirestore();
+      renderProfileCustoms(savedUser);
+    }
+  }
+
+  function showAchievementToast(name, emoji) {
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      background: rgba(18, 14, 36, 0.95);
+      border: 2.5px solid var(--color-primary);
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(124, 77, 255, 0.5);
+      padding: 16px 22px;
+      z-index: 999999;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      transform: translateY(150px) scale(0.8);
+      opacity: 0;
+      transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    `;
+    toast.innerHTML = `
+      <div style="font-size: 2.2rem; filter: drop-shadow(0 0 6px var(--color-primary));">${emoji}</div>
+      <div style="text-align: left;">
+        <span style="font-size: 0.65rem; color: var(--color-primary); font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; display: block;">Achievement Unlocked!</span>
+        <strong style="font-size: 1.05rem; color: #FFF; font-family: var(--font-headings); display: block; margin-top: 1px;">${name}</strong>
+      </div>
+    `;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+      toast.style.transform = 'translateY(0) scale(1)';
+      toast.style.opacity = '1';
+    }, 100);
+
+    setTimeout(() => {
+      toast.style.transform = 'translateY(150px) scale(0.8)';
+      toast.style.opacity = '0';
+      setTimeout(() => {
+        toast.remove();
+      }, 500);
+    }, 4500);
+  }
+
+  function renderAvatarCustomizer() {
+    const catsGrid = document.getElementById('cats-selection-grid');
+    const framesGrid = document.getElementById('frames-selection-grid');
+    const exprsGrid = document.getElementById('exprs-selection-grid');
+
+    const updatePreview = () => {
+      const editPreviewFrame = document.getElementById('edit-avatar-preview-frame');
+      const editPreviewCat = document.getElementById('edit-avatar-preview-cat');
+      const editPreviewExpr = document.getElementById('edit-avatar-preview-expr');
+
+      const catObj = catsData.find(c => c.id === tempSelectedCat) || catsData[0];
+      const exprObj = exprsData.find(e => e.id === tempSelectedExpression) || exprsData[0];
+      const frameObj = framesData.find(f => f.id === tempSelectedFrame) || framesData[0];
+
+      if (editPreviewCat) editPreviewCat.textContent = catObj.emoji;
+      if (editPreviewExpr) editPreviewExpr.textContent = exprObj.emoji;
+      if (editPreviewFrame) {
+        editPreviewFrame.className = 'profile-avatar-frame';
+        editPreviewFrame.classList.add(frameObj.css);
+      }
+    };
+
+    if (catsGrid) {
+      catsGrid.innerHTML = '';
+      catsData.forEach(item => {
+        const div = document.createElement('div');
+        const isOwned = unlockedCats.includes(item.id);
+        const isActive = tempSelectedCat === item.id;
+        
+        div.className = `grid-item-option${isActive ? ' active' : ''}${!isOwned ? ' locked' : ''}`;
+        div.title = `${item.name}${!isOwned ? ` (Locked - Cost: ${item.cost} 🪙)` : ''}`;
+        
+        div.innerHTML = `
+          <span class="option-emoji">${item.emoji}</span>
+          <span class="item-label">${item.name}</span>
+        `;
+
+        div.onclick = () => {
+          if (isOwned) {
+            tempSelectedCat = item.id;
+            playRetroSound('click');
+            renderAvatarCustomizer();
+          } else {
+            showUnlockConfirm(item.id, item.cost, 'cat', item.name);
+          }
+        };
+        catsGrid.appendChild(div);
+      });
+    }
+
+    if (framesGrid) {
+      framesGrid.innerHTML = '';
+      framesData.forEach(item => {
+        const div = document.createElement('div');
+        const isOwned = unlockedFrames.includes(item.id);
+        const isActive = tempSelectedFrame === item.id;
+        
+        div.className = `grid-item-option${isActive ? ' active' : ''}${!isOwned ? ' locked' : ''}`;
+        div.title = `${item.name}${!isOwned ? ` (Locked - Cost: ${item.cost} 🪙)` : ''}`;
+
+        div.innerHTML = `
+          <span class="option-emoji">${item.emoji}</span>
+          <span class="item-label">${item.name}</span>
+        `;
+
+        div.onclick = () => {
+          if (isOwned) {
+            tempSelectedFrame = item.id;
+            playRetroSound('click');
+            renderAvatarCustomizer();
+          } else {
+            showUnlockConfirm(item.id, item.cost, 'frame', item.name);
+          }
+        };
+        framesGrid.appendChild(div);
+      });
+    }
+
+    if (exprsGrid) {
+      exprsGrid.innerHTML = '';
+      exprsData.forEach(item => {
+        const div = document.createElement('div');
+        const isActive = tempSelectedExpression === item.id;
+        
+        div.className = `grid-item-option${isActive ? ' active' : ''}`;
+        div.title = item.name;
+
+        div.innerHTML = `
+          <span class="option-emoji">${item.emoji}</span>
+          <span class="item-label">${item.name}</span>
+        `;
+
+        div.onclick = () => {
+          tempSelectedExpression = item.id;
+          playRetroSound('click');
+          renderAvatarCustomizer();
+        };
+        exprsGrid.appendChild(div);
+      });
+    }
+
+    updatePreview();
+  }
+
+  function showUnlockConfirm(id, cost, type, name) {
+    pendingUnlockId = id;
+    pendingUnlockCost = cost;
+    pendingUnlockType = type;
+
+    const overlay = document.getElementById('avatar-purchase-confirm');
+    const text = document.getElementById('purchase-confirm-text');
+    if (overlay && text) {
+      text.innerHTML = `Unlock <strong>${name}</strong> for <strong style="color:#FFD700;">${cost} 🪙</strong>?`;
+      overlay.style.display = 'block';
+      playRetroSound('click');
+    }
+  }
+
+  function hideUnlockConfirm() {
+    const overlay = document.getElementById('avatar-purchase-confirm');
+    if (overlay) overlay.style.display = 'none';
+    pendingUnlockId = '';
+    pendingUnlockCost = 0;
+    pendingUnlockType = '';
+  }
+
+  // --- Profile Customizer Click Listeners ---
+  const editProfileBtn = document.getElementById('btn-edit-profile');
+  if (editProfileBtn) {
+    editProfileBtn.addEventListener('click', () => {
+      tempSelectedCat = avatarCat;
+      tempSelectedExpression = avatarExpression;
+      tempSelectedFrame = avatarFrame;
+      hideUnlockConfirm();
+      
+      const modal = document.getElementById('avatar-edit-modal');
+      if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+      }
+      
+      const inputName = document.getElementById('avatar-input-name');
+      const selectGame = document.getElementById('avatar-select-game');
+      const savedUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
+      if (inputName && savedUser) {
+        inputName.value = savedUser.displayName || savedUser.email.split('@')[0];
+      }
+      if (selectGame) {
+        selectGame.value = favouriteGame;
+      }
+      
+      renderAvatarCustomizer();
+    });
+  }
+
+  const saveAvatarBtn = document.getElementById('btn-save-avatar');
+  if (saveAvatarBtn) {
+    saveAvatarBtn.addEventListener('click', () => {
+      avatarCat = tempSelectedCat;
+      avatarExpression = tempSelectedExpression;
+      avatarFrame = tempSelectedFrame;
+      
+      const selectGame = document.getElementById('avatar-select-game');
+      if (selectGame) favouriteGame = selectGame.value;
+
+      const inputName = document.getElementById('avatar-input-name');
+      const savedUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
+      if (inputName && savedUser) {
+        const newName = inputName.value.trim();
+        if (newName) {
+          savedUser.displayName = newName;
+          localStorage.setItem('scw_local_user', JSON.stringify(savedUser));
+        }
+      }
+
+      saveCoinsToLocalStorage();
+      syncCoinsToFirestore();
+      renderProfileCustoms(savedUser);
+      playRetroSound('purchase');
+      
+      const modal = document.getElementById('avatar-edit-modal');
+      if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+      }
+    });
+  }
+
+  const closeAvatarModal = () => {
+    const modal = document.getElementById('avatar-edit-modal');
+    if (modal) {
+      modal.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+  };
+
+  const btnCloseAvatar = document.getElementById('btn-close-avatar-modal');
+  if (btnCloseAvatar) btnCloseAvatar.addEventListener('click', closeAvatarModal);
+
+  const btnCancelAvatar = document.getElementById('btn-cancel-avatar');
+  if (btnCancelAvatar) btnCancelAvatar.addEventListener('click', closeAvatarModal);
+
+  const tabBtns = document.querySelectorAll('#avatar-edit-modal .tab-btn');
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabBtns.forEach(b => {
+        b.classList.remove('active');
+        b.style.background = 'rgba(255,255,255,0.05)';
+        b.style.borderColor = 'var(--border-light)';
+        b.style.color = 'var(--color-text-secondary)';
+      });
+      btn.classList.add('active');
+      btn.style.background = 'rgba(124, 77, 255, 0.15)';
+      btn.style.borderColor = 'var(--color-primary)';
+      btn.style.color = '#FFF';
+
+      const tab = btn.getAttribute('data-tab');
+      const contents = document.querySelectorAll('#avatar-edit-modal .avatar-tab-content');
+      contents.forEach(c => c.style.display = 'none');
+      
+      const targetContent = document.getElementById('tab-content-' + tab);
+      if (targetContent) targetContent.style.display = 'block';
+      
+      playRetroSound('click');
+    });
+  });
+
+  const btnAvatarPurchaseYes = document.getElementById('btn-avatar-purchase-yes');
+  if (btnAvatarPurchaseYes) {
+    btnAvatarPurchaseYes.addEventListener('click', () => {
+      if (userCoins >= pendingUnlockCost) {
+        if (deductCoins(pendingUnlockCost)) {
+          if (pendingUnlockType === 'cat') {
+            unlockedCats.push(pendingUnlockId);
+            tempSelectedCat = pendingUnlockId;
+          } else if (pendingUnlockType === 'frame') {
+            unlockedFrames.push(pendingUnlockId);
+            tempSelectedFrame = pendingUnlockId;
+          }
+          playRetroSound('purchase');
+          hideUnlockConfirm();
+          renderAvatarCustomizer();
+          saveCoinsToLocalStorage();
+          syncCoinsToFirestore();
+        }
+      } else {
+        alert("❌ Insufficient Catnip Coins to unlock this avatar element!");
+      }
+    });
+  }
+
+  const btnAvatarPurchaseNo = document.getElementById('btn-avatar-purchase-no');
+  if (btnAvatarPurchaseNo) {
+    btnAvatarPurchaseNo.addEventListener('click', () => {
+      hideUnlockConfirm();
+    });
+  }
+
+  // Double check profile displays are updated on avatar display click
+  const avatarDisplayBox = document.getElementById('profile-avatar-display');
+  if (avatarDisplayBox && editProfileBtn) {
+    avatarDisplayBox.addEventListener('click', () => {
+      editProfileBtn.click();
+    });
+  }
+
+  // Expose customizations globally
+  window.renderProfileCustoms = renderProfileCustoms;
+  window.checkAchievements = checkAchievements;
+
   // Helper to award brawler coins safely with daily rate limits
   function claimBrawlerVictoryReward() {
     const today = new Date().toDateString();
@@ -2798,12 +3462,13 @@ document.addEventListener('DOMContentLoaded', () => {
     dailyClaims.count++;
     localStorage.setItem('ssc_daily_claims', JSON.stringify(dailyClaims));
 
+    // Increment victory count
+    victoryCount++;
+    localStorage.setItem('scw_victory_count', victoryCount.toString());
+
     const savedUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
     if (savedUser) {
-      userCoins += 15;
-      saveCoinsToLocalStorage();
-      syncCoinsToFirestore();
-      updateCoinUI();
+      addCoins(15);
       
       if (typeof saveToLocalProfilesDatabase === 'function') {
         saveToLocalProfilesDatabase(savedUser.displayName, savedUser.email, userCoins, ownedItems);
@@ -2979,6 +3644,15 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Setup and start brawler
     const startBattle = () => {
+      // Increment games played stat
+      gamesPlayed++;
+      saveCoinsToLocalStorage();
+      syncCoinsToFirestore();
+      const savedUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
+      if (savedUser) {
+        renderProfileCustoms(savedUser);
+      }
+
       const selected = ratProfiles[Math.floor(Math.random() * ratProfiles.length)];
       enemy.name = selected.name;
       enemy.icon = selected.icon;

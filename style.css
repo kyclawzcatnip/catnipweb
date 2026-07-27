@@ -2610,3 +2610,189 @@ p {
   }
 }
 
+/* ==================== AVATAR PERSONALIZATION SYSTEM ==================== */
+.profile-avatar-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.03);
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.08);
+  overflow: visible;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.profile-avatar-container:hover {
+  transform: scale(1.05);
+  border-color: var(--color-primary);
+}
+
+.profile-avatar-frame {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  pointer-events: none;
+  box-sizing: border-box;
+  z-index: 3;
+}
+
+.profile-avatar-cat {
+  z-index: 1;
+  user-select: none;
+}
+
+.profile-avatar-expr {
+  z-index: 2;
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+}
+
+.avatar-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.grid-item-option {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-sm);
+  padding: 8px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+.grid-item-option:hover {
+  background: rgba(124, 77, 255, 0.08);
+  border-color: rgba(124, 77, 255, 0.4);
+  transform: translateY(-1px);
+}
+.grid-item-option.active {
+  background: rgba(124, 77, 255, 0.16);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 10px rgba(124, 77, 255, 0.25);
+}
+.grid-item-option.locked {
+  opacity: 0.65;
+}
+.grid-item-option.locked::after {
+  content: "🔒";
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 0.65rem;
+  filter: grayscale(1);
+}
+.grid-item-option .option-emoji {
+  font-size: 1.8rem;
+}
+.grid-item-option .item-label {
+  font-size: 0.58rem;
+  color: var(--color-text-muted);
+  margin-top: 4px;
+  text-align: center;
+  max-width: 75px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.avatar-tabs button {
+  transition: all 0.2s ease;
+}
+.avatar-tabs button.active {
+  background: rgba(124, 77, 255, 0.18) !important;
+  border-color: var(--color-primary) !important;
+  color: #FFF !important;
+}
+
+/* --- Dynamic Frame Animation States --- */
+.frame-none {
+  border: none !important;
+  box-shadow: none !important;
+}
+.frame-neon-purple {
+  border: 3px solid #7C4DFF !important;
+  box-shadow: 0 0 10px rgba(124, 77, 255, 0.85) !important;
+}
+.frame-electric-blue {
+  border: 3px solid #00B0FF !important;
+  box-shadow: 0 0 10px rgba(0, 176, 255, 0.85) !important;
+}
+.frame-emerald {
+  border: 3px solid #00E676 !important;
+  box-shadow: 0 0 10px rgba(0, 230, 118, 0.85) !important;
+}
+.frame-gold {
+  border: 3px solid #FFD700 !important;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.85) !important;
+}
+.frame-ruby {
+  border: 3px solid #FF5252 !important;
+  box-shadow: 0 0 10px rgba(255, 82, 82, 0.85) !important;
+}
+
+/* --- Animated Special Frames --- */
+.frame-rainbow {
+  border: 3px solid #7C4DFF !important;
+  animation: frameRainbowGlow 3s linear infinite !important;
+}
+@keyframes frameRainbowGlow {
+  0% { filter: hue-rotate(0deg); border-color: #7C4DFF; box-shadow: 0 0 10px #7C4DFF; }
+  100% { filter: hue-rotate(360deg); border-color: #7C4DFF; box-shadow: 0 0 10px #7C4DFF; }
+}
+
+.frame-electric-sparks {
+  border: 3px dashed #00E5FF !important;
+  animation: frameSparksPulse 0.4s steps(2, start) infinite !important;
+}
+@keyframes frameSparksPulse {
+  0% { box-shadow: 0 0 12px rgba(0, 229, 255, 0.95); border-color: #00E5FF; }
+  50% { box-shadow: 0 0 5px rgba(0, 229, 255, 0.3); border-color: #7C4DFF; }
+}
+
+.frame-snowflakes {
+  border: 3px solid #E0F7FA !important;
+  animation: frameIceBreath 4s ease-in-out infinite alternate !important;
+}
+@keyframes frameIceBreath {
+  0% { filter: brightness(1.2); box-shadow: 0 0 6px rgba(224, 247, 250, 0.5); }
+  100% { filter: brightness(0.85); box-shadow: 0 0 18px rgba(224, 247, 250, 0.95); }
+}
+
+.frame-flames {
+  border: 3px double #FF3D00 !important;
+  animation: frameFlamesWave 1.2s infinite !important;
+}
+@keyframes frameFlamesWave {
+  0% { border-color: #FF3D00; box-shadow: 0 -2px 12px #FF3D00; }
+  50% { border-color: #FFEA00; box-shadow: 0 -6px 18px #FFEA00; }
+  100% { border-color: #FF3D00; box-shadow: 0 -2px 12px #FF3D00; }
+}
+
+.frame-floating-stars {
+  border: 3px solid #FFF59D !important;
+  animation: frameStarsPulse 2.5s infinite ease-in-out !important;
+}
+@keyframes frameStarsPulse {
+  0% { transform: scale(1); box-shadow: 0 0 5px rgba(255, 245, 157, 0.4); }
+  50% { transform: scale(1.02); box-shadow: 0 0 16px rgba(255, 245, 157, 0.85); }
+  100% { transform: scale(1); box-shadow: 0 0 5px rgba(255, 245, 157, 0.4); }
+}
+
+/* Achievement badges items */
+.medal-badge {
+  font-size: 1.15rem;
+  cursor: help;
+  transition: transform 0.2s ease;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+}
+.medal-badge:hover {
+  transform: scale(1.2) rotate(8deg);
+}
+
