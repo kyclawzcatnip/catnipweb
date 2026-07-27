@@ -3596,9 +3596,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const framesGrid = document.getElementById('frames-selection-grid');
     const exprsGrid = document.getElementById('exprs-selection-grid');
 
-    const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
-    const localEmail = (localUser && typeof localUser.email === 'string') ? localUser.email.toLowerCase() : '';
-    const isDev = isDeveloperEmail(localEmail);
+    let currentEmail = '';
+    if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
+      currentEmail = firebase.auth().currentUser.email;
+    }
+    if (!currentEmail) {
+      const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
+      currentEmail = localUser ? localUser.email : '';
+    }
+    const isDev = isDeveloperEmail(currentEmail);
 
     const updatePreview = () => {
       const editPreviewFrame = document.getElementById('edit-avatar-preview-frame');
