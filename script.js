@@ -1098,8 +1098,8 @@ document.addEventListener('DOMContentLoaded', () => {
         { era: 'Year 12 AC', desc: 'Catnip Forest is designated as a protected sanctuary.' }
       ],
       connections: [
-        { id: 'kingdom', name: 'Catnip Kingdom' },
-        { id: 'scw', name: 'Super Cat World' }
+        { id: 'scw', name: 'Super Cat World' },
+        { id: 'wwc', name: 'World War Catnip' }
       ],
       wikiLink: 'catnip-forest'
     },
@@ -1115,7 +1115,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { era: 'Year 6 AC', desc: 'The treaty of the Golden Collar is signed, establishing peace.' }
       ],
       connections: [
-        { id: 'kingdom', name: 'Catnip Kingdom' },
+        { id: 'catnip-forest', name: 'Catnip Forest' },
         { id: 'scw', name: 'Super Cat World' },
         { id: 'kart-speedway', name: 'Kart Speedway' }
       ],
@@ -1151,8 +1151,6 @@ document.addEventListener('DOMContentLoaded', () => {
         { era: 'Year 15 AC', desc: 'The Grand Library of Lore is opened to the public.' }
       ],
       connections: [
-        { id: 'catnip-forest', name: 'Catnip Forest' },
-        { id: 'wwc', name: 'World War Catnip' },
         { id: 'scw', name: 'Super Cat World' },
         { id: 'kart-speedway', name: 'Kart Speedway' }
       ],
