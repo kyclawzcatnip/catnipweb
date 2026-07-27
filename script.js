@@ -75,6 +75,75 @@ document.addEventListener('DOMContentLoaded', () => {
   let activeEvent = 'none';
   let overrideEventSetting = 'auto'; // 'auto', 'none', 'halloween', 'winter', 'spring', 'anniversary'
 
+  const QUESTS_DATABASE = [
+    // Super Smash Cats (smash)
+    { id: 'smash_rats_5', text: 'Defeat 5 Rats in Super Smash Cats', target: 5, reward: 20, type: 'smash_rats', isRare: false },
+    { id: 'smash_rats_15', text: 'Defeat 15 Rats in Super Smash Cats', target: 15, reward: 30, type: 'smash_rats', isRare: false },
+    { id: 'smash_win_1', text: 'Win 1 Super Smash Cats match', target: 1, reward: 25, type: 'smash_win', isRare: false },
+    { id: 'smash_win_3', text: 'Win 3 Super Smash Cats matches', target: 3, reward: 40, type: 'smash_win', isRare: false },
+    { id: 'smash_attacks_20', text: 'Perform 20 attacks in Super Smash Cats', target: 20, reward: 20, type: 'smash_attacks', isRare: false },
+    { id: 'smash_king_1', text: 'Defeat the Rat King in Super Smash Cats', target: 1, reward: 35, type: 'smash_boss', isRare: false },
+    { id: 'smash_jumps_50', text: 'Jump 50 times in Super Smash Cats', target: 50, reward: 20, type: 'smash_jumps', isRare: false },
+    { id: 'smash_play_2', text: 'Play 2 Super Smash Cats matches', target: 2, reward: 20, type: 'smash_play', isRare: false },
+    { id: 'smash_rats_50', text: 'Defeat 50 enemies in Super Smash Cats', target: 50, reward: 45, type: 'smash_rats', isRare: false },
+
+    // Cats Among Us (among_us)
+    { id: 'among_play_1', text: 'Complete 1 game of Cats Among Us', target: 1, reward: 20, type: 'among_play', isRare: false },
+    { id: 'among_play_3', text: 'Complete 3 games of Cats Among Us', target: 3, reward: 40, type: 'among_play', isRare: false },
+    { id: 'among_win_captain', text: 'Win as Captain in Cats Among Us', target: 1, reward: 30, type: 'among_win', isRare: false },
+    { id: 'among_win_guard', text: 'Win as Guard in Cats Among Us', target: 1, reward: 30, type: 'among_win', isRare: false },
+    { id: 'among_win_engineer', text: 'Win as Engineer in Cats Among Us', target: 1, reward: 30, type: 'among_win', isRare: false },
+    { id: 'among_win_medic', text: 'Win as Medic in Cats Among Us', target: 1, reward: 30, type: 'among_win', isRare: false },
+    { id: 'among_win_innocent', text: 'Win as Innocent in Cats Among Us', target: 1, reward: 25, type: 'among_win', isRare: false },
+    { id: 'among_win_detective', text: 'Win as Detective in Cats Among Us', target: 1, reward: 30, type: 'among_win', isRare: false },
+    { id: 'among_win_impostor', text: 'Win as Impostor in Cats Among Us', target: 1, reward: 35, type: 'among_win', isRare: false },
+
+    // Super Cat World (scw)
+    { id: 'scw_exchange_50', text: 'Exchange 50 SCW Coins', target: 50, reward: 20, type: 'scw_exchange', isRare: false },
+    { id: 'scw_exchange_100', text: 'Exchange 100 SCW Coins', target: 100, reward: 30, type: 'scw_exchange', isRare: false },
+    { id: 'scw_exchange_250', text: 'Exchange 250 SCW Coins', target: 250, reward: 50, type: 'scw_exchange', isRare: false },
+    { id: 'scw_visit_terminal', text: 'Visit the Coin Exchange Terminal', target: 1, reward: 15, type: 'scw_terminal', isRare: false },
+    { id: 'scw_import_coins', text: 'Import coins from one level', target: 1, reward: 20, type: 'scw_import', isRare: false },
+
+    // Wiki (wiki)
+    { id: 'wiki_read_3', text: 'Read 3 wiki articles', target: 3, reward: 20, type: 'wiki_read', isRare: false },
+    { id: 'wiki_read_10', text: 'Read 10 wiki articles', target: 10, reward: 40, type: 'wiki_read', isRare: false },
+    { id: 'wiki_search', text: 'Search for an article on the wiki', target: 1, reward: 15, type: 'wiki_search', isRare: false },
+    { id: 'wiki_lore', text: 'Read a lore book article', target: 1, reward: 15, type: 'wiki_lore', isRare: false },
+    { id: 'wiki_character', text: 'Read about a character in the wiki', target: 1, reward: 15, type: 'wiki_character', isRare: false },
+    { id: 'wiki_location', text: 'Read about a location in the wiki', target: 1, reward: 15, type: 'wiki_location', isRare: false },
+    { id: 'wiki_item', text: 'Read about an item in the wiki', target: 1, reward: 15, type: 'wiki_item', isRare: false },
+
+    // Journal (journal)
+    { id: 'journal_write_today', text: "Write today's journal", target: 1, reward: 20, type: 'journal_write', isRare: false },
+    { id: 'journal_chars_100', text: 'Write a journal with at least 100 characters', target: 1, reward: 25, type: 'journal_chars', isRare: false },
+    { id: 'journal_mention_game', text: 'Mention one game you played today in journal', target: 1, reward: 20, type: 'journal_mention', isRare: false },
+
+    // Shop & Economy (shop)
+    { id: 'shop_earn_100', text: 'Earn 100 Catnip Coins', target: 100, reward: 20, type: 'shop_earn', isRare: false },
+    { id: 'shop_spend_50', text: 'Spend 50 Catnip Coins', target: 50, reward: 20, type: 'shop_spend', isRare: false },
+    { id: 'shop_buy_cosmetic', text: 'Buy one cosmetic item from the shop', target: 1, reward: 25, type: 'shop_buy', isRare: false },
+    { id: 'shop_open_chest', text: 'Open a Mystery Gachapon Chest', target: 1, reward: 20, type: 'shop_chest', isRare: false },
+
+    // General Hub (hub)
+    { id: 'hub_login', text: 'Log in today', target: 1, reward: 15, type: 'hub_login', isRare: false },
+    { id: 'hub_visit_3_games', text: 'Visit all three game pages', target: 3, reward: 25, type: 'hub_visit_games', isRare: false },
+    { id: 'hub_view_leaderboard', text: 'View the speedrun leaderboard', target: 1, reward: 15, type: 'hub_leaderboard', isRare: false },
+    { id: 'hub_customise', text: 'Customise your profile or equip cosmetic', target: 1, reward: 15, type: 'hub_customise', isRare: false },
+
+    // Rare Daily Quests (rare)
+    { id: 'rare_defeat_100_rats', text: 'Defeat 100 Rats in Super Smash Cats', target: 100, reward: 80, type: 'smash_rats', isRare: true },
+    { id: 'rare_win_5_smash', text: 'Win 5 Super Smash Cats matches', target: 5, reward: 90, type: 'smash_win', isRare: true },
+    { id: 'rare_read_all_new', text: 'Read every new wiki article today', target: 3, reward: 70, type: 'wiki_read_all', isRare: true },
+    { id: 'rare_earn_500_coins', text: 'Earn 500 Catnip Coins', target: 500, reward: 100, type: 'shop_earn', isRare: true },
+    { id: 'rare_open_3_chests', text: 'Open 3 Mystery Chests', target: 3, reward: 80, type: 'shop_chest_rare', isRare: true },
+    { id: 'rare_streak_7_login', text: 'Keep a 7-day login streak', target: 7, reward: 120, type: 'hub_login_streak', isRare: true },
+    { id: 'rare_beat_all_bosses', text: 'Beat every available brawler boss today', target: 3, reward: 110, type: 'smash_boss_all', isRare: true },
+    { id: 'rare_visit_hub_5', text: 'Visit the hub five different times in one day', target: 5, reward: 60, type: 'hub_visits', isRare: true },
+    { id: 'rare_complete_all_dailies', text: 'Complete every daily quest today', target: 3, reward: 100, type: 'hub_quests_all', isRare: true },
+    { id: 'rare_easter_egg', text: 'Help discover a hidden easter egg', target: 1, reward: 80, type: 'hub_easter_egg', isRare: true }
+  ];
+
   const catsData = [
     { id: 'cat_basic', emoji: '🐱', name: 'Basic Cat', type: 'basic', cost: 0 },
     { id: 'cat_orange', emoji: '🟠', name: 'Orange Tabby', type: 'basic', cost: 0 },
@@ -1194,6 +1263,10 @@ document.addEventListener('DOMContentLoaded', () => {
   searchInput.addEventListener('input', () => {
     wikiSearchQuery = searchInput.value.toLowerCase().trim();
 
+    if (wikiSearchQuery.length >= 3) {
+      incrementQuestProgress('wiki_search');
+    }
+
     // Toggle clear search button visibility
     if (wikiSearchQuery.length > 0) {
       clearSearchBtn.style.display = 'block';
@@ -1229,6 +1302,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (article) {
       wikiPagesRead++;
+      
+      // Increment Wiki Daily Quests
+      incrementQuestProgress('wiki_read');
+      if (article.category === 'lore') incrementQuestProgress('wiki_lore');
+      if (article.category === 'characters') incrementQuestProgress('wiki_character');
+      if (article.category === 'locations') incrementQuestProgress('wiki_location');
+      if (article.category === 'items') incrementQuestProgress('wiki_item');
+      
+      // Let's also check if they read a "new wiki article" (rare quest)
+      // Since all articles in the DB are technically valid:
+      incrementQuestProgress('wiki_read_all');
+
       saveCoinsToLocalStorage();
       syncCoinsToFirestore();
       checkAchievements();
@@ -1618,6 +1703,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderLeaderboardScores(scores) {
+    // Increment daily quest progress
+    incrementQuestProgress('hub_leaderboard');
+
     const leaderboardTable = document.getElementById('leaderboard-table');
     const leaderboardTbody = document.getElementById('leaderboard-tbody');
     const leaderboardEmptyState = document.getElementById('leaderboard-empty-state');
@@ -2591,6 +2679,10 @@ document.addEventListener('DOMContentLoaded', () => {
   function addCoins(amount, element) {
     userCoins += amount;
     totalCoinsEarned += amount;
+    
+    // Increment Shop Earn Quests
+    incrementQuestProgress('shop_earn', amount);
+
     updateCoinUI();
     playRetroSound('coin');
     if (element) {
@@ -2608,6 +2700,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (userCoins >= amount) {
       userCoins -= amount;
       coinsSpent += amount; // Track coins spent
+      
+      // Increment Shop Spend Quests
+      incrementQuestProgress('shop_spend', amount);
+
       updateCoinUI();
       saveCoinsToLocalStorage();
       syncCoinsToFirestore();
@@ -2661,63 +2757,217 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Check / Update Daily Chest UI and state
-  function updateChestUI() {
-    const btnClaim = document.getElementById('btn-claim-daily');
-    const chestEmoji = document.getElementById('chest-emoji');
-    const chestInst = document.getElementById('chest-instruction');
-    const chestClicker = document.getElementById('daily-chest-clicker');
-    if (!btnClaim) return;
+  // ===== DAILY QUESTS SYSTEM =====
+  function initializeQuests() {
+    const today = new Date().toISOString().split('T')[0];
+    const savedDate = localStorage.getItem('scw_quests_date');
+    const savedQuests = localStorage.getItem('scw_active_quests');
 
-    const cooldown = 24 * 60 * 60 * 1000;
-    const now = Date.now();
-    const timePassed = now - lastClaimTimestamp;
-
-    if (timePassed < cooldown) {
-      // Cooldown active
-      const timeLeft = cooldown - timePassed;
-      const hoursLeft = Math.floor(timeLeft / (60 * 60 * 1000));
-      const minsLeft = Math.floor((timeLeft % (60 * 60 * 1000)) / (60 * 1000));
-      
-      btnClaim.textContent = `Claimed (${hoursLeft}h ${minsLeft}m left)`;
-      btnClaim.disabled = true;
-      btnClaim.style.opacity = '0.5';
-      if (chestEmoji) chestEmoji.textContent = '🔓';
-      if (chestInst) chestInst.textContent = "Your daily chest has been opened! Check back tomorrow for another daily claim.";
-      if (chestClicker) chestClicker.style.pointerEvents = 'none';
-    } else {
-      // Ready to claim
-      btnClaim.textContent = 'Claim Free Coins';
-      btnClaim.disabled = false;
-      btnClaim.style.opacity = '1';
-      if (chestEmoji) chestEmoji.textContent = '📦';
-      if (chestInst) chestInst.textContent = "Click the chest to claim your daily rewards! (Cooldown: 24 hours)";
-      if (chestClicker) chestClicker.style.pointerEvents = 'auto';
+    if (savedDate === today && savedQuests) {
+      updateQuestsUI();
+      return;
     }
+
+    // Generate new quests for today!
+    const standards = QUESTS_DATABASE.filter(q => !q.isRare);
+    const rares = QUESTS_DATABASE.filter(q => q.isRare);
+
+    // Pick 3 unique standard quests
+    const shuffledStandards = standards.sort(() => 0.5 - Math.random());
+    const pickedQuests = shuffledStandards.slice(0, 3).map(q => ({
+      ...q,
+      progress: 0,
+      completed: false,
+      claimed: false
+    }));
+
+    // Pick 1 rare quest (30% chance) or another standard quest
+    let fourthQuest;
+    if (Math.random() < 0.30) {
+      const rare = rares[Math.floor(Math.random() * rares.length)];
+      fourthQuest = { ...rare, progress: 0, completed: false, claimed: false };
+    } else {
+      // Find a standard quest not already picked
+      const remainingStandards = shuffledStandards.slice(3);
+      fourthQuest = { ...remainingStandards[0], progress: 0, completed: false, claimed: false };
+    }
+    pickedQuests.push(fourthQuest);
+
+    localStorage.setItem('scw_quests_date', today);
+    localStorage.setItem('scw_active_quests', JSON.stringify(pickedQuests));
+
+    // Reset visit counts for hub_visit_games
+    localStorage.removeItem('scw_visited_game_pages');
+
+    updateQuestsUI();
   }
 
-  // Claim Daily Chest Handler
-  function claimDailyChest(element) {
-    const cooldown = 24 * 60 * 60 * 1000;
-    const now = Date.now();
-    if (now - lastClaimTimestamp >= cooldown) {
-      lastClaimTimestamp = now;
-      playRetroSound('chest');
-      addCoins(50, element);
+  window.initializeQuests = initializeQuests; // Make globally accessible
+
+  function updateQuestsUI() {
+    const container = document.getElementById('quests-container');
+    if (!container) return;
+
+    const activeQuests = JSON.parse(localStorage.getItem('scw_active_quests') || '[]');
+    container.innerHTML = '';
+
+    if (activeQuests.length === 0) {
+      container.innerHTML = '<p style="font-size: 0.85rem; color: var(--color-text-muted);">No active quests. Check back tomorrow!</p>';
+      return;
+    }
+
+    activeQuests.forEach(q => {
+      const isFinished = q.progress >= q.target;
+      const isClaimed = q.claimed;
+
+      const questItem = document.createElement('div');
+      questItem.style.display = 'flex';
+      questItem.style.alignItems = 'center';
+      questItem.style.justifyContent = 'space-between';
+      questItem.style.padding = '12px';
+      questItem.style.background = q.isRare ? 'rgba(234, 179, 8, 0.04)' : 'rgba(255, 255, 255, 0.01)';
+      questItem.style.border = q.isRare 
+        ? '1px dashed rgba(234, 179, 8, 0.3)' 
+        : '1px solid var(--border-light)';
+      questItem.style.borderRadius = '10px';
+      questItem.style.transition = 'var(--transition-smooth)';
       
-      const chestEmoji = document.getElementById('chest-emoji');
-      if (chestEmoji) {
-        chestEmoji.textContent = '🔓';
-        chestEmoji.style.transform = 'scale(1.4) rotate(8deg)';
-        setTimeout(() => {
-          chestEmoji.style.transform = '';
-        }, 300);
+      if (isFinished && !isClaimed) {
+        questItem.style.borderColor = q.isRare ? '#eab308' : 'var(--color-success)';
       }
 
-      updateChestUI();
-      alert("🎉 You successfully claimed your Daily Chest and received 50 Catnip Coins!");
+      // Checkbox / State Icon
+      let iconHtml = `<span style="font-size: 1.1rem; margin-right: 10px; color: var(--color-text-muted);">⏳</span>`;
+      if (isClaimed) {
+        iconHtml = `<span style="font-size: 1.1rem; margin-right: 10px; color: var(--color-success);">✔</span>`;
+      } else if (isFinished) {
+        iconHtml = `<span style="font-size: 1.1rem; margin-right: 10px; color: var(--color-accent); cursor: pointer;" title="Collect reward!">🎁</span>`;
+      }
+
+      // Quest detail layout
+      const details = document.createElement('div');
+      details.style.display = 'flex';
+      details.style.alignItems = 'center';
+      details.style.flex = '1';
+
+      const textWrapper = document.createElement('div');
+      textWrapper.style.display = 'flex';
+      textWrapper.style.flexDirection = 'column';
+
+      const titleSpan = document.createElement('span');
+      titleSpan.style.fontSize = '0.9rem';
+      titleSpan.style.fontWeight = '600';
+      titleSpan.style.color = q.isRare ? '#fef08a' : 'var(--color-text-primary)';
+      if (isClaimed) {
+        titleSpan.style.textDecoration = 'line-through';
+        titleSpan.style.color = 'var(--color-text-muted)';
+      }
+      titleSpan.innerHTML = (q.isRare ? '💎 ' : '') + q.text;
+
+      const progressSpan = document.createElement('span');
+      progressSpan.style.fontSize = '0.75rem';
+      progressSpan.style.color = 'var(--color-text-muted)';
+      progressSpan.style.marginTop = '2px';
+      progressSpan.textContent = `Progress: ${q.progress}/${q.target}`;
+
+      textWrapper.appendChild(titleSpan);
+      textWrapper.appendChild(progressSpan);
+
+      details.innerHTML = iconHtml;
+      details.appendChild(textWrapper);
+
+      // Reward block or Claim button
+      const actionBlock = document.createElement('div');
+      actionBlock.style.marginLeft = '10px';
+
+      if (isClaimed) {
+        actionBlock.innerHTML = `<span style="font-size: 0.8rem; color: var(--color-text-muted); font-weight: 700; text-transform: uppercase;">Claimed</span>`;
+      } else if (isFinished) {
+        const claimBtn = document.createElement('button');
+        claimBtn.className = 'btn btn-primary btn-sm';
+        claimBtn.style.padding = '4px 10px';
+        claimBtn.style.fontSize = '0.75rem';
+        claimBtn.style.fontWeight = '700';
+        claimBtn.style.background = q.isRare ? 'linear-gradient(135deg, #eab308, #ca8a04)' : 'var(--color-accent)';
+        claimBtn.style.borderColor = q.isRare ? '#fbbf24' : 'var(--color-accent)';
+        claimBtn.textContent = 'CLAIM';
+        claimBtn.addEventListener('click', (e) => claimQuestReward(q.id, claimBtn));
+        actionBlock.appendChild(claimBtn);
+      } else {
+        const rewardSpan = document.createElement('span');
+        rewardSpan.style.fontSize = '0.85rem';
+        rewardSpan.style.fontWeight = '800';
+        rewardSpan.style.color = q.isRare ? '#ffd700' : 'var(--color-text-primary)';
+        rewardSpan.textContent = `+${q.reward} 🪙`;
+        actionBlock.appendChild(rewardSpan);
+      }
+
+      questItem.appendChild(details);
+      questItem.appendChild(actionBlock);
+      container.appendChild(questItem);
+    });
+  }
+
+  window.updateQuestsUI = updateQuestsUI;
+
+  function claimQuestReward(questId, btnElement) {
+    const activeQuests = JSON.parse(localStorage.getItem('scw_active_quests') || '[]');
+    const quest = activeQuests.find(q => q.id === questId);
+
+    if (quest && !quest.claimed && quest.progress >= quest.target) {
+      quest.claimed = true;
+      localStorage.setItem('scw_active_quests', JSON.stringify(activeQuests));
+
+      playRetroSound('purchase');
+      addCoins(quest.reward, btnElement);
+
+      // Track shop earn quest progress
+      incrementQuestProgress('shop_earn', quest.reward);
+
+      // Check if player has completed all daily quests today (rare quest target)
+      const allCompletedToday = activeQuests.every(q => q.progress >= q.target);
+      if (allCompletedToday) {
+        incrementQuestProgress('hub_quests_all');
+      }
+
+      updateQuestsUI();
+      alert(`🎉 Claimed quest reward! Received ${quest.reward} Catnip Coins.`);
     }
   }
+
+  function incrementQuestProgress(type, amount = 1) {
+    try {
+      const activeQuests = JSON.parse(localStorage.getItem('scw_active_quests') || '[]');
+      let changed = false;
+
+      for (const q of activeQuests) {
+        if (q.type === type && !q.claimed) {
+          const oldProgress = q.progress;
+          q.progress = Math.min(q.target, q.progress + amount);
+          
+          if (q.progress >= q.target && oldProgress < q.target) {
+            playRetroSound('click');
+            // If they just completed this quest, check if all dailies are now completed
+            const allCompletedToday = activeQuests.every(oq => oq.progress >= oq.target);
+            if (allCompletedToday) {
+              // Defer briefly to allow this quest to finish saving
+              setTimeout(() => incrementQuestProgress('hub_quests_all'), 100);
+            }
+          }
+          changed = true;
+        }
+      }
+
+      if (changed) {
+        localStorage.setItem('scw_active_quests', JSON.stringify(activeQuests));
+        updateQuestsUI();
+      }
+    } catch (e) {
+      console.warn("Failed to increment quest progress:", e);
+    }
+  }
+
+  window.incrementQuestProgress = incrementQuestProgress;
 
   // Render Shop Items state
   function renderShopItems() {
@@ -2758,6 +3008,8 @@ document.addEventListener('DOMContentLoaded', () => {
         activeCosmetics = activeCosmetics.filter(item => item !== itemId);
       } else {
         activeCosmetics.push(itemId);
+        // Increment customization quest
+        incrementQuestProgress('hub_customise');
       }
       saveCoinsToLocalStorage();
       syncCoinsToFirestore();
@@ -2770,6 +3022,11 @@ document.addEventListener('DOMContentLoaded', () => {
           ownedItems.push(itemId);
           activeCosmetics.push(itemId); // Auto-equip on purchase
           playRetroSound('purchase');
+          
+          // Increment quests
+          incrementQuestProgress('shop_buy');
+          incrementQuestProgress('hub_customise');
+
           saveCoinsToLocalStorage();
           syncCoinsToFirestore();
           applyActiveCosmetics();
@@ -2777,20 +3034,102 @@ document.addEventListener('DOMContentLoaded', () => {
           alert(`🎉 Congratulations! You have successfully unlocked the ${itemId.replace('-', ' ')} item!`);
         }
       } else {
-        alert("❌ Insufficient Catnip Coins! Explore the wiki or check back tomorrow for your daily claim to get more coins.");
+        alert("❌ Insufficient Catnip Coins! Explore the wiki or complete your daily quests to get more coins.");
       }
     }
   }
+  function openMysteryChest(element) {
+    const cost = 100;
+    if (userCoins < cost) {
+      alert("❌ Insufficient Catnip Coins to open the Mystery Gachapon Chest!");
+      return;
+    }
 
-  // Attach Daily chest clickers
-  const chestClicker = document.getElementById('daily-chest-clicker');
-  const btnClaimChest = document.getElementById('btn-claim-daily');
-  if (chestClicker) {
-    chestClicker.addEventListener('click', () => claimDailyChest(chestClicker));
+    if (deductCoins(cost)) {
+      playRetroSound('purchase');
+      
+      // Animate chest emoji
+      const chestVisual = document.getElementById('mystery-chest-visual');
+      if (chestVisual) {
+        chestVisual.style.transform = 'scale(1.4) rotate(15deg)';
+        setTimeout(() => { chestVisual.style.transform = ''; }, 400);
+      }
+
+      // Quest Increments
+      incrementQuestProgress('shop_chest');
+      incrementQuestProgress('shop_chest_rare');
+
+      // Random reward calculation
+      const rand = Math.random();
+      let feedback = '';
+
+      if (rand < 0.30) {
+        // Coin Jackpot! 150-300 coins
+        const prize = 150 + Math.floor(Math.random() * 151);
+        addCoins(prize, element);
+        feedback = `🎰 JACKPOT! The chest popped open and you won a massive prize of ${prize} Catnip Coins!`;
+      } else if (rand < 0.70) {
+        // Coins reward 50-120 coins
+        const prize = 50 + Math.floor(Math.random() * 71);
+        addCoins(prize, element);
+        feedback = `📦 The chest opened to reveal a coin stash! You received ${prize} Catnip Coins.`;
+      } else {
+        // Custom Profile Title drop!
+        const titles = [
+          "Gacha Legend 🎰",
+          "Lucky Cat 🍀",
+          "Chest Raider 💎",
+          "Catnip Baron 👑",
+          "Antigravity Master 🌌"
+        ];
+        // Pick one the user doesn't already own if possible
+        let title = titles[Math.floor(Math.random() * titles.length)];
+        if (!unlockedTitles.includes(title)) {
+          unlockedTitles.push(title);
+          activeTitle = title;
+          saveCoinsToLocalStorage();
+          syncCoinsToFirestore();
+          const savedUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
+          if (savedUser) renderProfileCustoms(savedUser);
+          feedback = `💎 RARE DROP! The chest dropped an exclusive profile title: "${title}" (automatically equipped!).`;
+        } else {
+          // Refund coins instead of duplicate
+          const refund = 120;
+          addCoins(refund, element);
+          feedback = `🍀 You rolled a title you already own, so you were refunded ${refund} Catnip Coins!`;
+        }
+      }
+
+      saveCoinsToLocalStorage();
+      syncCoinsToFirestore();
+      alert(feedback);
+    }
   }
-  if (btnClaimChest) {
-    btnClaimChest.addEventListener('click', () => claimDailyChest(chestClicker));
+
+  // Hook mystery chest button click listener
+  const btnOpenChest = document.getElementById('btn-open-mystery-chest');
+  if (btnOpenChest) {
+    btnOpenChest.addEventListener('click', () => openMysteryChest(btnOpenChest));
   }
+
+  // Listen to cross-tab storage changes (e.g., from Super Smash Cats)
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'scw_active_quests') {
+      updateQuestsUI();
+    }
+    if (e.key === 'scw_local_coins') {
+      try {
+        const val = parseInt(localStorage.getItem('scw_local_coins') || '0', 10);
+        if (val !== userCoins) {
+          userCoins = val;
+          updateCoinUI();
+        }
+      } catch(err) {}
+    }
+  });
+
+  // Initialize Daily Quests
+  initializeQuests();
 
   // Attach Item shop buy button click listeners
   document.addEventListener('click', (e) => {
@@ -3549,6 +3888,26 @@ document.addEventListener('DOMContentLoaded', () => {
       // 2. Add Coins
       if (typeof addCoins === 'function') {
         addCoins(reward, btnSubmitJournal);
+      }
+
+      // Increment Journal & Coin Exchange Quests
+      incrementQuestProgress('journal_write');
+      if (text.length >= 100) {
+        incrementQuestProgress('journal_chars');
+      }
+      const lowerText = text.toLowerCase();
+      if (lowerText.includes('smash') || lowerText.includes('among') || lowerText.includes('world') || lowerText.includes('brawler') || lowerText.includes('game') || lowerText.includes('kart') || lowerText.includes('feline')) {
+        incrementQuestProgress('journal_mention');
+      }
+      if (coins > 0) {
+        incrementQuestProgress('scw_exchange', coins);
+        incrementQuestProgress('scw_import');
+      }
+      
+      // Check streak achievements/quests
+      const streakVal = parseInt(localStorage.getItem('scw_stats_journalStreak') || '0', 10);
+      if (streakVal >= 3) {
+        incrementQuestProgress('journal_streak_3');
       }
 
       // 3. Sync to Firestore (optional adventure log history collection)
