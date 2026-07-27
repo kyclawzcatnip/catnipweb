@@ -160,9 +160,9 @@ document.addEventListener('DOMContentLoaded', () => {
       category: 'games',
       tag: 'Game',
       content: `
-        <p><strong>Cats Among Us</strong> is a multiplayer social deduction game set aboard the <em>SS Meowstard</em> spaceship. Feline crewmates must work together to maintain their ship's gravity cores and life support systems, while hidden impostor rats attempt to sabotage the mission and eliminate the crew.</p>
+        <p><strong>Cats Among Us</strong> is a multiplayer social deduction game set aboard the <em>SS Meowstard</em> spaceship. Feline crewmates must work together to maintain their ship's gravity cores and life support systems, while hidden impostor dogs attempt to sabotage the mission and eliminate the crew.</p>
         <h4>Roles & Deduction</h4>
-        <p>Players are secretly assigned roles at the start of each match: Crewmates (Innocent, Engineer, Captain, Medic, Detective) must complete repair tasks. The Impostor Rats must sneak through vents and disable systems. When a body is discovered, players debate and vote to eject suspected impostors into deep space.</p>
+        <p>Players are secretly assigned roles at the start of each match: Crewmates (Innocent, Engineer, Captain, Medic, Detective) must complete repair tasks. The Impostor Dogs must sneak through vents and disable systems. When a body is discovered, players debate and vote to eject suspected impostors into deep space.</p>
       `
     },
     'catnip-kingdom': {
