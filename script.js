@@ -505,7 +505,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <p style="font-size: 0.85rem; color: var(--color-text-muted); line-height: 1.5; margin-bottom: 25px;">
           To reactivate this account, please contact the administrator on our official Discord server.
         </p>
-        <a href="https://discord.gg/catnipstudios" target="_blank" class="btn btn-primary" style="background: #FF3D00; border-color: #FF3D00; box-shadow: 0 0 15px rgba(255, 61, 0, 0.4); text-transform: uppercase; font-weight: 700; padding: 8px 20px; font-size: 0.82rem;">Discord Server</a>
+        <a href="https://discord.gg/DbKu8WDw7M" target="_blank" class="btn btn-primary" style="background: #FF3D00; border-color: #FF3D00; box-shadow: 0 0 15px rgba(255, 61, 0, 0.4); text-transform: uppercase; font-weight: 700; padding: 8px 20px; font-size: 0.82rem;">Discord Server</a>
       </div>
     `;
     document.body.style.overflow = 'hidden';
