@@ -1454,6 +1454,20 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof firebase !== 'undefined' && firebase.firestore) {
       try {
         const db = firebase.firestore();
+
+        // Sync local scores to cloud database if logged in
+        if (firebase.auth && firebase.auth().currentUser) {
+          cleanedScores.forEach(score => {
+            const docId = `${score.name}_${score.mode}_${score.time}`.replace(/[^a-zA-Z0-9_]/g, '_');
+            db.collection('leaderboard').doc(docId).set({
+              name: score.name,
+              mode: score.mode,
+              time: score.time,
+              date: score.date
+            }).catch(err => console.warn("Failed syncing score to cloud:", err));
+          });
+        }
+
         db.collection('leaderboard').orderBy('time', 'asc').limit(50).onSnapshot((snapshot) => {
           const cloudScores = [];
           snapshot.forEach((doc) => {
@@ -1462,6 +1476,12 @@ document.addEventListener('DOMContentLoaded', () => {
           
           // Filter duplicates: keep only the fastest run per unique username
           const uniqueCloud = {};
+          
+          // Seed with local scores so offline & un-synced runs are preserved
+          cleanedScores.forEach(score => {
+            uniqueCloud[score.name] = score;
+          });
+
           cloudScores.forEach(score => {
             const name = (score.name || '').trim();
             if (!name) return;
