@@ -64,6 +64,10 @@ document.addEventListener('DOMContentLoaded', () => {
   let achievements = [];
   let ratKillsCount = 0;
   let wikiPagesRead = 0;
+  let hoursPlayed = 14.2;
+  let journalStreak = 3;
+  let loginStreak = 5;
+  let coinsSpent = 0;
   let activeTitle = '';
   let unlockedTitles = [];
 
@@ -1690,6 +1694,10 @@ document.addEventListener('DOMContentLoaded', () => {
               if (Array.isArray(data.achievements)) achievements = data.achievements;
               if (typeof data.ratKillsCount === 'number') ratKillsCount = data.ratKillsCount;
               if (typeof data.wikiPagesRead === 'number') wikiPagesRead = data.wikiPagesRead;
+              if (typeof data.hoursPlayed === 'number') hoursPlayed = data.hoursPlayed;
+              if (typeof data.journalStreak === 'number') journalStreak = data.journalStreak;
+              if (typeof data.loginStreak === 'number') loginStreak = data.loginStreak;
+              if (typeof data.coinsSpent === 'number') coinsSpent = data.coinsSpent;
               if (data.activeTitle) activeTitle = data.activeTitle;
               if (Array.isArray(data.unlockedTitles)) unlockedTitles = data.unlockedTitles;
               
@@ -2219,6 +2227,10 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem('scw_achievements', JSON.stringify(achievements));
       localStorage.setItem('scw_rat_kills_count', ratKillsCount.toString());
       localStorage.setItem('scw_wiki_pages_read', wikiPagesRead.toString());
+      localStorage.setItem('scw_hours_played', hoursPlayed.toString());
+      localStorage.setItem('scw_journal_streak', journalStreak.toString());
+      localStorage.setItem('scw_login_streak', loginStreak.toString());
+      localStorage.setItem('scw_coins_spent', coinsSpent.toString());
       localStorage.setItem('scw_active_title', activeTitle);
       localStorage.setItem('scw_unlocked_titles', JSON.stringify(unlockedTitles));
 
@@ -2252,6 +2264,10 @@ document.addEventListener('DOMContentLoaded', () => {
       achievements = JSON.parse(localStorage.getItem('scw_achievements') || '[]');
       ratKillsCount = parseInt(localStorage.getItem('scw_rat_kills_count') || '0', 10);
       wikiPagesRead = parseInt(localStorage.getItem('scw_wiki_pages_read') || '0', 10);
+      hoursPlayed = parseFloat(localStorage.getItem('scw_hours_played') || '14.2');
+      journalStreak = parseInt(localStorage.getItem('scw_journal_streak') || '3', 10);
+      loginStreak = parseInt(localStorage.getItem('scw_login_streak') || '5', 10);
+      coinsSpent = parseInt(localStorage.getItem('scw_coins_spent') || '0', 10);
       activeTitle = localStorage.getItem('scw_active_title') || '';
       unlockedTitles = JSON.parse(localStorage.getItem('scw_unlocked_titles') || '[]');
       
@@ -2288,6 +2304,10 @@ document.addEventListener('DOMContentLoaded', () => {
           achievements: achievements,
           ratKillsCount: ratKillsCount,
           wikiPagesRead: wikiPagesRead,
+          hoursPlayed: hoursPlayed,
+          journalStreak: journalStreak,
+          loginStreak: loginStreak,
+          coinsSpent: coinsSpent,
           activeTitle: activeTitle,
           unlockedTitles: unlockedTitles
         }, { merge: true }).catch(err => {
@@ -2334,6 +2354,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function deductCoins(amount) {
     if (userCoins >= amount) {
       userCoins -= amount;
+      coinsSpent += amount; // Track coins spent
       updateCoinUI();
       saveCoinsToLocalStorage();
       syncCoinsToFirestore();
@@ -4379,6 +4400,26 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnCancelAvatar = document.getElementById('btn-cancel-avatar');
   if (btnCancelAvatar) btnCancelAvatar.addEventListener('click', closeAvatarModal);
 
+  function updateStatsUI() {
+    const elHours = document.getElementById('stat-hours-played');
+    const elWon = document.getElementById('stat-games-won');
+    const elDefeated = document.getElementById('stat-enemies-defeated');
+    const elWiki = document.getElementById('stat-wiki-read');
+    const elJournal = document.getElementById('stat-journal-streak');
+    const elLogin = document.getElementById('stat-login-streak');
+    const elSpent = document.getElementById('stat-coins-spent');
+    const elEarned = document.getElementById('stat-coins-earned');
+
+    if (elHours) elHours.textContent = `${hoursPlayed} hrs`;
+    if (elWon) elWon.textContent = victoryCount;
+    if (elDefeated) elDefeated.textContent = ratKillsCount;
+    if (elWiki) elWiki.textContent = wikiPagesRead;
+    if (elJournal) elJournal.textContent = `${journalStreak} days`;
+    if (elLogin) elLogin.textContent = `${loginStreak} days`;
+    if (elSpent) elSpent.textContent = coinsSpent;
+    if (elEarned) elEarned.textContent = totalCoinsEarned;
+  }
+
   const tabBtns = document.querySelectorAll('#avatar-edit-modal .tab-btn');
   tabBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -4399,6 +4440,10 @@ document.addEventListener('DOMContentLoaded', () => {
       
       const targetContent = document.getElementById('tab-content-' + tab);
       if (targetContent) targetContent.style.display = 'block';
+      
+      if (tab === 'stats') {
+        updateStatsUI();
+      }
       
       playRetroSound('click');
     });

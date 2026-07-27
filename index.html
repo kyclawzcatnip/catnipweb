@@ -1692,6 +1692,7 @@
         <button class="tab-btn" data-tab="frames" style="flex: 1; padding: 6px 8px; font-size: 0.76rem; font-weight: 700; border-radius: 4px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-light); color: var(--color-text-secondary); cursor: pointer;">Frames</button>
         <button class="tab-btn" data-tab="exprs" style="flex: 1; padding: 6px 8px; font-size: 0.76rem; font-weight: 700; border-radius: 4px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-light); color: var(--color-text-secondary); cursor: pointer;">Exprs</button>
         <button class="tab-btn" data-tab="details" style="flex: 1; padding: 6px 8px; font-size: 0.76rem; font-weight: 700; border-radius: 4px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-light); color: var(--color-text-secondary); cursor: pointer;">Profile</button>
+        <button class="tab-btn" data-tab="stats" style="flex: 1; padding: 6px 8px; font-size: 0.76rem; font-weight: 700; border-radius: 4px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-light); color: var(--color-text-secondary); cursor: pointer;">Stats</button>
       </div>
 
       <!-- Tab Contents -->
@@ -1726,6 +1727,43 @@
           <label style="font-size: 0.75rem; font-weight: 700; color: var(--color-text-secondary); display: block; margin-bottom: 4px;">Equip Title</label>
           <select id="avatar-select-title" style="width: 100%; padding: 8px 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-light); border-radius: 6px; color: #FFF; font-size: 0.9rem; cursor: pointer;">
           </select>
+        </div>
+      </div>
+
+      <div class="avatar-tab-content" id="tab-content-stats" style="display: none; text-align: left; padding: 5px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: rgba(0,0,0,0.15); padding: 12px; border-radius: 8px; border: 1px solid var(--border-light);">
+          <div>
+            <span style="font-size: 0.72rem; color: var(--color-text-muted); display: block; text-transform: uppercase;">⏱️ Hours Played</span>
+            <span id="stat-hours-played" style="font-size: 1.1rem; font-weight: 800; color: #FFF;">14.2 hrs</span>
+          </div>
+          <div>
+            <span style="font-size: 0.72rem; color: var(--color-text-muted); display: block; text-transform: uppercase;">🏆 Games Won</span>
+            <span id="stat-games-won" style="font-size: 1.1rem; font-weight: 800; color: #00E676;">0</span>
+          </div>
+          <div>
+            <span style="font-size: 0.72rem; color: var(--color-text-muted); display: block; text-transform: uppercase;">⚔️ Enemies Defeated</span>
+            <span id="stat-enemies-defeated" style="font-size: 1.1rem; font-weight: 800; color: #FF6D00;">0</span>
+          </div>
+          <div>
+            <span style="font-size: 0.72rem; color: var(--color-text-muted); display: block; text-transform: uppercase;">📖 Wiki Pages Read</span>
+            <span id="stat-wiki-read" style="font-size: 1.1rem; font-weight: 800; color: #00B0FF;">0</span>
+          </div>
+          <div>
+            <span style="font-size: 0.72rem; color: var(--color-text-muted); display: block; text-transform: uppercase;">✍️ Journal Streak</span>
+            <span id="stat-journal-streak" style="font-size: 1.1rem; font-weight: 800; color: #D500F9;">3 days</span>
+          </div>
+          <div>
+            <span style="font-size: 0.72rem; color: var(--color-text-muted); display: block; text-transform: uppercase;">📅 Daily Login Streak</span>
+            <span id="stat-login-streak" style="font-size: 1.1rem; font-weight: 800; color: #FFD700;">5 days</span>
+          </div>
+          <div>
+            <span style="font-size: 0.72rem; color: var(--color-text-muted); display: block; text-transform: uppercase;">💸 Coins Spent</span>
+            <span id="stat-coins-spent" style="font-size: 1.1rem; font-weight: 800; color: #FF5252;">0</span>
+          </div>
+          <div>
+            <span style="font-size: 0.72rem; color: var(--color-text-muted); display: block; text-transform: uppercase;">💰 Coins Earned</span>
+            <span id="stat-coins-earned" style="font-size: 1.1rem; font-weight: 800; color: #FFD700;">0</span>
+          </div>
         </div>
       </div>
 
@@ -1814,6 +1852,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
   <!-- Main Script File -->
-  <script src="script.js?v=20260726zk24"></script>
+  <script src="script.js?v=20260726zk25"></script>
 </body>
 </html>
