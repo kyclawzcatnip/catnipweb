@@ -1340,9 +1340,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ==================== COMMUNITY LEADERBOARD ENGINE ====================
-  const leaderboardTable = document.getElementById('leaderboard-table');
-  const leaderboardTbody = document.getElementById('leaderboard-tbody');
-  const leaderboardEmptyState = document.getElementById('leaderboard-empty-state');
 
   // Parse time strings (e.g., "MM:SS.CC") into seconds for accurate comparison
   function timeStringToSeconds(timeStr) {
@@ -1364,6 +1361,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderLeaderboardScores(scores) {
+    const leaderboardTable = document.getElementById('leaderboard-table');
+    const leaderboardTbody = document.getElementById('leaderboard-tbody');
+    const leaderboardEmptyState = document.getElementById('leaderboard-empty-state');
+
     if (!scores || scores.length === 0) {
       if (leaderboardTable) leaderboardTable.style.display = 'none';
       if (leaderboardEmptyState) leaderboardEmptyState.style.display = 'flex';
