@@ -1164,7 +1164,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { emoji: '🔧', name: 'Mechanic Whisk', desc: 'The chief developer of custom racing engines and aerodynamic kart models.' }
       ],
       timeline: [
-        { era: 'Year 18 AC', desc: 'The Allied Feline Council commissions the creation of a global racing hub.' },
+        { era: 'Year 18 AC', desc: 'The Allied Feline Council commissions the creation of a global racing hub to train cats in the art of fast racing for cats to have fun.' },
         { era: 'Year 22 AC', desc: 'The inaugural Grand Cup tournament is held, drawing spectators from all realms.' }
       ],
       connections: [
