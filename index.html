@@ -40,6 +40,7 @@
         <a href="#home" class="nav-link active" data-target="home">Home</a>
         <a href="#games" class="nav-link" data-target="games">Games</a>
         <a href="#wiki" class="nav-link" data-target="wiki">Wiki</a>
+        <a href="#map" class="nav-link" data-target="map">World Map</a>
         <a href="#news" class="nav-link" data-target="news">News</a>
         <a href="#stress" class="nav-link" data-target="stress">Game Stress</a>
         <a href="#shop" class="nav-link" data-target="shop">Shop</a>
@@ -689,6 +690,89 @@
               <line x1="8" y1="11" x2="14" y2="11"></line>
             </svg>
             <p>No archives found matching your query. Try searching for "gravity", "crystals", or "history".</p>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ==================== WORLD MAP SECTION ==================== -->
+      <section id="map-section" class="app-section">
+        <div class="section-header">
+          <span class="section-badge">Lore & Exploration</span>
+          <h2 class="section-title">Interactive World Map</h2>
+          <p class="section-subtitle" style="font-size: 1.05rem; color: var(--color-text-secondary); max-width: 600px; margin: 8px auto 0 auto; line-height: 1.6;">Chart the territories, historical battlegrounds, and cosmic felines across the Catnip Studios Universe.</p>
+        </div>
+
+        <div class="map-layout">
+          <!-- The Map View Container -->
+          <div class="map-viewport" id="map-viewport">
+            <svg class="map-svg" viewBox="0 0 800 500" width="100%" height="100%">
+              <!-- Decorative Grid Lines -->
+              <defs>
+                <pattern id="map-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(124, 77, 255, 0.08)" stroke-width="1"/>
+                </pattern>
+                <radialGradient id="nebula-glow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#7C4DFF" stop-opacity="0.15"/>
+                  <stop offset="100%" stop-color="#7C4DFF" stop-opacity="0"/>
+                </radialGradient>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#map-grid)"/>
+              <rect width="100%" height="100%" fill="url(#nebula-glow)"/>
+
+              <!-- Dotted Trade/Connection Routes -->
+              <path class="map-route" d="M 180 320 Q 300 220 400 350" fill="none" stroke="rgba(124, 77, 255, 0.3)" stroke-width="2.5" stroke-dasharray="6,6"/>
+              <path class="map-route" d="M 400 350 Q 550 250 620 180" fill="none" stroke="rgba(0, 176, 255, 0.3)" stroke-width="2.5" stroke-dasharray="6,6"/>
+              <path class="map-route" d="M 180 320 Q 380 120 620 180" fill="none" stroke="rgba(255, 61, 0, 0.3)" stroke-width="2.5" stroke-dasharray="6,6"/>
+              <path class="map-route" d="M 400 350 L 380 120" fill="none" stroke="rgba(255, 215, 0, 0.3)" stroke-width="2.5" stroke-dasharray="6,6"/>
+
+              <!-- Landmass SVGs / Island Shapes -->
+              <path d="M 100 280 Q 150 240 220 300 T 260 360 T 140 370 Z" fill="rgba(0, 230, 118, 0.04)" stroke="rgba(0, 230, 118, 0.15)" stroke-width="2"/>
+              <path d="M 320 320 Q 380 280 460 330 T 480 400 T 360 410 Z" fill="rgba(124, 77, 255, 0.04)" stroke="rgba(124, 77, 255, 0.15)" stroke-width="2"/>
+              <path d="M 520 150 Q 580 110 680 160 T 700 230 T 560 210 Z" fill="rgba(0, 176, 255, 0.04)" stroke="rgba(0, 176, 255, 0.15)" stroke-width="2"/>
+              <path d="M 300 100 Q 350 80 420 100 T 450 160 T 320 140 Z" fill="rgba(255, 215, 0, 0.04)" stroke="rgba(255, 215, 0, 0.15)" stroke-width="2"/>
+
+              <!-- Map Pin Elements -->
+              <!-- 1. Catnip Forest -->
+              <g class="map-pin" id="pin-catnip-forest" data-id="catnip-forest">
+                <circle r="22" class="pin-pulse pin-pulse-green"/>
+                <circle r="10" class="pin-core pin-core-green"/>
+                <text y="-28" text-anchor="middle" class="pin-label">🌿 Catnip Forest</text>
+              </g>
+
+              <!-- 2. SCW -->
+              <g class="map-pin" id="pin-scw" data-id="scw">
+                <circle r="22" class="pin-pulse pin-pulse-purple"/>
+                <circle r="10" class="pin-core pin-core-purple"/>
+                <text y="-28" text-anchor="middle" class="pin-label">🏰 Super Cat World</text>
+              </g>
+
+              <!-- 3. World War Catnip -->
+              <g class="map-pin" id="pin-wwc" data-id="wwc">
+                <circle r="22" class="pin-pulse pin-pulse-red"/>
+                <circle r="10" class="pin-core pin-core-red"/>
+                <text y="-28" text-anchor="middle" class="pin-label">⚔️ World War Catnip</text>
+              </g>
+
+              <!-- 4. Catnip Kingdom -->
+              <g class="map-pin" id="pin-kingdom" data-id="kingdom">
+                <circle r="22" class="pin-pulse pin-pulse-gold"/>
+                <circle r="10" class="pin-core pin-core-gold"/>
+                <text y="-28" text-anchor="middle" class="pin-label">👑 Catnip Kingdom</text>
+              </g>
+            </svg>
+          </div>
+
+          <!-- Location Info Details Panel -->
+          <div class="map-details-panel" id="map-details-panel">
+            <div class="panel-placeholder" id="panel-placeholder">
+              <span style="font-size: 3rem; display: block; margin-bottom: 12px; filter: drop-shadow(0 0 8px var(--color-primary));">🗺️</span>
+              <h3 style="font-family: var(--font-headings); font-weight: 800; color: #FFF; margin-bottom: 8px;">Select a Territory</h3>
+              <p style="color: var(--color-text-muted); font-size: 0.85rem; line-height: 1.5; max-width: 250px; margin: 0 auto;">Click on any glowing location marker on the world map to retrieve historical archives, prominent characters, and active timelines.</p>
+            </div>
+            <div class="panel-content" id="panel-content" style="display: none;">
+              <!-- Dynamic Content Loaded via JS -->
+            </div>
           </div>
         </div>
       </section>
@@ -1494,6 +1578,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
   <!-- Main Script File -->
-  <script src="script.js?v=20260726zk11"></script>
+  <script src="script.js?v=20260726zk12"></script>
 </body>
 </html>

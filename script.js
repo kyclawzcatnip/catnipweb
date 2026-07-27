@@ -620,7 +620,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Monitor hash changes
   window.addEventListener('hashchange', () => {
     const hash = window.location.hash.substring(1) || 'home';
-    const validSections = ['home', 'games', 'wiki', 'news', 'stress', 'shop', 'community', 'secrets'];
+    const validSections = ['home', 'games', 'wiki', 'map', 'news', 'stress', 'shop', 'community', 'secrets'];
     if (validSections.includes(hash)) {
       navigateTo(hash);
     }
@@ -1042,6 +1042,201 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.target === wikiReaderModal) {
       closeWikiReader();
     }
+  });
+
+  // ==================== INTERACTIVE WORLD MAP SYSTEM ====================
+  const mapLocations = {
+    'catnip-forest': {
+      title: '🌿 Catnip Forest',
+      story: 'A vast, mythical woodland where the magical raw catnip crystals first germinated. The forest is dense, protected by ancient spiritual guards, and holds wild properties that give felines extra agility.',
+      characters: [
+        { emoji: '🐱', name: 'Ranger Barnaby', desc: 'The sentinel guardian of the sacred crystal grove.' },
+        { emoji: '🦊', name: 'Sly Paw', desc: 'A wild scout familiar with hidden shortcuts through the thickets.' }
+      ],
+      timeline: [
+        { era: 'Pre-History', desc: 'Felines discover the glowing raw crystals.' },
+        { era: 'Year 12 AC', desc: 'Catnip Forest is designated as a protected sanctuary.' }
+      ],
+      connections: [
+        { id: 'kingdom', name: 'Catnip Kingdom' },
+        { id: 'scw', name: 'Super Cat World' }
+      ],
+      wikiLink: 'catnip-forest'
+    },
+    'wwc': {
+      title: '⚔️ World War Catnip',
+      story: 'The scarred, historic region where the Great Feline factions fought for control over the gravity crystals. It serves as a reminder of the times before unity and holds ruins filled with combat trials.',
+      characters: [
+        { emoji: '😾', name: 'General Whiskers', desc: 'The legendary leader who negotiated the final peace treaty.' },
+        { emoji: '😼', name: 'Sergeant Claw', desc: 'A veteran soldier who fought during the siege of the central ruins.' }
+      ],
+      timeline: [
+        { era: 'Year 0 AC', desc: 'The Great Faction wars break out over crystal extraction.' },
+        { era: 'Year 6 AC', desc: 'The treaty of the Golden Collar is signed, establishing peace.' }
+      ],
+      connections: [
+        { id: 'kingdom', name: 'Catnip Kingdom' },
+        { id: 'scw', name: 'Super Cat World' }
+      ],
+      wikiLink: 'feline-faction-war'
+    },
+    'scw': {
+      title: '🏰 Super Cat World',
+      story: 'The floating sky kingdoms held aloft by massive gravity-defying core crystals. This space is full of high-elevation platforms, cloud cities, and challenging physics trials.',
+      characters: [
+        { emoji: '😸', name: 'Pilot Mew', desc: 'A sky captain navigating the trade routes between floating castles.' },
+        { emoji: '🧙', name: 'Mystic Glimmer', desc: 'An elder mage researching gravity manipulation heights.' }
+      ],
+      timeline: [
+        { era: 'Year 20 AC', desc: 'First floating castle is stabilized using synthetic crystal cores.' },
+        { era: 'Year 35 AC', desc: 'The Sky Arena is built for the global physics trials tournament.' }
+      ],
+      connections: [
+        { id: 'catnip-forest', name: 'Catnip Forest' },
+        { id: 'wwc', name: 'World War Catnip' },
+        { id: 'kingdom', name: 'Catnip Kingdom' }
+      ],
+      wikiLink: 'super-cat-world'
+    },
+    'kingdom': {
+      title: '👑 Catnip Kingdom',
+      story: 'The magnificent, golden capital city of the feline civilization. Built around the Great Temple of Gravity, the kingdom acts as the central hub of trade, education, and development.',
+      characters: [
+        { emoji: '👑', name: 'King Leopold', desc: 'The wise ruler guiding the kingdom into the cosmic age.' },
+        { emoji: '🎓', name: 'Professor Purr', desc: 'Chief scientist at the Catnip Research Facility.' }
+      ],
+      timeline: [
+        { era: 'Year 8 AC', desc: 'The first stone of the Golden Palace is laid.' },
+        { era: 'Year 15 AC', desc: 'The Grand Library of Lore is opened to the public.' }
+      ],
+      connections: [
+        { id: 'catnip-forest', name: 'Catnip Forest' },
+        { id: 'wwc', name: 'World War Catnip' },
+        { id: 'scw', name: 'Super Cat World' }
+      ],
+      wikiLink: 'catnip-kingdom'
+    }
+  };
+
+  function selectMapLocation(locationId) {
+    const loc = mapLocations[locationId];
+    if (!loc) return;
+
+    // Remove active styles from all pins
+    document.querySelectorAll('.map-pin').forEach(pin => {
+      pin.classList.remove('active-pin');
+      const core = pin.querySelector('.pin-core');
+      if (core) {
+        core.style.transform = 'scale(1)';
+        core.style.filter = '';
+      }
+    });
+
+    // Add active styles to selected pin
+    const activePin = document.getElementById('pin-' + locationId);
+    if (activePin) {
+      activePin.classList.add('active-pin');
+      const core = activePin.querySelector('.pin-core');
+      if (core) {
+        core.style.transform = 'scale(1.4)';
+        core.style.filter = 'drop-shadow(0 0 8px currentColor)';
+      }
+    }
+
+    const placeholder = document.getElementById('panel-placeholder');
+    const content = document.getElementById('panel-content');
+
+    if (placeholder) placeholder.style.display = 'none';
+    if (content) {
+      content.style.display = 'block';
+      content.innerHTML = `
+        <h3 style="font-family: var(--font-headings); font-weight: 800; border-bottom: 1px solid var(--border-light); padding-bottom: 10px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">${loc.title}</h3>
+        <p style="font-size: 0.85rem; color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 15px;">${loc.story}</p>
+        
+        <h4 style="font-size: 0.8rem; color: var(--color-primary); text-transform: uppercase; letter-spacing: 1px; font-weight: 800; margin-top: 15px; margin-bottom: 8px;">Key Characters</h4>
+        <div class="panel-characters-list" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px;">
+          ${loc.characters.map(c => `
+            <div class="panel-char-item" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+              <span class="panel-char-emoji" style="font-size: 1.3rem;">${c.emoji}</span>
+              <div class="panel-char-desc" style="font-size: 0.78rem; color: var(--color-text-secondary); line-height: 1.4;">
+                <strong style="color: #FFF;">${c.name}</strong><br>
+                ${c.desc}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+
+        <h4 style="font-size: 0.8rem; color: var(--color-primary); text-transform: uppercase; letter-spacing: 1px; font-weight: 800; margin-top: 15px; margin-bottom: 8px;">History Timeline</h4>
+        <div class="panel-timeline-list" style="display: flex; flex-direction: column; gap: 6px; border-left: 2px solid var(--border-light); padding-left: 12px; margin-bottom: 15px;">
+          ${loc.timeline.map(t => `
+            <div class="panel-time-item" style="font-size: 0.78rem; color: var(--color-text-secondary); line-height: 1.4;">
+              <strong style="color: #FFF;">${t.era}</strong>: ${t.desc}
+            </div>
+          `).join('')}
+        </div>
+
+        <h4 style="font-size: 0.8rem; color: var(--color-primary); text-transform: uppercase; letter-spacing: 1px; font-weight: 800; margin-top: 15px; margin-bottom: 8px;">Connected Locations</h4>
+        <div class="panel-connections" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;">
+          ${loc.connections.map(conn => `
+            <button class="panel-conn-btn" data-conn="${conn.id}" style="background: rgba(124, 77, 255, 0.1); border: 1.5px solid var(--color-primary); color: #FFF; font-size: 0.75rem; font-weight: 700; padding: 5px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s ease;">${conn.name}</button>
+          `).join('')}
+        </div>
+
+        <a href="#wiki" class="btn btn-secondary nav-trigger" data-target="wiki" data-wiki-article="${loc.wikiLink}" style="margin-top: 15px; display: inline-flex; align-items: center; gap: 8px; width: 100%; justify-content: center; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; padding: 10px; border-radius: 8px;">
+          📚 Read Wiki Archive
+        </a>
+      `;
+
+      // Bind connection buttons inside details panel
+      content.querySelectorAll('.panel-conn-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          selectMapLocation(btn.getAttribute('data-conn'));
+          if (typeof playRetroSound === 'function') {
+            playRetroSound('click');
+          }
+        });
+      });
+
+      // Bind dynamic wiki link inside details panel
+      const wikiBtn = content.querySelector('.nav-trigger');
+      if (wikiBtn) {
+        wikiBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          navigateTo('wiki');
+          
+          const articleKey = wikiBtn.getAttribute('data-wiki-article');
+          const article = wikiArticles[articleKey];
+          if (article && wikiReaderBody && wikiReaderModal) {
+            wikiPagesRead++;
+            saveCoinsToLocalStorage();
+            syncCoinsToFirestore();
+            checkAchievements();
+            
+            wikiReaderBody.innerHTML = `
+              <div class="wiki-article-body">
+                <div class="wiki-article-header">
+                  <span class="wiki-tag">${article.tag}</span>
+                  <h2>${article.title}</h2>
+                </div>
+                <div class="wiki-article-text font-readable">
+                  ${article.content}
+                </div>
+              </div>
+            `;
+            wikiReaderModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+          }
+        });
+      }
+    }
+  }
+
+  // Bind map pins click handler
+  document.querySelectorAll('.map-pin').forEach(pin => {
+    pin.addEventListener('click', () => {
+      const locationId = pin.getAttribute('data-id');
+      selectMapLocation(locationId);
+    });
   });
 
   // Escape key closes modals
