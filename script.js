@@ -3596,6 +3596,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const framesGrid = document.getElementById('frames-selection-grid');
     const exprsGrid = document.getElementById('exprs-selection-grid');
 
+    const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
+    const localEmail = (localUser && typeof localUser.email === 'string') ? localUser.email.toLowerCase() : '';
+    const isDev = isDeveloperEmail(localEmail);
+
     const updatePreview = () => {
       const editPreviewFrame = document.getElementById('edit-avatar-preview-frame');
       const editPreviewCat = document.getElementById('edit-avatar-preview-cat');
@@ -3618,7 +3622,7 @@ document.addEventListener('DOMContentLoaded', () => {
       catsGrid.innerHTML = '';
       catsData.forEach(item => {
         const div = document.createElement('div');
-        const isOwned = unlockedCats.includes(item.id);
+        const isOwned = unlockedCats.includes(item.id) || isDev;
         const isActive = tempSelectedCat === item.id;
         
         div.className = `grid-item-option${isActive ? ' active' : ''}${!isOwned ? ' locked' : ''}`;
@@ -3646,7 +3650,7 @@ document.addEventListener('DOMContentLoaded', () => {
       framesGrid.innerHTML = '';
       framesData.forEach(item => {
         const div = document.createElement('div');
-        const isOwned = unlockedFrames.includes(item.id);
+        const isOwned = unlockedFrames.includes(item.id) || isDev;
         const isActive = tempSelectedFrame === item.id;
         
         div.className = `grid-item-option${isActive ? ' active' : ''}${!isOwned ? ' locked' : ''}`;
