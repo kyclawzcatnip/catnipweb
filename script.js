@@ -145,6 +145,46 @@ document.addEventListener('DOMContentLoaded', () => {
         <p>Take control of your character and navigate complex 2D levels designed to test your reflexes and skill while preparing for epic boss showdowns.</p>
       `
     },
+    'super-smash-cats': {
+      title: 'Super Smash Cats',
+      category: 'games',
+      tag: 'Game',
+      content: `
+        <p><strong>Super Smash Cats</strong> is an action-packed, fast-paced multiplayer platform brawler. Felines from all nine realms gather in dangerous, multi-tiered combat arenas to fight for glory and Catnip Coins.</p>
+        <h4>Gameplay & Combat</h4>
+        <p>Choose your cat breed and battle against other players or AI bots. Players can execute light and heavy attacks, double jump, shield block, and launch opponents off the arena platforms. Special weapon drops (like giant yarn balls, catnip blasts, and fish skeleton swords) fall from the sky to turn the tide of battle.</p>
+      `
+    },
+    'cats-among-us': {
+      title: 'Cats Among Us',
+      category: 'games',
+      tag: 'Game',
+      content: `
+        <p><strong>Cats Among Us</strong> is a multiplayer social deduction game set aboard the <em>SS Meowstard</em> spaceship. Feline crewmates must work together to maintain their ship's gravity cores and life support systems, while hidden impostor rats attempt to sabotage the mission and eliminate the crew.</p>
+        <h4>Roles & Deduction</h4>
+        <p>Players are secretly assigned roles at the start of each match: Crewmates (Innocent, Engineer, Captain, Medic, Detective) must complete repair tasks. The Impostor Rats must sneak through vents and disable systems. When a body is discovered, players debate and vote to eject suspected impostors into deep space.</p>
+      `
+    },
+    'catnip-kingdom': {
+      title: 'Catnip Kingdom',
+      category: 'games',
+      tag: 'Game',
+      content: `
+        <p><strong>Catnip Kingdom</strong> is a grand adventure and city-building role-playing game (RPG). Set in the golden age of the feline civilization, players explore a vast open world to retrieve lost artifacts and construct their own thriving settlements.</p>
+        <h4>Exploration & Crafting</h4>
+        <p>Explore ruins, gather resources (lumber, stone, and glowing catnip crystals), and craft items, weapons, and structural pieces. Battle subterranean monsters and help local villagers to earn royal favors, building your kingdom block by block.</p>
+      `
+    },
+    'catnip-kart': {
+      title: 'Catnip Kart',
+      category: 'games',
+      tag: 'Game',
+      content: `
+        <p><strong>Catnip Kart</strong> is a high-speed, physics-based racing game featuring customizable kart vehicles, drift mechanics, and chaotic power-up items.</p>
+        <h4>Racing Tracks & Items</h4>
+        <p>Drift around sharp corners to build boost energy, and blast opponents using a variety of feline-themed items like heat-seeking hairballs, banana peels, and invincibility catnip. Race across tracks like the Catnip Forest Speedway, Floating Castle Clouds, and the lava-filled Subterranean Mines.</p>
+      `
+    },
     'characters': {
       title: 'Characters',
       category: 'characters',
