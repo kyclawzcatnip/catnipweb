@@ -191,8 +191,15 @@ document.addEventListener('DOMContentLoaded', () => {
       related: ['super-cat-world', 'catnip-kart'],
       content: `
         <p><strong>Super Smash Cats</strong> is an action-packed, fast-paced multiplayer platform brawler. Felines from all nine realms gather in dangerous, multi-tiered combat arenas to fight for glory and Catnip Coins.</p>
-        <h4>Gameplay & Combat</h4>
-        <p>Choose your cat breed and battle against other players or AI bots. Players can execute light and heavy attacks, double jump, shield block, and launch opponents off the arena platforms. Special weapon drops (like giant yarn balls, catnip blasts, and fish skeleton swords) fall from the sky to turn the tide of battle.</p>
+        <h4>Gameplay & Combat Modes</h4>
+        <p>Choose your cat breed and battle in local Player vs Player, Player vs Bot, or Online PvP room lobbies. Players execute attacks, shield blocks, and jumps to knock opponents out of the arena bounds.</p>
+        <h4>⚔️ Arcade Campaign Mode</h4>
+        <p>Take on the rodent armies in a multi-wave adventure mode! Face waves of custom rat enemies and defend the kingdom against three giant legendary bosses.</p>
+        <ul>
+          <li><strong>New Enemies:</strong> Wizard Rat (spawns magic energy projectiles), Robot Rat (tanky with electric sparks), Ninja Rat (fast dash and behind-the-back teleports), Giant Rat (heavy ground smashes), and Ghost Rat (semi-transparent phantom passing through block elements).</li>
+          <li><strong>Arcade Power-ups:</strong> Collect Speed Fish (🐟 speed multiplier), Giant Paw (🐾 grows fighter scale and range), Shield (🛡️ protection), Double Jump (👟 secondary mid-air jumps), and Laser Yarn (🧶 fires homing laser beams on hit).</li>
+          <li><strong>Rodent Boss Fights:</strong> Fight the legendary <strong>Rat King</strong> (throws crown spikes and summons minions), the metallic <strong>Robo Rat</strong> (charges and fires rocket missiles), and the elusive <strong>Cat Hunter</strong> (shoots tracking arrows).</li>
+        </ul>
       `
     },
     'cats-among-us': {
