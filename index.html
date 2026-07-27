@@ -766,12 +766,15 @@
               <path class="map-route" d="M 400 350 Q 550 250 620 180" fill="none" stroke="rgba(0, 176, 255, 0.3)" stroke-width="2.5" stroke-dasharray="6,6"/>
               <path class="map-route" d="M 180 320 Q 380 120 620 180" fill="none" stroke="rgba(255, 61, 0, 0.3)" stroke-width="2.5" stroke-dasharray="6,6"/>
               <path class="map-route" d="M 400 350 L 380 120" fill="none" stroke="rgba(255, 215, 0, 0.3)" stroke-width="2.5" stroke-dasharray="6,6"/>
+              <path class="map-route" d="M 600 320 L 620 180" fill="none" stroke="rgba(0, 230, 118, 0.3)" stroke-width="2.5" stroke-dasharray="6,6"/>
+              <path class="map-route" d="M 600 320 Q 500 220 380 120" fill="none" stroke="rgba(255, 61, 0, 0.3)" stroke-width="2.5" stroke-dasharray="6,6"/>
 
               <!-- Landmass SVGs / Island Shapes -->
               <path d="M 100 280 Q 150 240 220 300 T 260 360 T 140 370 Z" fill="rgba(0, 230, 118, 0.04)" stroke="rgba(0, 230, 118, 0.15)" stroke-width="2"/>
               <path d="M 320 320 Q 380 280 460 330 T 480 400 T 360 410 Z" fill="rgba(124, 77, 255, 0.04)" stroke="rgba(124, 77, 255, 0.15)" stroke-width="2"/>
               <path d="M 520 150 Q 580 110 680 160 T 700 230 T 560 210 Z" fill="rgba(0, 176, 255, 0.04)" stroke="rgba(0, 176, 255, 0.15)" stroke-width="2"/>
               <path d="M 300 100 Q 350 80 420 100 T 450 160 T 320 140 Z" fill="rgba(255, 215, 0, 0.04)" stroke="rgba(255, 215, 0, 0.15)" stroke-width="2"/>
+              <path d="M 540 280 Q 620 250 680 320 T 640 380 T 520 340 Z" fill="rgba(0, 176, 255, 0.04)" stroke="rgba(0, 176, 255, 0.15)" stroke-width="2"/>
 
               <!-- Map Pin Elements -->
               <!-- 1. Catnip Forest -->
@@ -800,6 +803,13 @@
                 <circle r="22" class="pin-pulse pin-pulse-gold"/>
                 <circle r="10" class="pin-core pin-core-gold"/>
                 <text y="-28" text-anchor="middle" class="pin-label">👑 Catnip Kingdom</text>
+              </g>
+
+              <!-- 5. Catnip Kart Speedway -->
+              <g class="map-pin" id="pin-kart-speedway" data-id="kart-speedway" transform="translate(600, 320)">
+                <circle r="22" class="pin-pulse pin-pulse-green"/>
+                <circle r="10" class="pin-core pin-core-green"/>
+                <text y="-28" text-anchor="middle" class="pin-label">🏎️ Kart Speedway</text>
               </g>
             </svg>
           </div>
@@ -1619,6 +1629,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
   <!-- Main Script File -->
-  <script src="script.js?v=20260726zk18"></script>
+  <script src="script.js?v=20260726zk19"></script>
 </body>
 </html>

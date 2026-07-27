@@ -1116,7 +1116,8 @@ document.addEventListener('DOMContentLoaded', () => {
       ],
       connections: [
         { id: 'kingdom', name: 'Catnip Kingdom' },
-        { id: 'scw', name: 'Super Cat World' }
+        { id: 'scw', name: 'Super Cat World' },
+        { id: 'kart-speedway', name: 'Kart Speedway' }
       ],
       wikiLink: 'feline-faction-war'
     },
@@ -1152,9 +1153,27 @@ document.addEventListener('DOMContentLoaded', () => {
       connections: [
         { id: 'catnip-forest', name: 'Catnip Forest' },
         { id: 'wwc', name: 'World War Catnip' },
-        { id: 'scw', name: 'Super Cat World' }
+        { id: 'scw', name: 'Super Cat World' },
+        { id: 'kart-speedway', name: 'Kart Speedway' }
       ],
       wikiLink: 'catnip-kingdom'
+    },
+    'kart-speedway': {
+      title: '🏎️ Kart Speedway',
+      story: 'The grand racing capital of the Nine Realms. Built as a state-of-the-art grand prix circuit, the speedway features magnetic gravity loops, high-velocity drift corners, and glowing turbo pads where feline racers compete at absolute top speeds.',
+      characters: [
+        { emoji: '😼', name: 'Racer Speedy', desc: 'The legendary cup champion and current speedway track record holder.' },
+        { emoji: '🔧', name: 'Mechanic Whisk', desc: 'The chief developer of custom racing engines and aerodynamic kart models.' }
+      ],
+      timeline: [
+        { era: 'Year 18 AC', desc: 'The Allied Feline Council commissions the creation of a global racing hub.' },
+        { era: 'Year 22 AC', desc: 'The inaugural Grand Cup tournament is held, drawing spectators from all realms.' }
+      ],
+      connections: [
+        { id: 'kingdom', name: 'Catnip Kingdom' },
+        { id: 'wwc', name: 'World War Catnip' }
+      ],
+      wikiLink: 'catnip-kart'
     }
   };
 
