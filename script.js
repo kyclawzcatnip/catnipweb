@@ -2654,6 +2654,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Fetch current local storage user profile safely
     const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
+    const localEmail = (localUser && typeof localUser.email === 'string') ? localUser.email.toLowerCase() : '';
     const isDevSession = isDeveloperEmail(localEmail);
 
     // 1. Add static mock accounts for flavor
