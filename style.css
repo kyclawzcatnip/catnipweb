@@ -3186,3 +3186,16 @@ body.theme-spring #profile-display-name:not(.crown-badge-active)::before {
 body.theme-anniversary #profile-display-name:not(.crown-badge-active)::before {
   content: "🎆 ";
 }
+
+/* Fandom Wiki Layout classes */
+.wiki-layout-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  align-items: start;
+}
+@media (min-width: 768px) {
+  .wiki-layout-container {
+    grid-template-columns: 2.1fr 1fr;
+  }
+}

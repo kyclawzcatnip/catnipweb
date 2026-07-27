@@ -159,6 +159,16 @@ document.addEventListener('DOMContentLoaded', () => {
       title: 'Super Cat World',
       category: 'games',
       tag: 'Game',
+      image: '🎮',
+      firstAppearance: 'February 24, 2025',
+      characters: 'Catnip, Clawz, Dreth, wisecat',
+      quotes: ['Where platforming precision meets feline speed!'],
+      trivia: [
+        "The game's final world contains hidden levels referencing the 'Glitched Lands' prototype.",
+        "Super Cat World was built in exactly two weeks during the winter vacation."
+      ],
+      timeline: '<ul><li><strong>Feb 2025</strong> - Development begins.</li><li><strong>Mar 2025</strong> - Public beta releases.</li><li><strong>July 2026</strong> - Permanent Global Speedrun Leaderboard added.</li></ul>',
+      related: ['characters', 'mechanics', 'items-power-ups'],
       content: `
         <p><strong>Super Cat World</strong> is Catnip Studios' first game and platformer. The game centers around high-performance parkour platforming and challenging boss fights.</p>
         <h4>Game Details</h4>
@@ -169,6 +179,16 @@ document.addEventListener('DOMContentLoaded', () => {
       title: 'Super Smash Cats',
       category: 'games',
       tag: 'Game',
+      image: '💥',
+      firstAppearance: 'April 15, 2025',
+      characters: 'Allied Feline fighters',
+      quotes: ['Fight for glory, fight for catnip!'],
+      trivia: [
+        "Designed to be the ultimate local-couch brawler for cats.",
+        "Spinning yarn ball power-up was inspired by the developer's cat playing with real wool."
+      ],
+      timeline: '<ul><li><strong>Apr 2025</strong> - Brawler prototype released.</li><li><strong>June 2025</strong> - Co-op mode update.</li></ul>',
+      related: ['super-cat-world', 'catnip-kart'],
       content: `
         <p><strong>Super Smash Cats</strong> is an action-packed, fast-paced multiplayer platform brawler. Felines from all nine realms gather in dangerous, multi-tiered combat arenas to fight for glory and Catnip Coins.</p>
         <h4>Gameplay & Combat</h4>
@@ -179,6 +199,16 @@ document.addEventListener('DOMContentLoaded', () => {
       title: 'Cats Among Us',
       category: 'games',
       tag: 'Game',
+      image: '🚀',
+      firstAppearance: 'June 1, 2025',
+      characters: 'Crewmates & Impostor Dogs',
+      quotes: ['There is a dog among us!'],
+      trivia: [
+        "The saboteurs were originally going to be Rats, but it was changed to Impostor Dogs after community feedback.",
+        "SS Meowstard has a hidden hamster cage room in the cargo bay."
+      ],
+      timeline: '<ul><li><strong>June 2025</strong> - Launch of SS Meowstard crew assignment.</li><li><strong>August 2025</strong> - Impostor Dogs update.</li></ul>',
+      related: ['super-cat-world', 'catnip-kingdom'],
       content: `
         <p><strong>Cats Among Us</strong> is a multiplayer social deduction game set aboard the <em>SS Meowstard</em> spaceship. Feline crewmates must work together to maintain their ship's gravity cores and life support systems, while hidden impostor dogs attempt to sabotage the mission and eliminate the crew.</p>
         <h4>Roles & Deduction</h4>
@@ -189,6 +219,16 @@ document.addEventListener('DOMContentLoaded', () => {
       title: 'Catnip Kingdom',
       category: 'games',
       tag: 'Game',
+      image: '🏰',
+      firstAppearance: 'September 20, 2025',
+      characters: 'King Cat, Royal Guards',
+      quotes: ['Retrieve the relics, build the throne!'],
+      trivia: [
+        "Building blueprints are fully modular, allowing players to build castles matching actual historical structures.",
+        "Ancient ruins contains lore scrolls referencing previous games in the series."
+      ],
+      timeline: '<ul><li><strong>Sept 2025</strong> - Alpha release of kingdom builder.</li><li><strong>Oct 2025</strong> - Volcanic caves update.</li></ul>',
+      related: ['super-cat-world', 'lore-book-1'],
       content: `
         <p><strong>Catnip Kingdom</strong> is a grand adventure and city-building role-playing game (RPG). Set in the golden age of the feline civilization, players explore a vast open world to retrieve lost artifacts and construct their own thriving settlements.</p>
         <h4>Exploration & Crafting</h4>
@@ -199,6 +239,16 @@ document.addEventListener('DOMContentLoaded', () => {
       title: 'Catnip Kart',
       category: 'games',
       tag: 'Game',
+      image: '🏎️',
+      firstAppearance: 'December 18, 2025',
+      characters: 'Kart Racers',
+      quotes: ['Drift to the finish!'],
+      trivia: [
+        "Drift boost multiplier was fine-tuned for months to feel fast yet responsive.",
+        "Speedway timeline details training felines in fast racing for fun."
+      ],
+      timeline: '<ul><li><strong>Dec 2025</strong> - Racing beta.</li><li><strong>Jan 2026</strong> - Tracks expansion update.</li></ul>',
+      related: ['super-smash-cats', 'world-of-catz'],
       content: `
         <p><strong>Catnip Kart</strong> is a high-speed, physics-based racing game featuring customizable kart vehicles, drift mechanics, and chaotic power-up items.</p>
         <h4>Racing Tracks & Items</h4>
@@ -209,6 +259,15 @@ document.addEventListener('DOMContentLoaded', () => {
       title: 'Characters',
       category: 'characters',
       tag: 'Character',
+      image: '👥',
+      firstAppearance: 'Super Cat World (Level 1-1)',
+      characters: 'Catnip, Clawz, Dreth, wisecat',
+      quotes: ['Four heroes, one cosmic quest.'],
+      trivia: [
+        "P1 (Catnip) was originally modeled after the developer's real tabby cat.",
+        "P4 (wisecat) is the only character who does not make jump sounds."
+      ],
+      related: ['super-cat-world', 'world-of-catz'],
       content: `
         <p>Super Cat World features four main characters in its roster, corresponding to Player 1 through Player 4:</p>
         <ul>
@@ -223,6 +282,14 @@ document.addEventListener('DOMContentLoaded', () => {
       title: 'Mechanics',
       category: 'mechanics',
       tag: 'Mechanic',
+      image: '⚙️',
+      firstAppearance: 'Super Cat World prototype',
+      quotes: ['Precision parkour is key.'],
+      trivia: [
+        "Wall-jump velocity multiplier is slightly increased in Hard mode to allow shortcuts.",
+        "Double-jump particle effects are shaped like kitten paw prints."
+      ],
+      related: ['super-cat-world', 'items-power-ups'],
       content: `
         <p>The core gameplay systems of Super Cat World are designed around three main pillars:</p>
         <ul>
@@ -236,6 +303,14 @@ document.addEventListener('DOMContentLoaded', () => {
       title: 'The World of Catz',
       category: 'locations',
       tag: 'Location',
+      image: '🌍',
+      firstAppearance: 'Super Cat World lore map',
+      quotes: ['A universe of platforms and dangers.'],
+      trivia: [
+        "The World of Catz has nine distinct dimensional sectors.",
+        "Gravity forces in the world are regulated by the Great Catnip Core."
+      ],
+      related: ['super-cat-world', 'studio-history'],
       content: `
         <p>All action in the game takes place in <strong>the world of catz</strong>, a custom-designed universe full of parkour structures, hazards, and enemy territories.</p>
       `
@@ -244,6 +319,14 @@ document.addEventListener('DOMContentLoaded', () => {
       title: 'Items & Power-ups',
       category: 'items',
       tag: 'Item',
+      image: '🍄',
+      firstAppearance: 'Super Cat World (Level 1-2)',
+      quotes: ['Collect them all to power up!'],
+      trivia: [
+        "Fire Protector was originally a secret item hidden in level 12.",
+        "Mini Mushroom allows players to find tiny easter-egg passages."
+      ],
+      related: ['super-cat-world', 'mechanics'],
       content: `
         <p>Enhance your abilities and survive battles by collecting items and power-ups throughout the levels:</p>
         <ul>
@@ -262,6 +345,14 @@ document.addEventListener('DOMContentLoaded', () => {
       title: 'Studio Development History',
       category: 'history',
       tag: 'History',
+      image: '🏢',
+      firstAppearance: 'Catnip Studios founder board',
+      quotes: ['Coding feline dreams since 2025.'],
+      trivia: [
+        "The first line of code was written in a local coffee shop during a blizzard.",
+        "Logo design was selected through an online cat community poll."
+      ],
+      related: ['super-cat-world', 'world-of-catz'],
       content: `
         <p>Catnip Studios' development history officially begins on the <strong>24th of February, 2025</strong>.</p>
         <h4>Origins</h4>
@@ -272,6 +363,15 @@ document.addEventListener('DOMContentLoaded', () => {
       title: 'Book I: The First Meow',
       category: 'lore',
       tag: 'Lore Book',
+      image: '📖',
+      firstAppearance: 'World 1 (Level 0)',
+      characters: 'Great Catnip Tree, Feline Clans, Rat King',
+      quotes: ['Long ago, before time had a name...'],
+      trivia: [
+        "Book 1 was hidden behind a breakable block in the tutorial world.",
+        "Refers to the ancient origins of the Nine Feline Realms."
+      ],
+      related: ['super-cat-world', 'catnip-kingdom'],
       content: `
         <p class="text-italic">"Long ago, before time had a name, the Great Catnip Tree sprouted in the center of the cosmos. Its roots tapped into ancient wells of magic, and its leaves breathed life into the world, bringing forth the Nine Feline Realms. The Cat Clan built their grand cities in its shade, living in eternal peace and harmony. They guarded the Golden Catnip, a sacred relic keeping their magic alive. But darkness brewed in the lowlands. The Rat King, Miner rat and the pirate rat, jealous of their prosperity, coveted the Golden Catnip's power to fuel his dark legion."</p>
         <h4>Lore & Meaning</h4>
@@ -283,6 +383,15 @@ document.addEventListener('DOMContentLoaded', () => {
       title: 'Book II: Whispers in the Wall',
       category: 'lore',
       tag: 'Lore Book',
+      image: '📖',
+      firstAppearance: 'World 4 (Level 3)',
+      characters: 'Rat King, Captured Kittens',
+      quotes: ['Whispers echoed in the walls of the castle...'],
+      trivia: [
+        "Documents the heavy militarization of the castle area.",
+        "Spike traps design was inspired by ancient Egyptian tombs."
+      ],
+      related: ['super-cat-world', 'world-of-catz'],
       content: `
         <p class="text-italic">"Following his sudden invasion, the Rat King seized the sacred grounds and constructed his iron fortress directly atop the ancient cat ruins. He forced his subjects to mine the deep mountains, forging iron-tipped spears and heavy armor for his soldiers. He trained legions of archers, positioning them along the high stone ramparts to repel feline scout parties. Whispers echoed in the walls of the castle of hidden passages and dark dungeons where captured kittens were locked away, waiting for a savior."</p>
         <h4>Lore & Meaning</h4>
@@ -294,6 +403,15 @@ document.addEventListener('DOMContentLoaded', () => {
       title: 'Book III: Secrets of the Throne',
       category: 'lore',
       tag: 'Lore Book',
+      image: '📖',
+      firstAppearance: 'World 5 (Level 4)',
+      characters: 'Rat King',
+      quotes: ['Only well-timed stomps from above can shatter his defense.'],
+      trivia: [
+        "Explains the exact mechanics required to beat the first boss.",
+        "The heavy crown decreases the Rat King's movement speed by 15%."
+      ],
+      related: ['super-cat-world', 'mechanics'],
       content: `
         <p class="text-italic">"A dusty scroll found in the castle vaults details the secrets of the throne room. When cornered, the Rat King relies on illusion magic, summoning shadow clones to confuse his attackers while hiding behind iron shields. He triggers floor spike traps to catch foes off balance. However, the scroll notes a critical weakness: his crown is heavy, making his head vulnerable. Legend says only well-timed stomps from above can shatter his defense and break his magical barrier."</p>
         <h4>Lore & Meaning</h4>
@@ -305,6 +423,15 @@ document.addEventListener('DOMContentLoaded', () => {
       title: 'Book IV: Ships in the Sky',
       category: 'lore',
       tag: 'Lore Book',
+      image: '📖',
+      firstAppearance: 'World 7 (Level 6)',
+      characters: 'Pirate Captain Rattail',
+      quotes: ['No land-dwelling cat could ever reach his airborne treasury.'],
+      trivia: [
+        "Sky coins are heavier than standard gold coins due to wind resistance elements.",
+        "Sky ships are propelled by enchanted balloons and sails."
+      ],
+      related: ['super-cat-world', 'world-of-catz'],
       content: `
         <p class="text-italic">"When the Rat King's ground fortress fell, his chief naval commander, Pirate Captain Rattail, refused to surrender. Gathering the remaining royal treasures, he fled to the sky islands. There, using floating lumber and sky sails, he constructed an armada of massive wooden warships. He began raiding the trade routes, hoarding thousands of golden sky coins on his vessels. Safe in the clouds, he believed no land-dwelling cat could ever reach his airborne treasury or breach his fleet."</p>
         <h4>Lore & Meaning</h4>
@@ -313,9 +440,18 @@ document.addEventListener('DOMContentLoaded', () => {
       `
     },
     'lore-book-5': {
-      title: 'Book V: The Sky Captain\'s Vow',
+      title: "Book V: The Sky Captain's Vow",
       category: 'lore',
       tag: 'Lore Book',
+      image: '📖',
+      firstAppearance: 'World 11 (Level 10)',
+      characters: 'Pirate Captain Rattail, Legendary Sky Fish',
+      quotes: ['Never drop anchor until he caught the Legendary Sky Fish.'],
+      trivia: [
+        "Sky Fish grants three wishes, but only if caught using a golden string.",
+        "The Sea-Rat flagship has double-deck heavy cannons firing explosive iron balls."
+      ],
+      related: ['super-cat-world', 'world-of-catz'],
       content: `
         <p class="text-italic">"Obsessed with the legends of the clouds, Captain Rattail made a solemn vow to never drop anchor until he caught the Legendary Sky Fish, a mythical creature said to grant infinite wishes. His massive flagship, the Sea-Rat, was custom-built for this hunt, armed with double-deck heavy cannons firing explosive iron balls. To repel agile invaders, he rigged spinning yarn launch pads and flying harpoons across the decks, turning his flagship into a floating fortress of death."</p>
         <h4>Lore & Meaning</h4>
@@ -327,6 +463,15 @@ document.addEventListener('DOMContentLoaded', () => {
       title: 'Book VI: Crystal Depths',
       category: 'lore',
       tag: 'Lore Book',
+      image: '📖',
+      firstAppearance: 'World 13 (Level 12)',
+      characters: 'Feline Cavern Miners',
+      quotes: ['Caverns are completely impassable without magical protection.'],
+      trivia: [
+        "Luminous crystals emit heat when exposed to cosmic starlight.",
+        "Magma flows at a speed of 1.2 blocks per second in the lava pits."
+      ],
+      related: ['super-cat-world', 'items-power-ups'],
       content: `
         <p class="text-italic">"Beneath the roots of the world lies a network of ancient caves, glowing with giant luminous crystals and flowing rivers of boiling magma. Feline miners once gathered rare gems here, but the heat grew too intense as volcanic fissures opened. The texts warn that the deep caverns are completely impassable without magical protection. Only a hero wearing the Fire Protector aura can walk through the ash storms, withstand the magma hazards, and survive the scorching subterranean beasts."</p>
         <h4>Lore & Meaning</h4>
@@ -335,9 +480,18 @@ document.addEventListener('DOMContentLoaded', () => {
       `
     },
     'lore-book-7': {
-      title: 'Book VII: The Miner\'s Greed',
+      title: "Book VII: The Miner's Greed",
       category: 'lore',
       tag: 'Lore Book',
+      image: '📖',
+      firstAppearance: 'World 22 (Level 21)',
+      characters: 'Miner Boss Rattock',
+      quotes: ['His greed consumed him, transforming him into a paranoid warden.'],
+      trivia: [
+        "Unstable TNT minecarts explode on contact with fire traps.",
+        "Earthquakes trigger every 30 seconds inside the boss arena."
+      ],
+      related: ['super-cat-world', 'world-of-catz'],
       content: `
         <p class="text-italic">"Blinded by a thirst for riches, Miner Boss Rattock commanded his workers to dig deeper into the mountain than anyone had ever dared. They breached the ancient volcanic core, triggers earthquakes and mine collapses. Rather than retreating, Rattock weaponized the chaos. He designed high-speed minecarts filled with unstable TNT explosives and rigged the cavern arches to drop crushing boulders on intruders. His greed consumed him, transforming him into a paranoid warden of the dark mines."</p>
         <h4>Lore & Meaning</h4>
@@ -349,6 +503,15 @@ document.addEventListener('DOMContentLoaded', () => {
       title: 'Book VIII: The Glitched Realm',
       category: 'lore',
       tag: 'Lore Book',
+      image: '📖',
+      firstAppearance: 'World 26 (Level 25)',
+      characters: 'The Elder Cats',
+      quotes: ['Platforms flicker in and out of existence, gravity flips...'],
+      trivia: [
+        "Secret silver pipes act as portals bypassing standard platform levels.",
+        "Gravity anomalies can flip P1 vertically while leaving enemies unaffected."
+      ],
+      related: ['super-cat-world', 'mechanics'],
       content: `
         <p class="text-italic">"At the edge of reality, hidden behind the secret silver pipes, lies a fractured dimension known as the Glitched Lands. In this bizarre realm, the laws of physics break down entirely. Platforms flicker in and out of existence, gravity flips upside down at a moment's notice, and reality itself appears corrupted by digital anomalies. The elder cats warned that this frontier is a one-way trip, as the unstable fabric of the realm tears apart any traveler who lacks absolute focus."</p>
         <h4>Lore & Meaning</h4>
@@ -360,6 +523,15 @@ document.addEventListener('DOMContentLoaded', () => {
       title: 'Book IX: The Glitched Core',
       category: 'lore',
       tag: 'Lore Book',
+      image: '📖',
+      firstAppearance: 'World 30 (Level 29)',
+      characters: 'The Sentient Core, Ancient Prophets',
+      quotes: ['Only a hero brave enough to navigate shifting gravity fields...'],
+      trivia: [
+        "The Glitched Core can clone previous bosses (Rat King, Rattail, Rattock) as hollow code shadows.",
+        "Beating the Core unlocks the final developer credit reel easter egg."
+      ],
+      related: ['super-cat-world', 'lore-book-8'],
       content: `
         <p class="text-italic">"Deep inside the glitched dimension floats the source of all instability: the Glitched Core. It is a sentient, pulsing heart made of corrupted source code and chaotic energy. The Core seeks to rewrite the entire universe in its own image, threatening to dissolve the Nine Feline Realms into static. The ancient prophets wrote that only a hero brave enough to navigate the shifting gravity fields and destroy the Core's firewall can permanently stabilize the code, saving reality."</p>
         <h4>Lore & Meaning</h4>
@@ -1055,14 +1227,88 @@ document.addEventListener('DOMContentLoaded', () => {
       checkAchievements();
 
       // Injects details inside the modal body
-      wikiReaderBody.innerHTML = `
-        <div class="wiki-article-body">
-          <div class="wiki-article-header">
-            <span class="wiki-tag">${article.tag}</span>
-            <h2>${article.title}</h2>
+      let infoboxHtml = '';
+      if (article.image || article.firstAppearance || article.characters) {
+        infoboxHtml = `
+          <div class="wiki-infobox" style="background: rgba(124, 77, 255, 0.06); border: 2px solid var(--color-primary); border-radius: 8px; padding: 15px; width: 100%; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); box-sizing: border-box;">
+            ${article.image ? `<div style="text-align: center; font-size: 3.5rem; background: rgba(0,0,0,0.2); padding: 10px; border-radius: var(--radius-sm); border: 1px dashed var(--border-light);">${article.image}</div>` : ''}
+            <div style="font-family: var(--font-headings); font-weight: 700; font-size: 0.9rem; text-align: center; border-bottom: 1px solid var(--border-light); padding-bottom: 5px; color: var(--color-accent); text-transform: uppercase; letter-spacing: 0.5px;">Quick Facts</div>
+            ${article.firstAppearance ? `<div style="font-size: 0.8rem; display: flex; justify-content: space-between;"><strong style="color: var(--color-text-secondary); margin-right: 10px;">First Appearance:</strong> <span style="color: #FFF; font-weight: 600; text-align: right;">${article.firstAppearance}</span></div>` : ''}
+            ${article.characters ? `<div style="font-size: 0.8rem; display: flex; flex-direction: column; gap: 2px;"><strong style="color: var(--color-text-secondary);">Characters Involved:</strong> <span style="color: #FFF; font-weight: 600; font-size: 0.78rem;">${article.characters}</span></div>` : ''}
           </div>
-          <div class="wiki-article-text font-readable">
-            ${article.content}
+        `;
+      }
+
+      let quotesHtml = '';
+      if (article.quotes && article.quotes.length > 0) {
+        quotesHtml = `
+          <div class="wiki-quotes-container" style="margin-top: 15px; padding: 12px 18px; border-left: 4.5px solid var(--color-accent); background: rgba(213,0,249,0.08); border-radius: 0 8px 8px 0; font-style: italic; color: #FFF; font-family: var(--font-headings); font-size: 0.9rem;">
+            ${article.quotes.map(q => `<p style="margin: 4px 0;">"${q}"</p>`).join('')}
+          </div>
+        `;
+      }
+
+      let timelineHtml = '';
+      if (article.timeline) {
+        timelineHtml = `
+          <div class="wiki-timeline-container" style="margin-top: 20px;">
+            <h4 style="font-family: var(--font-headings); font-weight: 700; font-size: 1.1rem; color: var(--color-primary); border-bottom: 1px dashed var(--border-light); padding-bottom: 5px; margin-bottom: 10px; margin-top: 0;">📜 Historical Timeline</h4>
+            <div style="font-size: 0.82rem; color: var(--color-text-secondary); line-height: 1.4;">${article.timeline}</div>
+          </div>
+        `;
+      }
+
+      let triviaHtml = '';
+      if (article.trivia && article.trivia.length > 0) {
+        triviaHtml = `
+          <div class="wiki-trivia-container" style="margin-top: 20px;">
+            <h4 style="font-family: var(--font-headings); font-weight: 700; font-size: 1.1rem; color: var(--color-primary); border-bottom: 1px dashed var(--border-light); padding-bottom: 5px; margin-bottom: 10px; margin-top: 0;">💡 Trivia & Lore Facts</h4>
+            <ul style="font-size: 0.82rem; color: var(--color-text-secondary); padding-left: 20px; line-height: 1.5; margin: 5px 0;">
+              ${article.trivia.map(t => `<li style="margin-bottom: 6px;">${t}</li>`).join('')}
+            </ul>
+          </div>
+        `;
+      }
+
+      let relatedHtml = '';
+      if (article.related && article.related.length > 0) {
+        relatedHtml = `
+          <div class="wiki-related-container" style="margin-top: 25px; border-top: 1px solid var(--border-light); padding-top: 15px;">
+            <span style="font-size: 0.72rem; color: var(--color-text-muted); font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 8px; letter-spacing: 0.5px;">Related Articles</span>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              ${article.related.map(relKey => {
+                const relArt = wikiArticles[relKey];
+                if (!relArt) return '';
+                return `<button class="btn btn-secondary btn-sm btn-read-wiki" data-article="${relKey}" style="margin: 0; font-size: 0.72rem; padding: 4px 10px; font-weight: 700;">${relArt.title}</button>`;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      wikiReaderBody.innerHTML = `
+        <div class="wiki-article-body" style="display: flex; flex-direction: column; gap: 15px; text-align: left;">
+          <div class="wiki-article-header" style="border-bottom: 1px solid var(--border-light); padding-bottom: 10px; margin-bottom: 5px;">
+            <span class="wiki-tag">${article.tag}</span>
+            <h2 style="font-family: var(--font-headings); font-size: 1.8rem; margin: 4px 0 0; color: #FFF;">${article.title}</h2>
+          </div>
+          
+          <div class="wiki-layout-container">
+            <!-- Left/Main Column -->
+            <div class="wiki-main-column">
+              <div class="wiki-article-text font-readable" style="line-height: 1.6; font-size: 0.92rem; color: var(--color-text-secondary);">
+                ${article.content}
+              </div>
+              ${quotesHtml}
+              ${timelineHtml}
+              ${triviaHtml}
+              ${relatedHtml}
+            </div>
+            
+            <!-- Right Column Infobox -->
+            <div class="wiki-sidebar-column">
+              ${infoboxHtml}
+            </div>
           </div>
         </div>
       `;
