@@ -426,7 +426,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (sectionId === 'secrets') {
       const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
       const localEmail = (localUser && typeof localUser.email === 'string') ? localUser.email.toLowerCase() : '';
-      const isDevSession = localEmail === 'kyclawzcatnip@gmail.com' || localEmail === 'catnip' || localEmail === 'admin';
+      const isDevSession = localEmail === 'kyclawzcatnip@gmail.com';
       const isAuth = sessionStorage.getItem('dev_auth') === 'true' || isDevSession;
       
       if (!isAuth) {
@@ -582,7 +582,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Check if the current logged-in user is the developer (catnip)
     const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
     const localEmail = (localUser && typeof localUser.email === 'string') ? localUser.email.toLowerCase() : '';
-    const isDevSession = localEmail === 'kyclawzcatnip@gmail.com' || localEmail === 'catnip' || localEmail === 'admin';
+    const isDevSession = localEmail === 'kyclawzcatnip@gmail.com';
 
     // If already authenticated or logged in as Dev, jump straight to panel
     if (sessionStorage.getItem('dev_auth') === 'true' || isDevSession) {
@@ -1210,7 +1210,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Automatically unlock Dev Portal if user is the dev (catnip)
       const localEmail = typeof user.email === 'string' ? user.email.toLowerCase() : '';
-      const isDevSession = localEmail === 'kyclawzcatnip@gmail.com' || localEmail === 'catnip' || localEmail === 'admin';
+      const isDevSession = localEmail === 'kyclawzcatnip@gmail.com';
       if (isDevSession) {
         unlockDevPortalUI();
       }
@@ -1315,7 +1315,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (savedUser) {
           updateAuthStateUI(savedUser);
           
-          const isDev = savedUser.email && (savedUser.email.toLowerCase() === 'kyclawzcatnip@gmail.com' || savedUser.email.toLowerCase() === 'catnip' || savedUser.email.toLowerCase() === 'admin');
+          const isDev = savedUser.email && (savedUser.email.toLowerCase() === 'kyclawzcatnip@gmail.com');
           if (isDev) {
             loadCoinsFromLocalStorage();
             if (localStorage.getItem('scw_coins_balance') === null) {
@@ -1428,7 +1428,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Check if there are existing coins/items in database to load
             let existingCoins = 0;
             let existingItems = [];
-            if (email.toLowerCase() === 'kyclawzcatnip@gmail.com' || email.toLowerCase() === 'catnip' || email.toLowerCase() === 'admin') {
+            if (email.toLowerCase() === 'kyclawzcatnip@gmail.com') {
               let stored = -1;
               try {
                 const localDb = JSON.parse(localStorage.getItem('scw_local_profiles_database') || '[]');
@@ -1495,7 +1495,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         let existingCoins = 0;
         let existingItems = [];
-        if (email.toLowerCase() === 'kyclawzcatnip@gmail.com' || email.toLowerCase() === 'catnip' || email.toLowerCase() === 'admin') {
+        if (email.toLowerCase() === 'kyclawzcatnip@gmail.com') {
           let stored = -1;
           try {
             const localDb = JSON.parse(localStorage.getItem('scw_local_profiles_database') || '[]');
@@ -1588,7 +1588,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (savedUser) {
       loadCoinsFromLocalStorage();
       updateAuthStateUI(savedUser);
-      const isDev = savedUser.email && (savedUser.email.toLowerCase() === 'kyclawzcatnip@gmail.com' || savedUser.email.toLowerCase() === 'catnip' || savedUser.email.toLowerCase() === 'admin');
+      const isDev = savedUser.email && (savedUser.email.toLowerCase() === 'kyclawzcatnip@gmail.com');
       if (isDev) {
         if (localStorage.getItem('scw_coins_balance') === null) {
           userCoins = 9999;
@@ -2110,7 +2110,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Fetch current local storage user profile safely
     const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
     const localEmail = (localUser && typeof localUser.email === 'string') ? localUser.email.toLowerCase() : '';
-    const isDevSession = localEmail === 'kyclawzcatnip@gmail.com' || localEmail === 'catnip' || localEmail === 'admin';
+    const isDevSession = localEmail === 'kyclawzcatnip@gmail.com';
 
     // 1. Add static mock accounts for flavor
     userProfiles.push({
@@ -3311,7 +3311,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (badgeEl) {
       badgeEl.innerHTML = '';
       const localEmail = typeof user.email === 'string' ? user.email.toLowerCase() : '';
-      const isDevSession = localEmail === 'kyclawzcatnip@gmail.com' || localEmail === 'catnip' || localEmail === 'admin';
+      const isDevSession = localEmail === 'kyclawzcatnip@gmail.com';
       if (isDevSession) {
         const staffSpan = document.createElement('span');
         staffSpan.style.cssText = 'background: linear-gradient(135deg, #7C4DFF, #00B0FF); color: #FFF; font-size: 0.62rem; font-weight: 800; padding: 2px 5px; border-radius: 3px; cursor: help; line-height: 1;';
