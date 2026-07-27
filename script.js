@@ -2983,6 +2983,284 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ==================== AVATAR MIX-AND-MATCH PROFILE CUSTOMS SYSTEM ====================
 
+  function applyAvatarComposite(catId, expressionId, catElement, exprElement, decorElement) {
+    if (!catElement) return;
+
+    let baseEmoji = '🐱';
+    
+    if (catId === 'cat_grumpy') {
+      baseEmoji = '😾';
+    } else if (catId === 'cat_silly') {
+      baseEmoji = '😸';
+    } else {
+      switch (expressionId) {
+        case 'expr_happy': baseEmoji = '😺'; break;
+        case 'expr_excited': baseEmoji = '😸'; break;
+        case 'expr_confident': baseEmoji = '😼'; break;
+        case 'expr_angry': baseEmoji = '😾'; break;
+        case 'expr_surprised': baseEmoji = '🙀'; break;
+        case 'expr_laughing': baseEmoji = '😹'; break;
+        case 'expr_sleepy': baseEmoji = '😿'; break;
+        case 'expr_cool': baseEmoji = '😼'; break;
+        default: baseEmoji = '🐱'; break;
+      }
+    }
+
+    catElement.textContent = baseEmoji;
+
+    catElement.style.filter = 'none';
+    catElement.style.textShadow = 'none';
+    if (exprElement) {
+      exprElement.textContent = '';
+      exprElement.style.cssText = 'position: absolute; z-index: 2; pointer-events: none;';
+    }
+    if (decorElement) {
+      decorElement.textContent = '';
+      decorElement.style.cssText = 'position: absolute; z-index: 4; pointer-events: none;';
+    }
+
+    switch (catId) {
+      case 'cat_orange':
+        catElement.style.filter = 'sepia(0.95) saturate(5.5) hue-rotate(-20deg) brightness(0.95)';
+        break;
+      case 'cat_black':
+        catElement.style.filter = 'brightness(0.18) contrast(1.5)';
+        break;
+      case 'cat_white':
+        catElement.style.filter = 'brightness(1.5) grayscale(1)';
+        break;
+      case 'cat_tuxedo':
+        catElement.style.filter = 'brightness(0.3) contrast(1.8) drop-shadow(1px 1px 0px #FFF)';
+        break;
+      case 'cat_brown':
+        catElement.style.filter = 'sepia(0.85) brightness(0.5) saturate(1.2)';
+        break;
+      case 'cat_calico':
+        catElement.style.filter = 'sepia(0.7) saturate(3) hue-rotate(-15deg) brightness(0.75) contrast(1.2)';
+        break;
+      case 'cat_grey':
+        catElement.style.filter = 'grayscale(1) brightness(0.7)';
+        break;
+      case 'cat_siamese':
+        catElement.style.filter = 'sepia(0.75) brightness(0.8) contrast(1.2)';
+        break;
+      
+      case 'cat_king':
+        if (decorElement) {
+          decorElement.textContent = '👑';
+          decorElement.style.top = '-14px';
+          decorElement.style.fontSize = '1.3rem';
+        }
+        break;
+      case 'cat_robot':
+        catElement.style.filter = 'grayscale(1) contrast(1.3) brightness(0.95)';
+        if (decorElement) {
+          decorElement.textContent = '🤖';
+          decorElement.style.top = '10px';
+          decorElement.style.right = '-2px';
+          decorElement.style.fontSize = '0.9rem';
+          decorElement.style.opacity = '0.7';
+        }
+        break;
+      case 'cat_ghost':
+        catElement.style.filter = 'opacity(0.55) brightness(1.2)';
+        if (decorElement) {
+          decorElement.textContent = '👻';
+          decorElement.style.top = '-8px';
+          decorElement.style.fontSize = '1.2rem';
+          decorElement.style.opacity = '0.35';
+        }
+        break;
+      case 'cat_wizard':
+        if (decorElement) {
+          decorElement.textContent = '🧙';
+          decorElement.style.top = '-18px';
+          decorElement.style.fontSize = '1.4rem';
+        }
+        break;
+      case 'cat_pirate':
+        if (decorElement) {
+          decorElement.textContent = '🏴‍☠️';
+          decorElement.style.top = '-14px';
+          decorElement.style.fontSize = '1.3rem';
+        }
+        break;
+      case 'cat_knight':
+        if (decorElement) {
+          decorElement.textContent = '🛡️';
+          decorElement.style.bottom = '-4px';
+          decorElement.style.left = '-6px';
+          decorElement.style.fontSize = '1.2rem';
+        }
+        break;
+      case 'cat_galaxy':
+        catElement.style.filter = 'hue-rotate(145deg) saturate(2.8) brightness(1.1)';
+        catElement.style.textShadow = '0 0 10px rgba(124, 77, 255, 0.8)';
+        break;
+      case 'cat_electric':
+        if (decorElement) {
+          decorElement.textContent = '⚡';
+          decorElement.style.top = '-8px';
+          decorElement.style.right = '-6px';
+          decorElement.style.fontSize = '1.3rem';
+        }
+        break;
+      case 'cat_ice':
+        catElement.style.filter = 'hue-rotate(180deg) saturate(1.5) brightness(1.2)';
+        catElement.style.textShadow = '0 0 10px rgba(0, 229, 255, 0.8)';
+        if (decorElement) {
+          decorElement.textContent = '❄️';
+          decorElement.style.top = '-8px';
+          decorElement.style.right = '-6px';
+          decorElement.style.fontSize = '1.3rem';
+        }
+        break;
+      case 'cat_fire':
+        catElement.style.filter = 'hue-rotate(10deg) saturate(3.5) brightness(1.1)';
+        catElement.style.textShadow = '0 0 10px rgba(255, 61, 0, 0.8)';
+        if (decorElement) {
+          decorElement.textContent = '🔥';
+          decorElement.style.top = '-8px';
+          decorElement.style.right = '-6px';
+          decorElement.style.fontSize = '1.3rem';
+        }
+        break;
+
+      case 'cat_pumpkin':
+        if (decorElement) {
+          decorElement.textContent = '🎃';
+          decorElement.style.top = '-12px';
+          decorElement.style.fontSize = '1.4rem';
+        }
+        break;
+      case 'cat_santa':
+        if (decorElement) {
+          decorElement.textContent = '🎅';
+          decorElement.style.top = '-16px';
+          decorElement.style.fontSize = '1.3rem';
+        }
+        break;
+      case 'cat_bunny':
+        if (decorElement) {
+          decorElement.textContent = '🐰';
+          decorElement.style.top = '-16px';
+          decorElement.style.fontSize = '1.3rem';
+        }
+        break;
+      case 'cat_valentine':
+        if (decorElement) {
+          decorElement.textContent = '❤️';
+          decorElement.style.top = '-4px';
+          decorElement.style.right = '-4px';
+          decorElement.style.fontSize = '1.0rem';
+        }
+        break;
+      case 'cat_rainbow':
+        catElement.style.filter = 'saturate(3) hue-rotate(45deg)';
+        catElement.style.textShadow = '0 0 12px rgba(255, 23, 68, 0.6)';
+        break;
+
+      case 'cat_neon':
+        catElement.style.filter = 'hue-rotate(270deg) saturate(4.5)';
+        catElement.style.textShadow = '0 0 12px rgba(124, 77, 255, 0.9)';
+        break;
+      case 'cat_golden':
+        catElement.style.filter = 'sepia(1) saturate(5) hue-rotate(15deg) brightness(1.05)';
+        catElement.style.textShadow = '0 0 12px rgba(255, 215, 0, 0.9)';
+        break;
+      case 'cat_crystal':
+        catElement.style.filter = 'saturate(0.5) brightness(1.35) hue-rotate(180deg)';
+        catElement.style.textShadow = '0 0 12px rgba(0, 229, 255, 0.9)';
+        break;
+      case 'cat_moon':
+        if (decorElement) {
+          decorElement.textContent = '🌙';
+          decorElement.style.top = '-6px';
+          decorElement.style.right = '-6px';
+          decorElement.style.fontSize = '1.1rem';
+        }
+        break;
+      case 'cat_sun':
+        if (decorElement) {
+          decorElement.textContent = '☀️';
+          decorElement.style.top = '-6px';
+          decorElement.style.right = '-6px';
+          decorElement.style.fontSize = '1.1rem';
+        }
+        break;
+      case 'cat_god':
+        if (decorElement) {
+          decorElement.textContent = '👼';
+          decorElement.style.top = '-16px';
+          decorElement.style.fontSize = '1.3rem';
+        }
+        break;
+
+      case 'cat_detective':
+        if (decorElement) {
+          decorElement.textContent = '🕵️';
+          decorElement.style.top = '-14px';
+          decorElement.style.fontSize = '1.3rem';
+        }
+        break;
+      case 'cat_gamer':
+        if (decorElement) {
+          decorElement.textContent = '🎧';
+          decorElement.style.top = '6px';
+          decorElement.style.fontSize = '1.9rem';
+          decorElement.style.zIndex = '3';
+        }
+        break;
+      case 'cat_pizza':
+        if (decorElement) {
+          decorElement.textContent = '🍕';
+          decorElement.style.bottom = '-4px';
+          decorElement.style.right = '-4px';
+          decorElement.style.fontSize = '1.1rem';
+        }
+        break;
+      case 'cat_fish':
+        if (decorElement) {
+          decorElement.textContent = '🐟';
+          decorElement.style.bottom = '4px';
+          decorElement.style.right = '4px';
+          decorElement.style.fontSize = '1.1rem';
+        }
+        break;
+      case 'cat_sleepy':
+        if (decorElement) {
+          decorElement.textContent = '💤';
+          decorElement.style.top = '-8px';
+          decorElement.style.right = '-4px';
+          decorElement.style.fontSize = '1.0rem';
+        }
+        break;
+      case 'cat_scientist':
+        if (decorElement) {
+          decorElement.textContent = '🥽';
+          decorElement.style.top = '14px';
+          decorElement.style.fontSize = '1.5rem';
+          decorElement.style.zIndex = '3';
+        }
+        break;
+    }
+
+    if (expressionId === 'expr_cool' && exprElement) {
+      exprElement.textContent = '🕶️';
+      exprElement.style.top = '14px';
+      exprElement.style.fontSize = '1.4rem';
+      exprElement.style.zIndex = '2';
+    } else if (expressionId === 'expr_sleepy' && exprElement) {
+      exprElement.textContent = '💤';
+      exprElement.style.top = '-4px';
+      exprElement.style.right = '-4px';
+      exprElement.style.fontSize = '0.9rem';
+      exprElement.style.zIndex = '2';
+    }
+  }
+
+  // ==================== AVATAR MIX-AND-MATCH PROFILE CUSTOMS SYSTEM ====================
+
   let tempSelectedCat = '';
   let tempSelectedExpression = '';
   let tempSelectedFrame = '';
@@ -3029,8 +3307,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentExprObj = exprsData.find(e => e.id === avatarExpression) || exprsData[0];
     const currentFrameObj = framesData.find(f => f.id === avatarFrame) || framesData[0];
 
-    if (avatarCatEl) avatarCatEl.textContent = currentCatObj.emoji;
-    if (avatarExprEl) avatarExprEl.textContent = currentExprObj.emoji;
+    const avatarDecorEl = document.getElementById('profile-avatar-decor-element');
+    applyAvatarComposite(avatarCat, avatarExpression, avatarCatEl, avatarExprEl, avatarDecorEl);
 
     if (avatarFrameEl) {
       avatarFrameEl.className = 'profile-avatar-frame';
@@ -3195,8 +3473,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const exprObj = exprsData.find(e => e.id === tempSelectedExpression) || exprsData[0];
       const frameObj = framesData.find(f => f.id === tempSelectedFrame) || framesData[0];
 
-      if (editPreviewCat) editPreviewCat.textContent = catObj.emoji;
-      if (editPreviewExpr) editPreviewExpr.textContent = exprObj.emoji;
+      const editPreviewDecor = document.getElementById('edit-avatar-preview-decor');
+      applyAvatarComposite(tempSelectedCat, tempSelectedExpression, editPreviewCat, editPreviewExpr, editPreviewDecor);
+
       if (editPreviewFrame) {
         editPreviewFrame.className = 'profile-avatar-frame';
         editPreviewFrame.classList.add(frameObj.css);
