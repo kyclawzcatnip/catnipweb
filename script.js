@@ -1318,16 +1318,19 @@ document.addEventListener('DOMContentLoaded', () => {
           const isDev = savedUser.email && (savedUser.email.toLowerCase() === 'kyclawzcatnip@gmail.com' || savedUser.email.toLowerCase() === 'catnip' || savedUser.email.toLowerCase() === 'admin');
           if (isDev) {
             loadCoinsFromLocalStorage();
-            if (userCoins < 9999) {
+            if (localStorage.getItem('scw_coins_balance') === null) {
               userCoins = 9999;
+              saveCoinsToLocalStorage();
             }
-            ownedItems = ["golden-name", "purple-border", "crown-badge", "sound-pack"];
-            activeCosmetics = ["golden-name", "purple-border", "crown-badge", "sound-pack"];
+            const devCosmetics = ["golden-name", "purple-border", "crown-badge", "sound-pack"];
+            devCosmetics.forEach(item => {
+              if (!ownedItems.includes(item)) ownedItems.push(item);
+              if (!activeCosmetics.includes(item)) activeCosmetics.push(item);
+            });
             updateCoinUI();
             applyActiveCosmetics();
             renderShopItems();
             updateChestUI();
-            saveCoinsToLocalStorage();
           } else {
             loadCoinsFromLocalStorage();
           }
@@ -1426,14 +1429,23 @@ document.addEventListener('DOMContentLoaded', () => {
             let existingCoins = 0;
             let existingItems = [];
             if (email.toLowerCase() === 'kyclawzcatnip@gmail.com' || email.toLowerCase() === 'catnip' || email.toLowerCase() === 'admin') {
-              let stored = 0;
+              let stored = -1;
               try {
                 const localDb = JSON.parse(localStorage.getItem('scw_local_profiles_database') || '[]');
                 const matched = localDb.find(u => u.email === email);
-                if (matched) stored = matched.coins || 0;
+                if (matched) stored = matched.coins;
               } catch(e) {}
-              existingCoins = Math.max(9999, stored);
+              existingCoins = stored === -1 ? 9999 : stored;
               existingItems = ["golden-name", "purple-border", "crown-badge", "sound-pack"];
+              try {
+                const localDb = JSON.parse(localStorage.getItem('scw_local_profiles_database') || '[]');
+                const matched = localDb.find(u => u.email === email);
+                if (matched && Array.isArray(matched.cosmetics)) {
+                  matched.cosmetics.forEach(c => {
+                    if (!existingItems.includes(c)) existingItems.push(c);
+                  });
+                }
+              } catch(e) {}
             } else {
               try {
                 const localDb = JSON.parse(localStorage.getItem('scw_local_profiles_database') || '[]');
@@ -1484,14 +1496,23 @@ document.addEventListener('DOMContentLoaded', () => {
         let existingCoins = 0;
         let existingItems = [];
         if (email.toLowerCase() === 'kyclawzcatnip@gmail.com' || email.toLowerCase() === 'catnip' || email.toLowerCase() === 'admin') {
-          let stored = 0;
+          let stored = -1;
           try {
             const localDb = JSON.parse(localStorage.getItem('scw_local_profiles_database') || '[]');
             const matched = localDb.find(u => u.email === email);
-            if (matched) stored = matched.coins || 0;
+            if (matched) stored = matched.coins;
           } catch(e) {}
-          existingCoins = Math.max(9999, stored);
+          existingCoins = stored === -1 ? 9999 : stored;
           existingItems = ["golden-name", "purple-border", "crown-badge", "sound-pack"];
+          try {
+            const localDb = JSON.parse(localStorage.getItem('scw_local_profiles_database') || '[]');
+            const matched = localDb.find(u => u.email === email);
+            if (matched && Array.isArray(matched.cosmetics)) {
+              matched.cosmetics.forEach(c => {
+                if (!existingItems.includes(c)) existingItems.push(c);
+              });
+            }
+          } catch(e) {}
         } else {
           try {
             const localDb = JSON.parse(localStorage.getItem('scw_local_profiles_database') || '[]');
@@ -1569,16 +1590,19 @@ document.addEventListener('DOMContentLoaded', () => {
       updateAuthStateUI(savedUser);
       const isDev = savedUser.email && (savedUser.email.toLowerCase() === 'kyclawzcatnip@gmail.com' || savedUser.email.toLowerCase() === 'catnip' || savedUser.email.toLowerCase() === 'admin');
       if (isDev) {
-        if (userCoins < 9999) {
+        if (localStorage.getItem('scw_coins_balance') === null) {
           userCoins = 9999;
+          saveCoinsToLocalStorage();
         }
-        ownedItems = ["golden-name", "purple-border", "crown-badge", "sound-pack"];
-        activeCosmetics = ["golden-name", "purple-border", "crown-badge", "sound-pack"];
+        const devCosmetics = ["golden-name", "purple-border", "crown-badge", "sound-pack"];
+        devCosmetics.forEach(item => {
+          if (!ownedItems.includes(item)) ownedItems.push(item);
+          if (!activeCosmetics.includes(item)) activeCosmetics.push(item);
+        });
         updateCoinUI();
         applyActiveCosmetics();
         renderShopItems();
         updateChestUI();
-        saveCoinsToLocalStorage();
       }
       renderProfileCustoms(savedUser);
       checkAchievements();
