@@ -4665,8 +4665,8 @@ document.addEventListener('DOMContentLoaded', () => {
       case 'cat_gamer':
         if (decorElement) {
           decorElement.textContent = '🎧';
-          decorElement.style.top = '6px';
-          decorElement.style.fontSize = '1.9rem';
+          decorElement.style.top = '-8px';
+          decorElement.style.fontSize = '1.4rem';
           decorElement.style.zIndex = '3';
         }
         break;
