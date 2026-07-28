@@ -3452,6 +3452,67 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Initialize and bind Game Bug Code Cheats selectors
+  function updateSCWSpecsPanel() {
+    const savedCode = localStorage.getItem('scw_bug_code_scw') || '0';
+    const codenameEl = document.querySelector('.scw-secrets .secrets-meta-item:nth-child(1) .val');
+    const statusEl = document.querySelector('.scw-secrets .secrets-meta-item:nth-child(4) .val');
+    if (!codenameEl || !statusEl) return;
+    
+    statusEl.className = 'val status-pill';
+    let codenameText = 'Project Anti-Catite';
+    let statusText = 'Active / 0 Bugs';
+    
+    switch (savedCode) {
+      case '0':
+        codenameText += ' (0 Bugs / Resolved)';
+        statusText = 'Active / 0 Bugs';
+        statusEl.classList.add('green-pill');
+        statusEl.style.cssText = '';
+        codenameEl.className = 'val accent-green';
+        break;
+      case '1':
+        codenameText += ' (Code 1 / Buggy)';
+        statusText = 'Buggy / Code 1';
+        statusEl.style.cssText = 'background: rgba(255, 167, 38, 0.2); color: #FFA726; font-weight: 700;';
+        codenameEl.className = 'val';
+        break;
+      case '2':
+        codenameText += ' (Code 2 / Game Stopping Bug)';
+        statusText = 'Stalled / Code 2';
+        statusEl.style.cssText = 'background: rgba(255, 82, 82, 0.2); color: #FF5252; font-weight: 700;';
+        codenameEl.className = 'val';
+        break;
+      case '3':
+        codenameText += ' (Code 3 / Critical Issue)';
+        statusText = 'Critical / Code 3';
+        statusEl.style.cssText = 'background: rgba(255, 82, 82, 0.25); color: #FF5252; font-weight: 700; box-shadow: 0 0 10px rgba(255, 82, 82, 0.2);';
+        codenameEl.className = 'val';
+        break;
+      case '4':
+        codenameText += ' (Code 4 / 50% Cancelled)';
+        statusText = 'Endangered / Code 4';
+        statusEl.style.cssText = 'background: rgba(244, 67, 54, 0.2); color: #F44336; font-weight: 700;';
+        codenameEl.className = 'val';
+        break;
+      case '5':
+        codenameText += ' (Code 5 / Doomed)';
+        statusText = 'Doomed / Code 5';
+        statusEl.className = 'val status-pill cancelled-badge';
+        statusEl.style.cssText = '';
+        codenameEl.className = 'val';
+        break;
+      case '6':
+        codenameText += ' (Code 6 / Discontinued)';
+        statusText = 'Discontinued / Code 6';
+        statusEl.className = 'val status-pill discontinued-badge';
+        statusEl.style.cssText = '';
+        codenameEl.className = 'val';
+        break;
+    }
+    codenameEl.textContent = codenameText;
+    statusEl.textContent = statusText;
+  }
+
   const bugCodeSelects = document.querySelectorAll('.dev-bug-code-select');
   bugCodeSelects.forEach(select => {
     const game = select.getAttribute('data-game');
@@ -3463,10 +3524,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const newCode = select.value;
         localStorage.setItem(`scw_bug_code_${game}`, newCode);
         playRetroSound('click');
+        if (game === 'scw') updateSCWSpecsPanel();
         console.log(`[Developer Diagnostics] ${game.toUpperCase()} bug level set to Code ${newCode}`);
       });
     }
   });
+
+  updateSCWSpecsPanel();
 
   // Load and query user directory (for Dev secrets accounts viewer)
   function loadUserDirectory() {
