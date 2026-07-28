@@ -4674,7 +4674,7 @@ document.addEventListener('DOMContentLoaded', () => {
       case 'cat_pizza':
         if (decorElement) {
           decorElement.textContent = '🍕';
-          decorElement.style.top = '-4px';
+          decorElement.style.top = '-2px';
           decorElement.style.fontSize = '1.3rem';
         }
         break;
