@@ -3406,6 +3406,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function updateChestUI() {
+    if (typeof updateQuestsUI === 'function') {
+      updateQuestsUI();
+    }
+  }
+
   // Track Daily Chest Cooldown periodically
   setInterval(updateChestUI, 30000); // refresh chest timer every 30s
 
