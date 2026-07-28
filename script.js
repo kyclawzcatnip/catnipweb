@@ -8,6 +8,12 @@ window.onerror = function(message, source, lineno, colno, error) {
   return false;
 };
 
+window.updateChestUI = function() {
+  if (typeof window.updateQuestsUI === 'function') {
+    window.updateQuestsUI();
+  }
+};
+
 document.addEventListener('DOMContentLoaded', () => {
 
   const urlParams = new URLSearchParams(window.location.search);
@@ -2805,6 +2811,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   window.initializeQuests = initializeQuests; // Make globally accessible
+  window.updateQuestsUI = updateQuestsUI;
 
   function updateQuestsUI() {
     const container = document.getElementById('quests-container');
