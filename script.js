@@ -230,8 +230,35 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'expression-exuberant', emoji: '🥳', name: 'Exuberant' }
   ];
 
-  // ==================== WIKI ARTICLES DATA ====================
   const wikiArticles = {
+    'bug-code-classifications': {
+      title: 'Bug Code Classifications & Diagnostics Guide',
+      category: 'mechanics',
+      tag: 'Diagnostics',
+      image: '👾',
+      firstAppearance: 'Studio Diagnostics System (July 2026)',
+      quotes: ['Quality control and classification metrics for all active projects.'],
+      trivia: [
+        "Code 0 signifies a completely bug-free state.",
+        "Code 3: Big problem represents the most common blocker before game releases.",
+        "Code 6: Discontinued is the newest diagnostic rating, added in July 2026."
+      ],
+      related: ['super-cat-world', 'super-smash-cats', 'cats-among-us', 'catnip-kingdom', 'catnip-kart'],
+      content: `
+        <p>The studio uses an internal bug classification metric to evaluate development health and stability across all projects. This system is now publicly visible to keep players informed on the active diagnostics of their favorite games.</p>
+        
+        <h4 style="margin-top: 15px; margin-bottom: 8px; color: var(--color-accent);">Diagnostic Classification Levels</h4>
+        <ul style="padding-left: 20px; line-height: 1.6; display: flex; flex-direction: column; gap: 8px;">
+          <li><strong>Code 0: Bug Free Status</strong> — No bugs detected. All major issues resolved.</li>
+          <li><strong>Code 1: Small but annoying bug</strong> — Minor styling or audio glitches. Game is fully playable.</li>
+          <li><strong>Code 2: Game Stopping Bug</strong> — Code faults prevent the game from compiling or running properly.</li>
+          <li><strong>Code 3: Big Problem</strong> — Critical issues including game-stopping bugs and performance bottlenecks.</li>
+          <li><strong>Code 4: 50% Cancelled Chance</strong> — High-risk bugs that jeopardize completion or stability.</li>
+          <li><strong>Code 5: Doomed</strong> — Terminal failure state. Project is compromised.</li>
+          <li><strong>Code 6: Discontinued</strong> — Official rating for projects whose development has been retired or shelved.</li>
+        </ul>
+      `
+    },
     'super-cat-world': {
       title: 'Super Cat World',
       category: 'games',
@@ -3513,6 +3540,52 @@ document.addEventListener('DOMContentLoaded', () => {
     statusEl.textContent = statusText;
   }
 
+  function updatePublicDiagnosticLabels() {
+    const labels = document.querySelectorAll('.diagnostic-spec-label');
+    labels.forEach(label => {
+      const game = label.getAttribute('data-game');
+      if (game) {
+        const savedCode = localStorage.getItem(`scw_bug_code_${game}`) || '0';
+        let desc = 'Code 0: Bug Free';
+        let styleColor = '#00E676';
+        
+        switch (savedCode) {
+          case '0':
+            desc = 'Code 0: Bug Free';
+            styleColor = '#00E676';
+            break;
+          case '1':
+            desc = 'Code 1: Buggy';
+            styleColor = '#FFA726';
+            break;
+          case '2':
+            desc = 'Code 2: Stalled';
+            styleColor = '#FF5252';
+            break;
+          case '3':
+            desc = 'Code 3: Critical';
+            styleColor = '#FF5252';
+            break;
+          case '4':
+            desc = 'Code 4: Unstable';
+            styleColor = '#F44336';
+            break;
+          case '5':
+            desc = 'Code 5: Doomed';
+            styleColor = '#FF1744';
+            break;
+          case '6':
+            desc = 'Code 6: Discontinued';
+            styleColor = '#9E9E9E';
+            break;
+        }
+        
+        label.textContent = desc;
+        label.style.color = styleColor;
+      }
+    });
+  }
+
   const bugCodeSelects = document.querySelectorAll('.dev-bug-code-select');
   bugCodeSelects.forEach(select => {
     const game = select.getAttribute('data-game');
@@ -3525,12 +3598,14 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem(`scw_bug_code_${game}`, newCode);
         playRetroSound('click');
         if (game === 'scw') updateSCWSpecsPanel();
+        updatePublicDiagnosticLabels();
         console.log(`[Developer Diagnostics] ${game.toUpperCase()} bug level set to Code ${newCode}`);
       });
     }
   });
 
   updateSCWSpecsPanel();
+  updatePublicDiagnosticLabels();
 
   // Load and query user directory (for Dev secrets accounts viewer)
   function loadUserDirectory() {
