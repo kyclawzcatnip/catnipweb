@@ -3104,24 +3104,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Luck boost calculation: if signed-nametag is equipped, low chance tiers get a +25% relative boost
       const hasLuckBoost = activeCosmetics.includes('signed-nametag');
-      let commonLimit = 0.60;
-      let rareLimit = 0.80;
-      let epicLimit = 0.92;
-      let legendaryLimit = 0.98;
-      // Ultra Rare is 0.98 to 1.0 (2%)
-
-      if (hasLuckBoost) {
-        // Boosted rates: Ultra Rare (2.5%), Legendary (7.5%), Epic (15%), Rare (25%), Common (50%)
-        commonLimit = 0.50;
-        rareLimit = 0.75;
-        epicLimit = 0.90;
-        legendaryLimit = 0.975;
-      }
+      const forcedOverride = localStorage.getItem('scw_dev_crate_override') || 'random';
+      
+      // Load custom developer rates if configured, otherwise fallback to defaults
+      let commonRate = parseFloat(localStorage.getItem('scw_crate_rate_common') || (hasLuckBoost ? '50' : '60')) / 100;
+      let rareRate = parseFloat(localStorage.getItem('scw_crate_rate_rare') || (hasLuckBoost ? '25' : '20')) / 100;
+      let epicRate = parseFloat(localStorage.getItem('scw_crate_rate_epic') || (hasLuckBoost ? '15' : '12')) / 100;
+      let legendaryRate = parseFloat(localStorage.getItem('scw_crate_rate_legendary') || (hasLuckBoost ? '7.5' : '6')) / 100;
+      
+      let commonLimit = commonRate;
+      let rareLimit = commonLimit + rareRate;
+      let epicLimit = rareLimit + epicRate;
+      let legendaryLimit = epicLimit + legendaryRate;
 
       const roll = Math.random();
+      let forceTier = '';
+      if (forcedOverride !== 'random') {
+        forceTier = forcedOverride;
+        localStorage.setItem('scw_dev_crate_override', 'random');
+        const overrideSelect = document.getElementById('dev-crate-override');
+        if (overrideSelect) overrideSelect.value = 'random';
+      }
+
       let feedback = '';
 
-      if (roll < commonLimit) {
+      const isCommon = (forceTier === 'common_coins') || (forceTier === '' && roll < commonLimit);
+      const isRare = (forceTier === 'rare_border') || (forceTier === '' && !isCommon && roll < rareLimit);
+      const isEpic = (forceTier === 'epic_glow' || forceTier === 'epic_coins') || (forceTier === '' && !isCommon && !isRare && roll < epicLimit);
+      const isLegendary = (forceTier === 'legendary_anim' || forceTier === 'legendary_rainbow' || forceTier === 'legendary_title') || (forceTier === '' && !isCommon && !isRare && !isEpic && roll < legendaryLimit);
+      const isUltra = (forceTier !== '' && !isCommon && !isRare && !isEpic && !isLegendary) || (forceTier === '' && !isCommon && !isRare && !isEpic && !isLegendary);
+
+      if (isCommon) {
         // Common Tier (Coins stash)
         const subRoll = Math.random();
         let prize = 5;
@@ -3134,7 +3147,7 @@ document.addEventListener('DOMContentLoaded', () => {
         addCoins(prize, element);
         feedback = `📦 [COMMON REWARD] The chest opened to reveal a coin stash! You received ${prize} Catnip Coins.`;
       } 
-      else if (roll < rareLimit) {
+      else if (isRare) {
         // Rare Tier (Borders/Frames)
         const borderIds = ['frame_neon_purple', 'frame_electric_blue', 'frame_emerald', 'frame_gold', 'frame_ruby'];
         const unownedBorders = borderIds.filter(id => !ownedItems.includes(id));
@@ -3151,10 +3164,10 @@ document.addEventListener('DOMContentLoaded', () => {
           feedback = `🎨 [RARE REWARD] You rolled a border frame you already own, so you were refunded ${refund} Catnip Coins!`;
         }
       } 
-      else if (roll < epicLimit) {
+      else if (isEpic) {
         // Epic Tier (Golden Name or 200 coins)
-        const subRoll = Math.random();
-        if (subRoll < 0.70) {
+        const isGlow = (forceTier === 'epic_glow') || (forceTier === '' && Math.random() < 0.70);
+        if (isGlow) {
           if (!ownedItems.includes('golden-name')) {
             ownedItems.push('golden-name');
             activeCosmetics.push('golden-name');
@@ -3173,10 +3186,20 @@ document.addEventListener('DOMContentLoaded', () => {
           feedback = `🌟 [EPIC REWARD] You rolled a premium coin cache! Received 200 Catnip Coins.`;
         }
       } 
-      else if (roll < legendaryLimit) {
+      else if (isLegendary) {
         // Legendary Tier (Animated Border, Rainbow Name, or Exclusive Title)
-        const subRoll = Math.random();
-        if (subRoll < 0.50) {
+        let choice = 'anim';
+        if (forceTier === 'legendary_anim') choice = 'anim';
+        else if (forceTier === 'legendary_rainbow') choice = 'rainbow';
+        else if (forceTier === 'legendary_title') choice = 'title';
+        else {
+          const subRoll = Math.random();
+          if (subRoll < 0.50) choice = 'anim';
+          else if (subRoll < 0.90) choice = 'rainbow';
+          else choice = 'title';
+        }
+
+        if (choice === 'anim') {
           const animBorders = ['frame_rainbow', 'frame_electric_sparks', 'frame_snowflakes', 'frame_flames', 'frame_floating_stars'];
           const unowned = animBorders.filter(id => !ownedItems.includes(id));
           if (unowned.length > 0) {
@@ -3191,7 +3214,7 @@ document.addEventListener('DOMContentLoaded', () => {
             addCoins(refund, element);
             feedback = `🎆 [LEGENDARY REWARD] You rolled an animated border you already own, so you were refunded ${refund} Catnip Coins!`;
           }
-        } else if (subRoll < 0.90) {
+        } else if (choice === 'rainbow') {
           if (!ownedItems.includes('rainbow-name')) {
             ownedItems.push('rainbow-name');
             activeCosmetics.push('rainbow-name');
@@ -3226,8 +3249,22 @@ document.addEventListener('DOMContentLoaded', () => {
       } 
       else {
         // Ultra Rare Tier (Developer Signed Cosmetics)
-        const subRoll = Math.random();
-        if (subRoll < 0.25) {
+        let choice = 'tag';
+        if (forceTier === 'ultra_signed_tag') choice = 'tag';
+        else if (forceTier === 'ultra_dev_border') choice = 'border';
+        else if (forceTier === 'ultra_dev_cat') choice = 'cat';
+        else if (forceTier === 'ultra_signed_badge') choice = 'badge';
+        else if (forceTier === 'jackpot_1000') choice = 'jackpot';
+        else {
+          const subRoll = Math.random();
+          if (subRoll < 0.25) choice = 'tag';
+          else if (subRoll < 0.50) choice = 'border';
+          else if (subRoll < 0.75) choice = 'cat';
+          else if (subRoll < 0.97) choice = 'badge';
+          else choice = 'jackpot';
+        }
+
+        if (choice === 'tag') {
           if (!ownedItems.includes('signed-nametag')) {
             ownedItems.push('signed-nametag');
             activeCosmetics.push('signed-nametag');
@@ -3240,7 +3277,7 @@ document.addEventListener('DOMContentLoaded', () => {
             addCoins(refund, element);
             feedback = `✍ [ULTRA RARE] You rolled Signed Name Tag which you already own, so you were refunded ${refund} Catnip Coins!`;
           }
-        } else if (subRoll < 0.50) {
+        } else if (choice === 'border') {
           if (!ownedItems.includes('frame_developer')) {
             ownedItems.push('frame_developer');
             saveCoinsToLocalStorage();
@@ -3251,7 +3288,7 @@ document.addEventListener('DOMContentLoaded', () => {
             addCoins(refund, element);
             feedback = `🛠️ [ULTRA RARE] You rolled Developer Border frame which you already own, so you were refunded ${refund} Catnip Coins!`;
           }
-        } else if (subRoll < 0.75) {
+        } else if (choice === 'cat') {
           if (!ownedItems.includes('cat_developer')) {
             ownedItems.push('cat_developer');
             saveCoinsToLocalStorage();
@@ -3262,7 +3299,7 @@ document.addEventListener('DOMContentLoaded', () => {
             addCoins(refund, element);
             feedback = `🧑‍💻 [ULTRA RARE] You rolled Developer Cat avatar which you already own, so you were refunded ${refund} Catnip Coins!`;
           }
-        } else if (subRoll < 0.97) {
+        } else if (choice === 'badge') {
           const badges = ['badge_dev_signed', 'badge_dev_star', 'badge_dev_paw', 'badge_dev_pick'];
           const unowned = badges.filter(b => !ownedItems.includes(b));
           if (unowned.length > 0) {
@@ -3279,18 +3316,9 @@ document.addEventListener('DOMContentLoaded', () => {
             feedback = `💜 [ULTRA RARE] You rolled a developer signed badge you already own, so you were refunded ${refund} Catnip Coins!`;
           }
         } else {
-          if (!ownedItems.includes('signed-profilecard')) {
-            ownedItems.push('signed-profilecard');
-            activeCosmetics.push('signed-profilecard');
-            applyActiveCosmetics();
-            saveCoinsToLocalStorage();
-            syncCoinsToFirestore();
-            feedback = `────────────────────\nCatnip Studios\nKeep making awesome memories!\n- Player\n────────────────────\n✍ [ULTRA RARE] DEVELOPER SIGNED: Signed Profile Card unlocked and equipped!`;
-          } else {
-            const refund = 350;
-            addCoins(refund, element);
-            feedback = `✍ [ULTRA RARE] You rolled Signed Profile Card which you already own, so you were refunded ${refund} Catnip Coins!`;
-          }
+          const jackpotPrize = (choice === 'jackpot') ? 1000 : 500;
+          addCoins(jackpotPrize, element);
+          feedback = `🎰 [ULTRA RARE JACKPOT] ${jackpotPrize} CATNIP COINS JACKPOT!!! The chest exploded with glittering gold coins!`;
         }
       }
 
@@ -3606,6 +3634,65 @@ document.addEventListener('DOMContentLoaded', () => {
 
   updateSCWSpecsPanel();
   updatePublicDiagnosticLabels();
+
+  // Initialize Crate Controller bindings
+  const devCrateOverride = document.getElementById('dev-crate-override');
+  if (devCrateOverride) {
+    devCrateOverride.value = localStorage.getItem('scw_dev_crate_override') || 'random';
+    devCrateOverride.addEventListener('change', () => {
+      localStorage.setItem('scw_dev_crate_override', devCrateOverride.value);
+      playRetroSound('click');
+    });
+  }
+
+  const rateCommonEl = document.getElementById('crate-rate-common');
+  const rateRareEl = document.getElementById('crate-rate-rare');
+  const rateEpicEl = document.getElementById('crate-rate-epic');
+  const rateLegendaryEl = document.getElementById('crate-rate-legendary');
+  const rateUltraEl = document.getElementById('crate-rate-ultra');
+  const btnSaveRates = document.getElementById('btn-save-crate-rates');
+
+  if (rateCommonEl && rateRareEl && rateEpicEl && rateLegendaryEl && rateUltraEl) {
+    const hasLuckBoost = activeCosmetics.includes('signed-nametag');
+    rateCommonEl.value = localStorage.getItem('scw_crate_rate_common') || (hasLuckBoost ? '50' : '60');
+    rateRareEl.value = localStorage.getItem('scw_crate_rate_rare') || (hasLuckBoost ? '25' : '20');
+    rateEpicEl.value = localStorage.getItem('scw_crate_rate_epic') || (hasLuckBoost ? '15' : '12');
+    rateLegendaryEl.value = localStorage.getItem('scw_crate_rate_legendary') || (hasLuckBoost ? '7.5' : '6');
+    
+    function calculateUltraRareRate() {
+      const c = parseFloat(rateCommonEl.value) || 0;
+      const r = parseFloat(rateRareEl.value) || 0;
+      const e = parseFloat(rateEpicEl.value) || 0;
+      const l = parseFloat(rateLegendaryEl.value) || 0;
+      const u = Math.max(0, 100 - (c + r + e + l));
+      rateUltraEl.value = u.toFixed(1).replace('.0', '');
+    }
+
+    [rateCommonEl, rateRareEl, rateEpicEl, rateLegendaryEl].forEach(input => {
+      input.addEventListener('input', calculateUltraRareRate);
+    });
+
+    calculateUltraRareRate();
+
+    if (btnSaveRates) {
+      btnSaveRates.addEventListener('click', () => {
+        const c = parseFloat(rateCommonEl.value) || 0;
+        const r = parseFloat(rateRareEl.value) || 0;
+        const e = parseFloat(rateEpicEl.value) || 0;
+        const l = parseFloat(rateLegendaryEl.value) || 0;
+        if (c + r + e + l > 100) {
+          alert("❌ Error: Total rates sum cannot exceed 100%!");
+          return;
+        }
+        localStorage.setItem('scw_crate_rate_common', rateCommonEl.value);
+        localStorage.setItem('scw_crate_rate_rare', rateRareEl.value);
+        localStorage.setItem('scw_crate_rate_epic', rateEpicEl.value);
+        localStorage.setItem('scw_crate_rate_legendary', rateLegendaryEl.value);
+        playRetroSound('purchase');
+        alert("📊 Crate drop rates successfully saved and updated!");
+      });
+    }
+  }
 
   // Load and query user directory (for Dev secrets accounts viewer)
   function loadUserDirectory() {

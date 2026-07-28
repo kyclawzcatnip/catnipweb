@@ -1524,6 +1524,67 @@
             </div>
           </div>
 
+          <!-- Mystery Chest Configurator & Override Card -->
+          <div class="secrets-card crate-ops-card">
+            <div class="secrets-card-header">
+              <span class="secrets-cat">Economy Operations</span>
+              <h3>Mystery Chest Crate Controller</h3>
+            </div>
+            
+            <div class="secrets-cheats">
+              <p class="section-subtext">Manage drop probabilities and force outcomes for testing loot crates:</p>
+              
+              <div class="cheat-item">
+                <div class="cheat-key" style="color: var(--color-accent); font-size: 0.9rem;">🔮 Force Next Roll Contents</div>
+                <div class="cheat-desc" style="margin-bottom: 8px;">Force-override the next mystery chest opening reward to test specific tier drop mechanics:</div>
+                <select id="dev-crate-override" class="form-input" style="width: 100%; padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); background: rgba(0,0,0,0.25); color: #fff; font-family: inherit; font-size: 0.85rem; font-weight: 600; cursor: pointer; height: auto;">
+                  <option value="random">Random (Normal Roll)</option>
+                  <option value="common_coins">Common: Coin Stash (5 to 500 Coins)</option>
+                  <option value="rare_border">Rare: Profile Border Frame</option>
+                  <option value="epic_glow">Epic: Golden Name Glow</option>
+                  <option value="epic_coins">Epic: Premium Coin Cache (200 Coins)</option>
+                  <option value="legendary_anim">Legendary: Animated Border Frame</option>
+                  <option value="legendary_rainbow">Legendary: Animated Rainbow Name</option>
+                  <option value="legendary_title">Legendary: Exclusive Title</option>
+                  <option value="ultra_signed_tag">Ultra Rare: Developer Signed Name Tag (+25% Luck)</option>
+                  <option value="ultra_dev_border">Ultra Rare: Developer Border Frame</option>
+                  <option value="ultra_dev_cat">Ultra Rare: Developer Cat Avatar</option>
+                  <option value="ultra_signed_badge">Ultra Rare: Developer Signed Profile Badge</option>
+                  <option value="jackpot_1000">Ultra Rare: 1,000 Coins Jackpot!</option>
+                </select>
+              </div>
+
+              <div class="cheat-item" style="border-top: 1px dashed rgba(124, 77, 255, 0.2); margin-top: 15px; padding-top: 15px;">
+                <div class="cheat-key" style="color: var(--color-accent); font-size: 0.9rem;">📊 Crate Drop Probabilities (%)</div>
+                <div class="cheat-desc" style="margin-bottom: 12px;">Edit active percentage rates for standard chest openings (must add up to 100%):</div>
+                
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; gap: 15px;">
+                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--color-text-secondary);">Common Tier:</span>
+                    <input type="number" id="crate-rate-common" class="form-input" min="0" max="100" style="width: 80px; padding: 6px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); background: rgba(0,0,0,0.25); color: #fff; text-align: center;">
+                  </div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; gap: 15px;">
+                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--color-text-secondary);">Rare Tier:</span>
+                    <input type="number" id="crate-rate-rare" class="form-input" min="0" max="100" style="width: 80px; padding: 6px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); background: rgba(0,0,0,0.25); color: #fff; text-align: center;">
+                  </div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; gap: 15px;">
+                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--color-text-secondary);">Epic Tier:</span>
+                    <input type="number" id="crate-rate-epic" class="form-input" min="0" max="100" style="width: 80px; padding: 6px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); background: rgba(0,0,0,0.25); color: #fff; text-align: center;">
+                  </div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; gap: 15px;">
+                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--color-text-secondary);">Legendary Tier:</span>
+                    <input type="number" id="crate-rate-legendary" class="form-input" min="0" max="100" style="width: 80px; padding: 6px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); background: rgba(0,0,0,0.25); color: #fff; text-align: center;">
+                  </div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; gap: 15px;">
+                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--color-text-secondary);">Ultra Rare Tier:</span>
+                    <input type="number" id="crate-rate-ultra" class="form-input" min="0" max="100" readonly style="width: 80px; padding: 6px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); background: rgba(0,0,0,0.1); color: #aaa; text-align: center;">
+                  </div>
+                  <button id="btn-save-crate-rates" class="btn btn-secondary btn-sm" style="width: 100%; margin-top: 5px;">Save Probability Config</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Internal Bug Codes Guide Card -->
           <div class="secrets-card bug-codes-card">
             <div class="secrets-card-header">
@@ -1969,6 +2030,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
   <!-- Main Script File -->
-  <script src="script.js?v=20260726zk47"></script>
+  <script src="script.js?v=20260726zk48"></script>
 </body>
 </html>
