@@ -4430,6 +4430,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     catElement.style.filter = 'none';
     catElement.style.textShadow = 'none';
+    catElement.classList.remove('rainbow-cat-active');
     if (exprElement) {
       exprElement.textContent = '';
       exprElement.style.cssText = 'position: absolute; z-index: 2; pointer-events: none;';
@@ -4615,7 +4616,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         break;
       case 'cat_rainbow':
-        catElement.style.filter = 'saturate(3) hue-rotate(45deg)';
+        catElement.classList.add('rainbow-cat-active');
         catElement.style.textShadow = '0 0 12px rgba(255, 23, 68, 0.6)';
         break;
 
