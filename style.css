@@ -871,6 +871,12 @@ p {
   border: 1px solid rgba(255, 82, 82, 0.4);
   box-shadow: 0 0 10px rgba(255, 82, 82, 0.1);
 }
+.discontinued-badge {
+  background: rgba(30, 30, 40, 0.85);
+  color: #9E9E9E;
+  border: 1px solid rgba(158, 158, 158, 0.4);
+  box-shadow: 0 0 10px rgba(158, 158, 158, 0.1);
+}
 .beta-badge {
   background: linear-gradient(135deg, #00E676, #00B0FF);
   color: #030206 !important;
