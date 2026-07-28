@@ -2608,6 +2608,8 @@ document.addEventListener('DOMContentLoaded', () => {
       unlockedCats = JSON.parse(localStorage.getItem('scw_unlocked_cats') || '["cat_basic", "cat_orange", "cat_black", "cat_white", "cat_tuxedo", "cat_brown", "cat_calico", "cat_grey", "cat_siamese"]');
       unlockedFrames = JSON.parse(localStorage.getItem('scw_unlocked_frames') || '["frame_none"]');
       joinDate = localStorage.getItem('scw_join_date') || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+      const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
+      const localEmail = (localUser && typeof localUser.email === 'string') ? localUser.email.toLowerCase() : '';
       if (isDeveloperEmail(localEmail)) {
         joinDate = "July 24, 2026";
       }
