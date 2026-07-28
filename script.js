@@ -3494,6 +3494,28 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
+    // 2b. Add other local accounts from local profiles database
+    try {
+      const localDb = JSON.parse(localStorage.getItem('scw_local_profiles_database') || '[]');
+      localDb.forEach(profile => {
+        const emailLower = (profile.email || '').toLowerCase();
+        // Avoid duplicate active session or mock developer accounts
+        const exists = userProfiles.some(p => (p.email || '').toLowerCase() === emailLower);
+        if (!exists && emailLower !== 'dev@catnipstudios.com') {
+          userProfiles.push({
+            uid: `local_${emailLower.replace(/[^a-zA-Z0-9]/g, '_')}`,
+            username: profile.username || emailLower.split('@')[0] || 'Local User',
+            email: profile.email || 'local@user',
+            coins: profile.coins || 0,
+            cosmetics: profile.cosmetics || [],
+            status: "Offline (Local)"
+          });
+        }
+      });
+    } catch(e) {
+      console.warn("Failed loading local profiles database:", e);
+    }
+
     // 3. If Firebase Firestore is active, query the database dynamically
     if (typeof firebase !== 'undefined' && firebase.firestore) {
       try {
