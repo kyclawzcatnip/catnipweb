@@ -2455,6 +2455,22 @@ p {
   100% { background-position: 200% center; }
 }
 
+/* Rainbow Name Active */
+.rainbow-text-active {
+  background: linear-gradient(90deg, #ff007f, #7c4dff, #00b0ff, #00e676, #ffd700, #ff007f);
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: rainbowTextWave 4s linear infinite;
+  text-shadow: 0 0 15px rgba(124, 77, 255, 0.3) !important;
+}
+
+@keyframes rainbowTextWave {
+  0% { background-position: 0% center; }
+  100% { background-position: 300% center; }
+}
+
 /* Neon Purple Avatar Border */
 .purple-border-active {
   border: 3px solid #7C4DFF !important;
@@ -2737,6 +2753,47 @@ p {
 .frame-ruby {
   border: 3px solid #FF5252 !important;
   box-shadow: 0 0 10px rgba(255, 82, 82, 0.85) !important;
+}
+.frame-developer {
+  position: relative !important;
+  border: 3px solid transparent !important;
+  border-image: linear-gradient(135deg, #7c4dff, #d946ef, #00b0ff) 1 !important;
+  box-shadow: 0 0 15px rgba(124, 77, 255, 0.7), inset 0 0 10px rgba(217, 70, 239, 0.5) !important;
+  animation: devBorderPulse 3s infinite alternate !important;
+}
+.frame-developer::before {
+  content: '🐾' !important;
+  position: absolute !important;
+  top: -8px !important;
+  left: -8px !important;
+  font-size: 0.7rem !important;
+  z-index: 5 !important;
+  animation: devPawFloat 4s ease-in-out infinite alternate !important;
+}
+.frame-developer::after {
+  content: '⭐' !important;
+  position: absolute !important;
+  bottom: -8px !important;
+  right: -8px !important;
+  font-size: 0.7rem !important;
+  z-index: 5 !important;
+  animation: devStarPulse 2s ease-in-out infinite alternate !important;
+}
+@keyframes devBorderPulse {
+  0% {
+    box-shadow: 0 0 12px rgba(124, 77, 255, 0.6), inset 0 0 6px rgba(217, 70, 239, 0.4) !important;
+  }
+  100% {
+    box-shadow: 0 0 22px rgba(124, 77, 255, 0.95), inset 0 0 14px rgba(0, 176, 255, 0.7) !important;
+  }
+}
+@keyframes devPawFloat {
+  0% { transform: translateY(0) scale(1); filter: drop-shadow(0 0 2px #d946ef); }
+  100% { transform: translateY(-4px) scale(1.2); filter: drop-shadow(0 0 6px #7c4dff); }
+}
+@keyframes devStarPulse {
+  0% { transform: scale(0.9); opacity: 0.7; filter: drop-shadow(0 0 1px #00b0ff); }
+  100% { transform: scale(1.2) rotate(15deg); opacity: 1; filter: drop-shadow(0 0 5px #ffd700); }
 }
 
 /* --- Animated Special Frames --- */

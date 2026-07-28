@@ -183,6 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'cat_fish', emoji: '🐟', name: 'Fish Lover Cat', type: 'funny', cost: 120 },
     { id: 'cat_sleepy', emoji: '😴', name: 'Sleepy Cat', type: 'funny', cost: 120 },
     { id: 'cat_scientist', emoji: '🥽', name: 'Scientist Cat', type: 'funny', cost: 120 },
+    { id: 'cat_developer', emoji: '🧑‍💻', name: 'Developer Cat (Rare)', type: 'special', cost: 9999 },
     { id: 'halloween-ghost', emoji: '👻', name: 'Ghost Cat', type: 'event', cost: 250 },
     { id: 'winter-santa', emoji: '🎅', name: 'Santa Cat', type: 'event', cost: 250 },
     { id: 'spring-flower', emoji: '🌸', name: 'Flower Crown Cat', type: 'event', cost: 250 },
@@ -204,7 +205,8 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'halloween-web', emoji: '🕷️', name: 'Spooky Web (Anim)', cost: 200, css: 'frame-halloween-web' },
     { id: 'winter-candy', emoji: '🍬', name: 'Candy Cane (Anim)', cost: 200, css: 'frame-winter-candy' },
     { id: 'spring-vines', emoji: '🌿', name: 'Vines (Anim)', cost: 200, css: 'frame-spring-vines' },
-    { id: 'anniversary-confetti', emoji: '🎉', name: 'Confetti (Anim)', cost: 200, css: 'frame-anniversary-confetti' }
+    { id: 'anniversary-confetti', emoji: '🎉', name: 'Confetti (Anim)', cost: 200, css: 'frame-anniversary-confetti' },
+    { id: 'frame_developer', emoji: '🛠️', name: 'Developer Border (Rare)', cost: 9999, css: 'frame-developer' }
   ];
 
   const exprsData = [
@@ -3059,44 +3061,195 @@ document.addEventListener('DOMContentLoaded', () => {
       incrementQuestProgress('shop_chest');
       incrementQuestProgress('shop_chest_rare');
 
-      // Random reward calculation
-      const rand = Math.random();
+      // Luck boost calculation: if signed-nametag is equipped, low chance tiers get a +25% relative boost
+      const hasLuckBoost = activeCosmetics.includes('signed-nametag');
+      let commonLimit = 0.60;
+      let rareLimit = 0.80;
+      let epicLimit = 0.92;
+      let legendaryLimit = 0.98;
+      // Ultra Rare is 0.98 to 1.0 (2%)
+
+      if (hasLuckBoost) {
+        // Boosted rates: Ultra Rare (2.5%), Legendary (7.5%), Epic (15%), Rare (25%), Common (50%)
+        commonLimit = 0.50;
+        rareLimit = 0.75;
+        epicLimit = 0.90;
+        legendaryLimit = 0.975;
+      }
+
+      const roll = Math.random();
       let feedback = '';
 
-      if (rand < 0.30) {
-        // Coin Jackpot! 150-300 coins
-        const prize = 150 + Math.floor(Math.random() * 151);
+      if (roll < commonLimit) {
+        // Common Tier (Coins stash)
+        const subRoll = Math.random();
+        let prize = 5;
+        if (subRoll < 0.45) prize = 5;
+        else if (subRoll < 0.70) prize = 50;
+        else if (subRoll < 0.85) prize = 100;
+        else if (subRoll < 0.95) prize = 250;
+        else prize = 500;
+
         addCoins(prize, element);
-        feedback = `🎰 JACKPOT! The chest popped open and you won a massive prize of ${prize} Catnip Coins!`;
-      } else if (rand < 0.70) {
-        // Coins reward 50-120 coins
-        const prize = 50 + Math.floor(Math.random() * 71);
-        addCoins(prize, element);
-        feedback = `📦 The chest opened to reveal a coin stash! You received ${prize} Catnip Coins.`;
-      } else {
-        // Custom Profile Title drop!
-        const titles = [
-          "Gacha Legend 🎰",
-          "Lucky Cat 🍀",
-          "Chest Raider 💎",
-          "Catnip Baron 👑",
-          "Antigravity Master 🌌"
-        ];
-        // Pick one the user doesn't already own if possible
-        let title = titles[Math.floor(Math.random() * titles.length)];
-        if (!unlockedTitles.includes(title)) {
-          unlockedTitles.push(title);
-          activeTitle = title;
+        feedback = `📦 [COMMON REWARD] The chest opened to reveal a coin stash! You received ${prize} Catnip Coins.`;
+      } 
+      else if (roll < rareLimit) {
+        // Rare Tier (Borders/Frames)
+        const borderIds = ['frame_neon_purple', 'frame_electric_blue', 'frame_emerald', 'frame_gold', 'frame_ruby'];
+        const unownedBorders = borderIds.filter(id => !ownedItems.includes(id));
+        if (unownedBorders.length > 0) {
+          const wonId = unownedBorders[Math.floor(Math.random() * unownedBorders.length)];
+          ownedItems.push(wonId);
           saveCoinsToLocalStorage();
           syncCoinsToFirestore();
-          const savedUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
-          if (savedUser) renderProfileCustoms(savedUser);
-          feedback = `💎 RARE DROP! The chest dropped an exclusive profile title: "${title}" (automatically equipped!).`;
+          renderShopItems();
+          feedback = `🎨 [RARE REWARD] You unlocked a colorful profile border frame: ${wonId.replace('frame_', '').replace('_', ' ').toUpperCase()}!`;
         } else {
-          // Refund coins instead of duplicate
           const refund = 120;
           addCoins(refund, element);
-          feedback = `🍀 You rolled a title you already own, so you were refunded ${refund} Catnip Coins!`;
+          feedback = `🎨 [RARE REWARD] You rolled a border frame you already own, so you were refunded ${refund} Catnip Coins!`;
+        }
+      } 
+      else if (roll < epicLimit) {
+        // Epic Tier (Golden Name or 200 coins)
+        const subRoll = Math.random();
+        if (subRoll < 0.70) {
+          if (!ownedItems.includes('golden-name')) {
+            ownedItems.push('golden-name');
+            activeCosmetics.push('golden-name');
+            applyActiveCosmetics();
+            saveCoinsToLocalStorage();
+            syncCoinsToFirestore();
+            renderShopItems();
+            feedback = `🌟 [EPIC REWARD] UNLOCKED: Golden Name Glow! Your profile name now glows gold!`;
+          } else {
+            const refund = 150;
+            addCoins(refund, element);
+            feedback = `🌟 [EPIC REWARD] You rolled Golden Name which you already own, so you were refunded ${refund} Catnip Coins!`;
+          }
+        } else {
+          addCoins(200, element);
+          feedback = `🌟 [EPIC REWARD] You rolled a premium coin cache! Received 200 Catnip Coins.`;
+        }
+      } 
+      else if (roll < legendaryLimit) {
+        // Legendary Tier (Animated Border, Rainbow Name, or Exclusive Title)
+        const subRoll = Math.random();
+        if (subRoll < 0.50) {
+          const animBorders = ['frame_rainbow', 'frame_electric_sparks', 'frame_snowflakes', 'frame_flames', 'frame_floating_stars'];
+          const unowned = animBorders.filter(id => !ownedItems.includes(id));
+          if (unowned.length > 0) {
+            const wonId = unowned[Math.floor(Math.random() * unowned.length)];
+            ownedItems.push(wonId);
+            saveCoinsToLocalStorage();
+            syncCoinsToFirestore();
+            renderShopItems();
+            feedback = `🎆 [LEGENDARY REWARD] UNLOCKED: Animated Border Frame (${wonId.replace('frame_', '').replace('_', ' ').toUpperCase()})!`;
+          } else {
+            const refund = 250;
+            addCoins(refund, element);
+            feedback = `🎆 [LEGENDARY REWARD] You rolled an animated border you already own, so you were refunded ${refund} Catnip Coins!`;
+          }
+        } else if (subRoll < 0.90) {
+          if (!ownedItems.includes('rainbow-name')) {
+            ownedItems.push('rainbow-name');
+            activeCosmetics.push('rainbow-name');
+            applyActiveCosmetics();
+            saveCoinsToLocalStorage();
+            syncCoinsToFirestore();
+            renderShopItems();
+            feedback = `🌈 [LEGENDARY REWARD] UNLOCKED: Animated Rainbow Name! Your profile name now shifts hues!`;
+          } else {
+            const refund = 250;
+            addCoins(refund, element);
+            feedback = `🌈 [LEGENDARY REWARD] You rolled Rainbow Name which you already own, so you were refunded ${refund} Catnip Coins!`;
+          }
+        } else {
+          const titles = ["Legendary Feline 👑", "Mythic Champion ⚔️", "Gacha Legend 🎰", "Lucky Cat 🍀", "Chest Raider 💎", "Catnip Baron 👑", "Antigravity Master 🌌"];
+          const unowned = titles.filter(t => !unlockedTitles.includes(t));
+          if (unowned.length > 0) {
+            const title = unowned[Math.floor(Math.random() * unowned.length)];
+            unlockedTitles.push(title);
+            activeTitle = title;
+            saveCoinsToLocalStorage();
+            syncCoinsToFirestore();
+            const savedUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
+            if (savedUser) renderProfileCustoms(savedUser);
+            feedback = `👑 [LEGENDARY REWARD] UNLOCKED Title: "${title}"!`;
+          } else {
+            const refund = 200;
+            addCoins(refund, element);
+            feedback = `👑 [LEGENDARY REWARD] You rolled a title you already own, so you were refunded ${refund} Catnip Coins!`;
+          }
+        }
+      } 
+      else {
+        // Ultra Rare Tier (Developer Signed Cosmetics)
+        const subRoll = Math.random();
+        if (subRoll < 0.25) {
+          if (!ownedItems.includes('signed-nametag')) {
+            ownedItems.push('signed-nametag');
+            activeCosmetics.push('signed-nametag');
+            applyActiveCosmetics();
+            saveCoinsToLocalStorage();
+            syncCoinsToFirestore();
+            feedback = `✍ [ULTRA RARE] DEVELOPER SIGNED: Signed Name Tag! Prepends 👑 and appends 's luck (+25% luck roll rate when equipped!).`;
+          } else {
+            const refund = 300;
+            addCoins(refund, element);
+            feedback = `✍ [ULTRA RARE] You rolled Signed Name Tag which you already own, so you were refunded ${refund} Catnip Coins!`;
+          }
+        } else if (subRoll < 0.50) {
+          if (!ownedItems.includes('frame_developer')) {
+            ownedItems.push('frame_developer');
+            saveCoinsToLocalStorage();
+            syncCoinsToFirestore();
+            feedback = `🛠️ [ULTRA RARE] DEVELOPER COSMETIC: Developer Border frame unlocked! Glowing violet stars and tiny cat paws!`;
+          } else {
+            const refund = 300;
+            addCoins(refund, element);
+            feedback = `🛠️ [ULTRA RARE] You rolled Developer Border frame which you already own, so you were refunded ${refund} Catnip Coins!`;
+          }
+        } else if (subRoll < 0.75) {
+          if (!ownedItems.includes('cat_developer')) {
+            ownedItems.push('cat_developer');
+            saveCoinsToLocalStorage();
+            syncCoinsToFirestore();
+            feedback = `🧑‍💻 [ULTRA RARE] DEVELOPER COSMETIC: Developer Cat avatar unlocked! Wears a developer wrench!`;
+          } else {
+            const refund = 300;
+            addCoins(refund, element);
+            feedback = `🧑‍💻 [ULTRA RARE] You rolled Developer Cat avatar which you already own, so you were refunded ${refund} Catnip Coins!`;
+          }
+        } else if (subRoll < 0.97) {
+          const badges = ['badge_dev_signed', 'badge_dev_star', 'badge_dev_paw', 'badge_dev_pick'];
+          const unowned = badges.filter(b => !ownedItems.includes(b));
+          if (unowned.length > 0) {
+            const badge = unowned[Math.floor(Math.random() * unowned.length)];
+            ownedItems.push(badge);
+            activeCosmetics.push(badge);
+            applyActiveCosmetics();
+            saveCoinsToLocalStorage();
+            syncCoinsToFirestore();
+            feedback = `💜 [ULTRA RARE] DEVELOPER SIGNED BADGE: Unlocked and equipped!`;
+          } else {
+            const refund = 250;
+            addCoins(refund, element);
+            feedback = `💜 [ULTRA RARE] You rolled a developer signed badge you already own, so you were refunded ${refund} Catnip Coins!`;
+          }
+        } else {
+          if (!ownedItems.includes('signed-profilecard')) {
+            ownedItems.push('signed-profilecard');
+            activeCosmetics.push('signed-profilecard');
+            applyActiveCosmetics();
+            saveCoinsToLocalStorage();
+            syncCoinsToFirestore();
+            feedback = `────────────────────\nCatnip Studios\nKeep making awesome memories!\n- Player\n────────────────────\n✍ [ULTRA RARE] DEVELOPER SIGNED: Signed Profile Card unlocked and equipped!`;
+          } else {
+            const refund = 350;
+            addCoins(refund, element);
+            feedback = `✍ [ULTRA RARE] You rolled Signed Profile Card which you already own, so you were refunded ${refund} Catnip Coins!`;
+          }
         }
       }
 
@@ -4289,6 +4442,15 @@ document.addEventListener('DOMContentLoaded', () => {
           decorElement.style.opacity = '0.7';
         }
         break;
+      case 'cat_developer':
+        catElement.style.filter = 'sepia(0.5) saturate(1.8) hue-rotate(240deg) brightness(0.95)';
+        if (decorElement) {
+          decorElement.textContent = '🛠️';
+          decorElement.style.top = '14px';
+          decorElement.style.right = '-4px';
+          decorElement.style.fontSize = '0.9rem';
+        }
+        break;
       case 'cat_ghost':
         catElement.style.filter = 'opacity(0.55) brightness(1.2)';
         if (decorElement) {
@@ -4559,16 +4721,43 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (nameEl) {
       let displayName = user.displayName || user.email.split('@')[0];
+      const isSignedTag = activeCosmetics.includes('signed-nametag');
+      if (isSignedTag) {
+        displayName = `👑 ${displayName}'s luck`;
+      }
+      
       if (activeTitle) {
         nameEl.innerHTML = `${escapeHtml(displayName)} <span style="font-size: 0.72rem; vertical-align: middle; background: rgba(124, 77, 255, 0.15); color: var(--color-primary); border: 1.5px solid var(--color-primary); padding: 2px 7px; border-radius: 4px; font-weight: 800; margin-left: 5px; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 0 8px rgba(124, 77, 255, 0.3); font-family: var(--font-headings);">${escapeHtml(activeTitle)}</span>`;
       } else {
         nameEl.textContent = displayName;
       }
       
+      // Golden Name Glow
       if (activeCosmetics.includes('golden-name')) {
         nameEl.classList.add('gold-glow-active');
       } else {
         nameEl.classList.remove('gold-glow-active');
+      }
+
+      // Rainbow Name Anim
+      if (activeCosmetics.includes('rainbow-name')) {
+        nameEl.classList.add('rainbow-text-active');
+      } else {
+        nameEl.classList.remove('rainbow-text-active');
+      }
+
+      // Signature line underneath name
+      let sigEl = document.getElementById('profile-signature-line');
+      if (isSignedTag) {
+        if (!sigEl) {
+          sigEl = document.createElement('div');
+          sigEl.id = 'profile-signature-line';
+          sigEl.style.cssText = 'font-size: 0.65rem; color: #c084fc; font-style: italic; font-weight: 700; margin-top: 4px; text-shadow: 0 0 8px rgba(168,85,247,0.4);';
+          sigEl.textContent = '✍ Signed by Catnip Studios';
+          nameEl.parentNode.appendChild(sigEl);
+        }
+      } else {
+        if (sigEl) sigEl.remove();
       }
     }
 
@@ -4589,6 +4778,28 @@ document.addEventListener('DOMContentLoaded', () => {
         crownSpan.textContent = '👑';
         badgeEl.appendChild(crownSpan);
       }
+
+      // Signed developer badges
+      const signedBadges = [
+        { id: 'badge_dev_signed', emoji: '✍️' },
+        { id: 'badge_dev_star', emoji: '⭐' },
+        { id: 'badge_dev_paw', emoji: '🐾' },
+        { id: 'badge_dev_pick', label: "💜 DEV'S PICK" }
+      ];
+      signedBadges.forEach(b => {
+        if (activeCosmetics.includes(b.id)) {
+          const badgeSpan = document.createElement('span');
+          if (b.label) {
+            badgeSpan.style.cssText = 'background: rgba(168, 85, 247, 0.2); color: #c084fc; font-size: 0.62rem; font-weight: 800; padding: 2px 5px; border-radius: 4px; border: 1px dashed #a855f7; cursor: help;';
+            badgeSpan.textContent = b.label;
+          } else {
+            badgeSpan.style.cssText = 'font-size: 0.95rem; cursor: help; filter: drop-shadow(0 0 4px rgba(168, 85, 247, 0.6));';
+            badgeSpan.textContent = b.emoji;
+          }
+          badgeSpan.title = 'Awarded by Catnip Studios.';
+          badgeEl.appendChild(badgeSpan);
+        }
+      });
     }
 
     const currentCatObj = catsData.find(c => c.id === avatarCat) || catsData[0];
@@ -4601,6 +4812,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (avatarFrameEl) {
       avatarFrameEl.className = 'profile-avatar-frame';
       avatarFrameEl.classList.add(currentFrameObj.css);
+    }
+
+    // Toggle Signed Profile Card
+    const signedCard = document.getElementById('profile-signed-card-container');
+    const signedCardUser = document.getElementById('profile-signed-card-username');
+    if (signedCard) {
+      if (activeCosmetics.includes('signed-profilecard')) {
+        signedCard.style.display = 'block';
+        if (signedCardUser) {
+          const rawName = user.displayName || user.email.split('@')[0];
+          signedCardUser.textContent = `- ${rawName}`;
+        }
+      } else {
+        signedCard.style.display = 'none';
+      }
     }
 
     const statsGames = document.getElementById('profile-games-played');
