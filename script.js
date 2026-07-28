@@ -4504,8 +4504,8 @@ document.addEventListener('DOMContentLoaded', () => {
       case 'cat_wizard':
         if (decorElement) {
           decorElement.textContent = '🧙';
-          decorElement.style.top = '-18px';
-          decorElement.style.fontSize = '1.4rem';
+          decorElement.style.top = '-14px';
+          decorElement.style.fontSize = '1.3rem';
         }
         break;
       case 'cat_pirate':
@@ -4559,21 +4559,21 @@ document.addEventListener('DOMContentLoaded', () => {
       case 'cat_pumpkin':
         if (decorElement) {
           decorElement.textContent = '🎃';
-          decorElement.style.top = '-12px';
-          decorElement.style.fontSize = '1.4rem';
+          decorElement.style.top = '-14px';
+          decorElement.style.fontSize = '1.3rem';
         }
         break;
       case 'cat_santa':
         if (decorElement) {
           decorElement.textContent = '🎅';
-          decorElement.style.top = '-16px';
+          decorElement.style.top = '-14px';
           decorElement.style.fontSize = '1.3rem';
         }
         break;
       case 'cat_bunny':
         if (decorElement) {
           decorElement.textContent = '🐰';
-          decorElement.style.top = '-16px';
+          decorElement.style.top = '-14px';
           decorElement.style.fontSize = '1.3rem';
         }
         break;
@@ -4597,7 +4597,7 @@ document.addEventListener('DOMContentLoaded', () => {
       case 'winter-santa':
         if (decorElement) {
           decorElement.textContent = '🎅';
-          decorElement.style.top = '-16px';
+          decorElement.style.top = '-14px';
           decorElement.style.fontSize = '1.3rem';
         }
         break;
@@ -4651,7 +4651,7 @@ document.addEventListener('DOMContentLoaded', () => {
       case 'cat_god':
         if (decorElement) {
           decorElement.textContent = '👼';
-          decorElement.style.top = '-16px';
+          decorElement.style.top = '-14px';
           decorElement.style.fontSize = '1.3rem';
         }
         break;
@@ -4674,9 +4674,8 @@ document.addEventListener('DOMContentLoaded', () => {
       case 'cat_pizza':
         if (decorElement) {
           decorElement.textContent = '🍕';
-          decorElement.style.bottom = '-4px';
-          decorElement.style.right = '-4px';
-          decorElement.style.fontSize = '1.1rem';
+          decorElement.style.top = '-14px';
+          decorElement.style.fontSize = '1.3rem';
         }
         break;
       case 'cat_fish':
