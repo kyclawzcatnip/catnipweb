@@ -2608,6 +2608,9 @@ document.addEventListener('DOMContentLoaded', () => {
       unlockedCats = JSON.parse(localStorage.getItem('scw_unlocked_cats') || '["cat_basic", "cat_orange", "cat_black", "cat_white", "cat_tuxedo", "cat_brown", "cat_calico", "cat_grey", "cat_siamese"]');
       unlockedFrames = JSON.parse(localStorage.getItem('scw_unlocked_frames') || '["frame_none"]');
       joinDate = localStorage.getItem('scw_join_date') || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+      if (isDeveloperEmail(localEmail)) {
+        joinDate = "July 24, 2026";
+      }
       totalCoinsEarned = parseInt(localStorage.getItem('scw_total_coins_earned') || '0', 10);
       gamesPlayed = parseInt(localStorage.getItem('scw_games_played') || '0', 10);
       victoryCount = parseInt(localStorage.getItem('scw_victory_count') || '0', 10);
