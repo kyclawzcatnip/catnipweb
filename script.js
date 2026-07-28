@@ -3449,6 +3449,23 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Initialize and bind Game Bug Code Cheats selectors
+  const bugCodeSelects = document.querySelectorAll('.dev-bug-code-select');
+  bugCodeSelects.forEach(select => {
+    const game = select.getAttribute('data-game');
+    if (game) {
+      const savedCode = localStorage.getItem(`scw_bug_code_${game}`) || '0';
+      select.value = savedCode;
+      
+      select.addEventListener('change', () => {
+        const newCode = select.value;
+        localStorage.setItem(`scw_bug_code_${game}`, newCode);
+        playRetroSound('click');
+        console.log(`[Developer Diagnostics] ${game.toUpperCase()} bug level set to Code ${newCode}`);
+      });
+    }
+  });
+
   // Load and query user directory (for Dev secrets accounts viewer)
   function loadUserDirectory() {
     const tbody = document.getElementById('user-directory-tbody');
