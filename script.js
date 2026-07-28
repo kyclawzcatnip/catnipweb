@@ -4811,6 +4811,12 @@ document.addEventListener('DOMContentLoaded', () => {
         staffSpan.title = 'Official Catnip Staff Developer';
         staffSpan.textContent = 'STAFF';
         badgeEl.appendChild(staffSpan);
+
+        const ownerSpan = document.createElement('span');
+        ownerSpan.style.cssText = 'background: linear-gradient(135deg, #FFD700, #FFA500); color: #000; font-size: 0.62rem; font-weight: 800; padding: 2px 5px; border-radius: 3px; cursor: help; line-height: 1; margin-left: 3px; border: 1px solid #FFD700; box-shadow: 0 0 6px rgba(255, 215, 0, 0.4);';
+        ownerSpan.title = 'Official Owner & Lead Creator';
+        ownerSpan.textContent = 'OWNER';
+        badgeEl.appendChild(ownerSpan);
       }
       if (activeCosmetics.includes('crown-badge')) {
         const crownSpan = document.createElement('span');
