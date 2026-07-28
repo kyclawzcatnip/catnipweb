@@ -845,6 +845,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function navigateTo(sectionId) {
     // Check if section is secrets and if authorized
     if (sectionId === 'secrets') {
+      const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
       const localEmail = (localUser && typeof localUser.email === 'string') ? localUser.email.toLowerCase() : '';
       const isDevSession = isDeveloperEmail(localEmail);
       const isAuth = sessionStorage.getItem('dev_auth') === 'true' || isDevSession;
@@ -1000,6 +1001,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Open security gate modal
   function openSecurityGate() {
     // Check if the current logged-in user is the developer (catnip)
+    const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
     const localEmail = (localUser && typeof localUser.email === 'string') ? localUser.email.toLowerCase() : '';
     const isDevSession = isDeveloperEmail(localEmail);
 
