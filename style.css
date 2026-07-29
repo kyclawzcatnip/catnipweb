@@ -2297,6 +2297,33 @@ p {
   transform: scale(1.05);
   box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
 }
+.xp-header-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(124, 77, 255, 0.08);
+  border: 1px solid rgba(124, 77, 255, 0.25);
+  padding: 6px 12px;
+  border-radius: 20px;
+  margin-right: 8px;
+  font-family: var(--font-headings);
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #c084fc;
+  box-shadow: 0 0 10px rgba(124, 77, 255, 0.05);
+  transition: var(--transition-smooth);
+  cursor: pointer;
+}
+.xp-header-display:hover {
+  background: rgba(124, 77, 255, 0.15);
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(124, 77, 255, 0.2);
+}
+.title-tribute-blade {
+  color: #ff80ab !important;
+  font-weight: 800 !important;
+  text-shadow: 0 0 8px rgba(255, 128, 171, 0.4) !important;
+}
 .header-coin-icon {
   width: 18px;
   height: 18px;

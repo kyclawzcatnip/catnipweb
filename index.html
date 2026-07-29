@@ -55,6 +55,14 @@
           </svg>
           Dev Portal
         </button>
+        <div class="xp-header-display nav-trigger" id="xp-header-display" data-target="secrets" title="Your Current Progress Level & XP">
+          <span style="color: var(--color-primary); font-weight: 800;" id="header-prestige-badge"></span>
+          <span style="color: #fff; font-weight: 800; font-size: 0.8rem; letter-spacing: 0.5px;">LVL <span id="header-user-level" style="color: var(--color-primary);">1</span></span>
+          <div style="width: 70px; height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); position: relative;">
+            <div id="header-xp-bar-fill" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--color-primary), var(--color-accent)); transition: width 0.4s ease;"></div>
+          </div>
+          <span style="font-size: 0.72rem; color: var(--color-text-muted); font-family: monospace; font-weight: 600;" id="header-xp-text">0/100 XP</span>
+        </div>
         <div class="coin-header-display" id="coin-header-display" title="Your Catnip Coins balance">
           <img src="coin.png" class="header-coin-icon" alt="Catnip Coin" />
           <span id="header-coin-balance">0</span>
@@ -601,6 +609,16 @@
               </div>
               <p class="wiki-excerpt">A high-speed feline kart racer with drifting mechanics and wacky item power-ups.</p>
               <button class="btn-read-wiki" data-article="catnip-kart">Read Entry &rarr;</button>
+            </article>
+
+            <!-- Article 1f: Community Tributes -->
+            <article class="wiki-card" data-category="lore" data-keywords="community tributes technoblade tribute legend of the blade pig crown minecraft memorial respect">
+              <div class="wiki-card-header">
+                <span class="wiki-tag" style="background: rgba(255, 128, 171, 0.12); color: #ff80ab; border: 1px solid rgba(255, 128, 171, 0.25);">Tribute</span>
+                <h3 class="wiki-title">Community Tributes</h3>
+              </div>
+              <p class="wiki-excerpt">Honouring players and figures whose creativity and passion have shaped the wider gaming community.</p>
+              <button class="btn-read-wiki" data-article="community-tributes">Read Entry &rarr;</button>
             </article>
 
             <!-- Article 2 -->
@@ -1860,6 +1878,9 @@
             <h3 id="profile-display-name" style="margin: 0; font-size: 1.15rem; color: #FFF;">Catnip Player</h3>
             <span id="profile-badge-element" style="display: inline-flex; align-items: center; gap: 2px;"></span>
           </div>
+          <div style="display: flex; justify-content: center; margin-top: 4px; margin-bottom: 2px;">
+            <span id="profile-display-title-label" style="font-size: 0.78rem; font-weight: 700; color: var(--color-primary); background: rgba(124, 77, 255, 0.12); padding: 2px 8px; border-radius: 12px; border: 1px solid rgba(124, 77, 255, 0.25); display: none;"></span>
+          </div>
           <p id="profile-email" class="profile-email-text" style="font-size: 0.8rem; color: var(--color-text-muted); margin: 2px 0 4px;">player@example.com</p>
           <span class="join-date-badge" id="profile-join-date" style="font-size: 0.7rem; color: rgba(255,255,255,0.4); display: block;">Joined: July 2026</span>
         </div>
@@ -1875,6 +1896,36 @@
           <div class="profile-stat-box" style="text-align: center; background: rgba(0,0,0,0.15); padding: 5px; border-radius: var(--radius-sm);">
             <span class="stat-num" id="profile-achievement-count" style="font-size: 1.1rem; font-weight: 800; color: #00E676; display: block;">0</span>
             <span class="stat-label" style="font-size: 0.62rem; color: var(--color-text-muted); display: block; text-transform: uppercase;">Medals</span>
+          </div>
+        </div>
+
+        <!-- XP Progress Panel inside Logged In View -->
+        <div style="margin-top: 12px; border-top: 1px solid var(--border-light); padding-top: 10px; text-align: left;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+            <span style="font-size: 0.72rem; color: var(--color-primary); font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">⭐ LEVEL PROGRESSION</span>
+            <span id="profile-prestige-badge" style="font-size: 0.85rem; font-weight: 800; color: var(--color-accent);"></span>
+          </div>
+          
+          <div style="display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 4px; font-weight: 700;">
+            <span style="color: #FFF;">Level <span id="profile-user-level">1</span></span>
+            <span style="color: var(--color-text-muted);" id="profile-xp-ratio">0 / 100 XP</span>
+          </div>
+          
+          <div style="width: 100%; height: 12px; background: rgba(0,0,0,0.3); border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.06); position: relative; margin-bottom: 8px;">
+            <div id="profile-xp-bar-fill" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--color-primary), var(--color-accent)); transition: width 0.5s ease;"></div>
+          </div>
+          
+          <!-- Title Selector Selection -->
+          <div style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px;">
+            <label for="profile-title-select" style="font-size: 0.65rem; color: rgba(255,255,255,0.4); font-weight: 800; text-transform: uppercase;">Active Title</label>
+            <select id="profile-title-select" style="width: 100%; padding: 6px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); background: rgba(0,0,0,0.25); color: #fff; font-family: inherit; font-size: 0.8rem; font-weight: 600; cursor: pointer;">
+              <option value="">No Title Selected</option>
+            </select>
+          </div>
+          
+          <!-- Prestige Button Container -->
+          <div id="profile-prestige-container" style="display: none; margin-top: 8px;">
+            <button class="btn btn-primary btn-sm btn-block" id="btn-profile-prestige" style="background: linear-gradient(135deg, #a855f7, #7c3aed); border-color: #c084fc; font-weight: 800; font-size: 0.78rem;">⭐ ASCEND: PRESTIGE NOW ⭐</button>
           </div>
         </div>
         
@@ -2045,6 +2096,34 @@
     </div>
   </div>
 
+  <!-- Level Up Modal Overlay -->
+  <div class="security-modal" id="level-up-modal" style="display: none; z-index: 10000;">
+    <div class="security-card-modal" style="max-width: 420px; padding: 35px; text-align: center; background: radial-gradient(circle at center, #1b0e36 0%, #0c071a 100%); border: 2px solid var(--color-primary); box-shadow: 0 0 35px rgba(124, 77, 255, 0.4); position: relative; overflow: hidden;">
+      
+      <!-- Canvas for Paw Particles shower! -->
+      <canvas id="level-up-particles-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;"></canvas>
+      
+      <div style="position: relative; z-index: 2;">
+        <span class="secrets-cat" style="color: var(--color-accent); font-weight: 800; font-size: 0.95rem; letter-spacing: 2px; text-transform: uppercase;">✨ ASCENSION ACHIEVED ✨</span>
+        <h2 style="margin-top: 10px; margin-bottom: 5px; font-family: var(--font-headings); font-weight: 900; font-size: 2.2rem; color: #FFF; text-shadow: 0 0 15px rgba(124,77,255,0.6); animation: pulseEventGlow 1.5s infinite alternate;">LEVEL UP!</h2>
+        
+        <p style="font-size: 1.15rem; color: var(--color-text-secondary); margin-bottom: 25px;">
+          You reached <strong style="color: var(--color-primary); font-size: 1.3rem;">Level <span id="levelup-level-num">20</span></strong>!
+        </p>
+        
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 20px; margin-bottom: 25px; text-align: center;">
+          <span style="font-size: 0.72rem; color: var(--color-text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 1px; display: block; margin-bottom: 8px;">🎁 Level Up Reward Unlocked</span>
+          <div id="levelup-reward-display" style="font-size: 1.2rem; font-weight: 800; color: #FFF; display: flex; flex-direction: column; gap: 6px; align-items: center; justify-content: center;">
+            <div>👑 Golden Name</div>
+            <div style="color: #FFD700;">+500 Catnip Coins</div>
+          </div>
+        </div>
+        
+        <button class="btn btn-primary btn-block" id="btn-levelup-confirm" style="font-weight: 800; letter-spacing: 0.5px; margin: 0; box-shadow: 0 0 15px rgba(124,77,255,0.3);">Awesome!</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ==================== SUPER SMASH CATS MINI-BATTLE ARENA MODAL ==================== -->
   <div class="security-modal" id="battle-modal" style="display: none;">
     <div class="security-card-modal" style="max-width: 550px; width: 95%; padding: 25px; position: relative;">
@@ -2090,6 +2169,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
   <!-- Main Script File -->
-  <script src="script.js?v=20260726zk54"></script>
+  <script src="script.js?v=20260726zk55"></script>
 </body>
 </html>

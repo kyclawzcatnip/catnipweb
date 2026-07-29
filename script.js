@@ -78,6 +78,9 @@ document.addEventListener('DOMContentLoaded', () => {
   let coinsSpent = 0;
   let activeTitle = '';
   let unlockedTitles = [];
+  let userXP = 0;
+  let userLevel = 1;
+  let userPrestige = 0;
 
   // Seasonal Events State variables
   let activeEvent = 'none';
@@ -171,6 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'cat_electric', emoji: '⚡', name: 'Electric Cat', type: 'unlockable', cost: 150 },
     { id: 'cat_ice', emoji: '❄️', name: 'Ice Cat', type: 'unlockable', cost: 150 },
     { id: 'cat_fire', emoji: '🔥', name: 'Fire Cat', type: 'unlockable', cost: 150 },
+    { id: 'cat_xp_emperor', emoji: '👑🐱', name: 'Emperor Cat (Milestone)', type: 'progression', cost: 0 },
     { id: 'cat_pumpkin', emoji: '🎃', name: 'Pumpkin Cat', type: 'event', cost: 200 },
     { id: 'cat_santa', emoji: '🎅', name: 'Santa Cat', type: 'event', cost: 200 },
     { id: 'cat_bunny', emoji: '🐰', name: 'Bunny Cat', type: 'event', cost: 200 },
@@ -216,6 +220,393 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'frame_developer', emoji: '🛠️', name: 'Developer Border (Rare)', cost: 9999, css: 'frame-developer' }
   ];
 
+  // ==================== XP & LEVEL PROGRESSION SYSTEM ====================
+  const TITLES_DATABASE = [
+    { title: 'Curious Kitten 🐾', level: 1 },
+    { title: 'Alley Cat 🐱', level: 5 },
+    { title: 'Rat Chaser ⚔', level: 10 },
+    { title: 'Cat Adventurer 🗺', level: 15 },
+    { title: 'Cat Hero ⭐', level: 20 },
+    { title: '🐷 Legend of the Blade 👑', level: 20 }, // Special pink title!
+    { title: 'Cat Champion 🏆', level: 30 },
+    { title: 'Cat Legend 🌟', level: 40 },
+    { title: 'Cat Emperor 👑', level: 50 },
+    { title: 'Galaxy Guardian 🌌', level: 75 },
+    { title: 'Catnip Master 💜', level: 100 }
+  ];
+
+  const LEVEL_REWARDS = {
+    2: { name: '💰 +100 Coins', coins: 100 },
+    5: { name: '🤖 Robot Cat Avatar', avatar: 'cat_robot', coins: 0 },
+    10: { name: '⚡ Sparks Animated Border', border: 'frame_electric_sparks', coins: 0 },
+    15: { name: '🎁 Free Mystery Chest Crate', mysteryChest: true, coins: 0 },
+    20: { name: '👑 Golden Name & 🐷 Legend of the Blade Title', nametag: 'golden_name', title: '🐷 Legend of the Blade 👑', coins: 500 },
+    25: { name: '🏷️ "Alley Cat" Title', title: 'Alley Cat 🐱', coins: 0 },
+    30: { name: '🧙 Wizard Cat Avatar', avatar: 'cat_wizard', coins: 0 },
+    40: { name: '🌈 Rainbow Animated Border', border: 'frame_rainbow', coins: 0 },
+    50: { name: '🔥 Emperor Cat Avatar + 1,000 Coins', avatar: 'cat_xp_emperor', coins: 1000 }
+  };
+
+  function getXPNeededForLevel(level) {
+    if (level === 1) return 100;
+    if (level === 2) return 150;
+    if (level === 3) return 225;
+    if (level === 4) return 340;
+    return level * 100;
+  }
+
+  function getPrestigeBadge(prestige) {
+    if (prestige === 0) return '';
+    if (prestige === 1) return '🥉 Prestige I';
+    if (prestige === 2) return '🥈 Prestige II';
+    if (prestige === 3) return '🥇 Prestige III';
+    if (prestige === 4) return '💎 Diamond Prestige';
+    return '🌌 Cosmic Prestige';
+  }
+
+  function checkUnlockedTitles(level) {
+    let updated = false;
+    TITLES_DATABASE.forEach(item => {
+      if (level >= item.level && !unlockedTitles.includes(item.title)) {
+        unlockedTitles.push(item.title);
+        updated = true;
+      }
+    });
+    if (updated) {
+      localStorage.setItem('scw_unlocked_titles', JSON.stringify(unlockedTitles));
+    }
+  }
+
+  function populateTitleDropdown() {
+    const select = document.getElementById('profile-title-select');
+    if (!select) return;
+    
+    select.innerHTML = '<option value="">No Title Selected</option>';
+    
+    unlockedTitles.forEach(t => {
+      const opt = document.createElement('option');
+      opt.value = t;
+      opt.textContent = t;
+      if (t === activeTitle) {
+        opt.selected = true;
+      }
+      select.appendChild(opt);
+    });
+  }
+
+  function addXP(amount) {
+    if (typeof amount !== 'number' || amount <= 0) return;
+    
+    userXP += amount;
+    
+    let leveledUp = false;
+    let newLevel = userLevel;
+    
+    while (true) {
+      const xpNeeded = getXPNeededForLevel(newLevel);
+      if (userXP >= xpNeeded) {
+        userXP -= xpNeeded;
+        newLevel++;
+        leveledUp = true;
+      } else {
+        break;
+      }
+    }
+    
+    if (leveledUp) {
+      const oldLevel = userLevel;
+      userLevel = newLevel;
+      checkUnlockedTitles(userLevel);
+      processLevelUpRewards(oldLevel, userLevel);
+    }
+    
+    saveCoinsToLocalStorage();
+    syncCoinsToFirestore();
+    updateXPUI();
+    showFloatingXPIndicator(amount);
+  }
+
+  window.addXP = addXP;
+
+  function showFloatingXPIndicator(amount) {
+    const indicator = document.createElement('div');
+    indicator.style.position = 'fixed';
+    indicator.style.bottom = '100px';
+    indicator.style.left = '50%';
+    indicator.style.transform = 'translateX(-50%)';
+    indicator.style.background = 'linear-gradient(135deg, var(--color-primary), var(--color-accent))';
+    indicator.style.color = '#FFF';
+    indicator.style.padding = '8px 16px';
+    indicator.style.borderRadius = '20px';
+    indicator.style.fontWeight = '800';
+    indicator.style.fontSize = '0.9rem';
+    indicator.style.boxShadow = '0 0 15px rgba(124, 77, 255, 0.4)';
+    indicator.style.zIndex = '99999';
+    indicator.style.pointerEvents = 'none';
+    indicator.style.transition = 'all 0.8s cubic-bezier(0.25, 1, 0.5, 1)';
+    indicator.textContent = `+${amount} XP`;
+    
+    document.body.appendChild(indicator);
+    
+    setTimeout(() => {
+      indicator.style.transform = 'translate(-50%, -40px)';
+      indicator.style.opacity = '0';
+    }, 50);
+    
+    setTimeout(() => {
+      indicator.remove();
+    }, 850);
+  }
+
+  function processLevelUpRewards(oldLevel, newLevel) {
+    let unlockedItemsText = [];
+    let coinsRewarded = 0;
+    
+    for (let lvl = oldLevel + 1; lvl <= newLevel; lvl++) {
+      const reward = LEVEL_REWARDS[lvl];
+      if (reward) {
+        if (reward.coins > 0) {
+          coinsRewarded += reward.coins;
+          userCoins += reward.coins;
+          totalCoinsEarned += reward.coins;
+        }
+        if (reward.avatar) {
+          if (!unlockedCats.includes(reward.avatar)) {
+            unlockedCats.push(reward.avatar);
+            localStorage.setItem('scw_unlocked_cats', JSON.stringify(unlockedCats));
+          }
+          unlockedItemsText.push(`🐱 Avatar: ${reward.name}`);
+        }
+        if (reward.border) {
+          if (!unlockedFrames.includes(reward.border)) {
+            unlockedFrames.push(reward.border);
+            localStorage.setItem('scw_unlocked_frames', JSON.stringify(unlockedFrames));
+          }
+          unlockedItemsText.push(`🖼️ Frame: ${reward.name}`);
+        }
+        if (reward.mysteryChest) {
+          userCoins += 150;
+          totalCoinsEarned += 150;
+          unlockedItemsText.push(`🎁 1 Free Gachapon Chest Roll (+150 Coins credited)`);
+        }
+        if (reward.title) {
+          if (!unlockedTitles.includes(reward.title)) {
+            unlockedTitles.push(reward.title);
+            localStorage.setItem('scw_unlocked_titles', JSON.stringify(unlockedTitles));
+          }
+          unlockedItemsText.push(`🏷️ Title: ${reward.title}`);
+        }
+        if (reward.nametag) {
+          unlockedItemsText.push(`👑 Nametag style unlocked!`);
+        }
+      }
+      
+      if (!reward) {
+        const standardReward = 50;
+        coinsRewarded += standardReward;
+        userCoins += standardReward;
+        totalCoinsEarned += standardReward;
+      }
+    }
+    
+    if (coinsRewarded > 0) {
+      unlockedItemsText.push(`💰 +${coinsRewarded} Catnip Coins`);
+    }
+    
+    triggerLevelUpModalAnimation(newLevel, unlockedItemsText);
+  }
+
+  function drawCatPaw(ctx, x, y, size, rotation, opacity) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rotation);
+    ctx.fillStyle = `rgba(124, 77, 255, ${opacity})`;
+    
+    ctx.beginPath();
+    ctx.ellipse(0, 5, size * 0.8, size * 0.6, 0, 0, Math.PI * 2);
+    ctx.fill();
+    
+    const toeSpacing = [-0.6, -0.2, 0.2, 0.6];
+    const toeHeights = [-3, -6, -6, -3];
+    for (let i = 0; i < 4; i++) {
+      ctx.beginPath();
+      ctx.arc(toeSpacing[i] * size, toeHeights[i] * size * 0.8, size * 0.25, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    
+    ctx.restore();
+  }
+
+  function drawPinkSparkle(ctx, x, y, size, rotation, opacity) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rotation);
+    ctx.fillStyle = `rgba(255, 128, 171, ${opacity})`;
+    
+    ctx.beginPath();
+    for (let i = 0; i < 4; i++) {
+      ctx.lineTo(0, -size);
+      ctx.lineTo(size * 0.25, -size * 0.25);
+      ctx.rotate(Math.PI / 2);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function triggerLevelUpModalAnimation(level, rewardsList) {
+    const modal = document.getElementById('level-up-modal');
+    const levelNumDisplay = document.getElementById('levelup-level-num');
+    const rewardDisplay = document.getElementById('levelup-reward-display');
+    const canvas = document.getElementById('level-up-particles-canvas');
+    const confirmBtn = document.getElementById('btn-levelup-confirm');
+    
+    if (!modal || !canvas) return;
+    
+    if (levelNumDisplay) levelNumDisplay.textContent = level;
+    if (rewardDisplay) {
+      rewardDisplay.innerHTML = '';
+      if (rewardsList.length === 0) {
+        rewardDisplay.innerHTML = '<div>🎉 Keep up the great adventure!</div>';
+      } else {
+        rewardsList.forEach(r => {
+          const item = document.createElement('div');
+          item.textContent = r;
+          rewardDisplay.appendChild(item);
+        });
+      }
+    }
+    
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    playRetroSound('victory');
+    
+    const ctx = canvas.getContext('2d');
+    const rect = canvas.parentNode.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+    
+    const particles = [];
+    const isLevel20Tribute = (level === 20);
+    const spawnCount = isLevel20Tribute ? 50 : 30;
+    
+    for (let i = 0; i < spawnCount; i++) {
+      const type = (isLevel20Tribute && Math.random() < 0.6) ? 'sparkle' : 'paw';
+      particles.push({
+        type: type,
+        x: Math.random() * canvas.width,
+        y: canvas.height + Math.random() * 100,
+        vx: Math.random() * 2 - 1,
+        vy: -(Math.random() * 2.5 + 1.2),
+        size: type === 'sparkle' ? Math.random() * 6 + 4 : Math.random() * 8 + 6,
+        rotation: Math.random() * Math.PI * 2,
+        rotSpeed: Math.random() * 0.04 - 0.02,
+        opacity: Math.random() * 0.4 + 0.5
+      });
+    }
+    
+    let active = true;
+    
+    const runParticles = () => {
+      if (!active) return;
+      
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.rotation += p.rotSpeed;
+        p.opacity -= 0.0025;
+        
+        if (p.y < -30 || p.opacity <= 0) {
+          p.x = Math.random() * canvas.width;
+          p.y = canvas.height + 20;
+          p.vy = -(Math.random() * 2.5 + 1.2);
+          p.opacity = Math.random() * 0.4 + 0.5;
+        }
+        
+        if (p.type === 'sparkle') {
+          drawPinkSparkle(ctx, p.x, p.y, p.size, p.rotation, p.opacity);
+        } else {
+          drawCatPaw(ctx, p.x, p.y, p.size, p.rotation, p.opacity);
+        }
+      });
+      
+      requestAnimationFrame(runParticles);
+    };
+    
+    requestAnimationFrame(runParticles);
+    
+    const closeLevelUp = () => {
+      active = false;
+      modal.style.display = 'none';
+      document.body.style.overflow = '';
+      playRetroSound('click');
+      confirmBtn.removeEventListener('click', closeLevelUp);
+    };
+    
+    confirmBtn.addEventListener('click', closeLevelUp);
+  }
+
+  function updateXPUI() {
+    const xpNeeded = getXPNeededForLevel(userLevel);
+    const xpPercent = Math.min(100, Math.max(0, (userXP / xpNeeded) * 100));
+    const prestigeBadge = getPrestigeBadge(userPrestige);
+    
+    const headerPrestige = document.getElementById('header-prestige-badge');
+    const headerLevel = document.getElementById('header-user-level');
+    const headerXPBar = document.getElementById('header-xp-bar-fill');
+    const headerXPText = document.getElementById('header-xp-text');
+    
+    if (headerPrestige) {
+      headerPrestige.textContent = prestigeBadge ? prestigeBadge.split(' ')[0] : '';
+    }
+    if (headerLevel) headerLevel.textContent = userLevel;
+    if (headerXPBar) headerXPBar.style.width = `${xpPercent}%`;
+    if (headerXPText) headerXPText.textContent = `${userXP}/${xpNeeded} XP`;
+    
+    const profilePrestige = document.getElementById('profile-prestige-badge');
+    const profileLevel = document.getElementById('profile-user-level');
+    const profileXPBar = document.getElementById('profile-xp-bar-fill');
+    const profileXPRatio = document.getElementById('profile-xp-ratio');
+    const profileTitleLabel = document.getElementById('profile-display-title-label');
+    
+    if (profilePrestige) profilePrestige.textContent = prestigeBadge;
+    if (profileLevel) profileLevel.textContent = userLevel;
+    if (profileXPBar) profileXPBar.style.width = `${xpPercent}%`;
+    if (profileXPRatio) profileXPRatio.textContent = `${userXP.toLocaleString()} / ${xpNeeded.toLocaleString()} XP`;
+    
+    if (profileTitleLabel) {
+      if (activeTitle) {
+        profileTitleLabel.textContent = activeTitle;
+        profileTitleLabel.style.display = 'inline-block';
+        if (activeTitle.includes('Legend of the Blade')) {
+          profileTitleLabel.className = 'title-tribute-blade';
+          profileTitleLabel.title = "Technoblade (Tribute): Awarded in honour of Technoblade, whose creativity and humour inspired millions of Minecraft players.";
+        } else {
+          profileTitleLabel.className = '';
+          profileTitleLabel.style.color = 'var(--color-primary)';
+          profileTitleLabel.style.background = 'rgba(124, 77, 255, 0.12)';
+          profileTitleLabel.style.borderColor = 'rgba(124, 77, 255, 0.25)';
+          profileTitleLabel.title = '';
+        }
+      } else {
+        profileTitleLabel.textContent = '';
+        profileTitleLabel.style.display = 'none';
+        profileTitleLabel.title = '';
+      }
+    }
+    
+    populateTitleDropdown();
+    
+    const prestigeContainer = document.getElementById('profile-prestige-container');
+    if (prestigeContainer) {
+      prestigeContainer.style.display = (userLevel >= 100) ? 'block' : 'none';
+    }
+  }
+
+  window.updateXPUI = updateXPUI;
+
   const exprsData = [
     { id: 'expr_happy', emoji: '😀', name: 'Happy' },
     { id: 'expr_cool', emoji: '😎', name: 'Cool' },
@@ -232,6 +623,28 @@ document.addEventListener('DOMContentLoaded', () => {
   ];
 
   const wikiArticles = {
+    'community-tributes': {
+      title: 'Community Tributes',
+      category: 'lore',
+      tag: 'Tribute',
+      image: '🐷',
+      firstAppearance: 'July 2026',
+      characters: 'Technoblade',
+      quotes: ['Technoblade Never Dies!'],
+      trivia: [
+        "Unlocks the pink custom title '🐷 Legend of the Blade 👑' at Level 20.",
+        "Awarded as a community tribute in honor of Technoblade's legacy in the gaming and Minecraft spaces."
+      ],
+      timeline: '<ul><li><strong>June 2022</strong> - In memory of Technoblade, who passed away after a brave battle with cancer.</li><li><strong>July 2026</strong> - Catnip Studios integrates community tributes to honor legendary gamers.</li></ul>',
+      related: ['studio-history'],
+      content: `
+        <p>At Catnip Studios, we believe that games are built on the creativity, humor, and connection of the communities that play them. In this section, we pay tribute to outstanding community members and figures whose dedication has left a permanent legacy in gaming.</p>
+        
+        <h4 style="margin-top: 15px; margin-bottom: 8px; color: #ff80ab;">🐷 Tribute: Technoblade</h4>
+        <p>Alexander, known online as <strong>Technoblade</strong>, was a legendary Minecraft content creator known for his brilliant wit, tactical gameplay, and deep passion. His catchphrases, humorous rivalries, and incredible charity events inspired millions of players around the world.</p>
+        <p>This tribute title is a small, respectful nod from our community to celebrate his impact. It is completely independent and has no official connection or endorsement from his estate.</p>
+      `
+    },
     'bug-code-classifications': {
       title: 'Bug Code Classifications & Diagnostics Guide',
       category: 'mechanics',
@@ -1341,6 +1754,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (article) {
       wikiPagesRead++;
+      if (typeof addXP === 'function') addXP(10);
       
       // Increment Wiki Daily Quests
       incrementQuestProgress('wiki_read');
@@ -2615,6 +3029,9 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem('scw_unlocked_titles', JSON.stringify(unlockedTitles));
       localStorage.setItem('scw_bank_deposit_amount', bankDepositAmount.toString());
       localStorage.setItem('scw_bank_deposit_timestamp', bankDepositTimestamp.toString());
+      localStorage.setItem('scw_user_xp', userXP.toString());
+      localStorage.setItem('scw_user_level', userLevel.toString());
+      localStorage.setItem('scw_user_prestige', userPrestige.toString());
 
       const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
       if (localUser) {
@@ -2659,12 +3076,16 @@ document.addEventListener('DOMContentLoaded', () => {
       unlockedTitles = JSON.parse(localStorage.getItem('scw_unlocked_titles') || '[]');
       bankDepositAmount = parseInt(localStorage.getItem('scw_bank_deposit_amount') || '0', 10);
       bankDepositTimestamp = parseInt(localStorage.getItem('scw_bank_deposit_timestamp') || '0', 10);
+      userXP = parseInt(localStorage.getItem('scw_user_xp') || '0', 10);
+      userLevel = parseInt(localStorage.getItem('scw_user_level') || '1', 10);
+      userPrestige = parseInt(localStorage.getItem('scw_user_prestige') || '0', 10);
       
       updateCoinUI();
       applyActiveCosmetics();
       renderShopItems();
       updateChestUI();
       if (typeof updateBankUI === 'function') updateBankUI();
+      if (typeof updateXPUI === 'function') updateXPUI();
     } catch (e) {
       console.error("Local storage loading error:", e);
     }
@@ -2817,7 +3238,8 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Generate new quests for today!
+    // Generate new quests for today & award daily login XP (+25 XP)
+    if (typeof addXP === 'function') addXP(25);
     const standards = QUESTS_DATABASE.filter(q => !q.isRare);
     const rares = QUESTS_DATABASE.filter(q => q.isRare);
 
@@ -3004,6 +3426,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       playRetroSound('purchase');
       addCoins(quest.reward, btnElement);
+      if (typeof addXP === 'function') addXP(30);
 
       // Track shop earn quest progress
       incrementQuestProgress('shop_earn', quest.reward);
@@ -3106,6 +3529,7 @@ document.addEventListener('DOMContentLoaded', () => {
           ownedItems.push(itemId);
           activeCosmetics.push(itemId); // Auto-equip on purchase
           playRetroSound('purchase');
+          if (typeof addXP === 'function') addXP(25);
           
           // Increment quests
           incrementQuestProgress('shop_buy');
@@ -4548,8 +4972,9 @@ document.addEventListener('DOMContentLoaded', () => {
         addCoins(reward, btnSubmitJournal);
       }
 
-      // Increment Journal & Coin Exchange Quests
+      // Increment Journal & Coin Exchange Quests and Award XP
       incrementQuestProgress('journal_write');
+      if (typeof addXP === 'function') addXP(50);
       if (text.length >= 100) {
         incrementQuestProgress('journal_chars');
       }
@@ -4560,6 +4985,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (coins > 0) {
         incrementQuestProgress('scw_exchange', coins);
         incrementQuestProgress('scw_import');
+        if (typeof addXP === 'function') addXP(40);
       }
       
       // Check streak achievements/quests
@@ -4739,6 +5165,11 @@ document.addEventListener('DOMContentLoaded', () => {
           localStorage.setItem('scw_games_played', gamesPlayed.toString());
           localStorage.setItem('scw_max_lobby_cats', Math.max(parseInt(localStorage.getItem('scw_max_lobby_cats') || '0', 10), activeCauExtraCats).toString());
           
+          if (typeof addXP === 'function') {
+            addXP(60);  // Play Cats Among Us
+            addXP(100); // Win Cats Among Us
+          }
+
           if (typeof incrementQuestProgress === 'function') {
             incrementQuestProgress('among_play');
             incrementQuestProgress('among_win');
@@ -4753,6 +5184,7 @@ document.addEventListener('DOMContentLoaded', () => {
           if (activeScwCoins > 0) {
             incrementQuestProgress('scw_exchange', activeScwCoins);
             incrementQuestProgress('scw_import');
+            if (typeof addXP === 'function') addXP(40);
           }
         }
 
@@ -5404,6 +5836,12 @@ document.addEventListener('DOMContentLoaded', () => {
         currentList.push(id);
         achievements = currentList;
         unlockedAny = true;
+
+        // Award Achievement XP (100 - 500 XP)
+        let xpReward = 100;
+        if (coinReward >= 100) xpReward = 500;
+        else if (coinReward >= 50) xpReward = 250;
+        if (typeof addXP === 'function') addXP(xpReward);
         
         if (coinReward > 0) {
           userCoins += coinReward;
@@ -5760,6 +6198,54 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const btnCancelAvatar = document.getElementById('btn-cancel-avatar');
   if (btnCancelAvatar) btnCancelAvatar.addEventListener('click', closeAvatarModal);
+
+  // --- XP System Title Selector Change Handler ---
+  const profileTitleSelect = document.getElementById('profile-title-select');
+  if (profileTitleSelect) {
+    profileTitleSelect.addEventListener('change', (e) => {
+      activeTitle = e.target.value;
+      localStorage.setItem('scw_active_title', activeTitle);
+      
+      const selectTitleModal = document.getElementById('avatar-select-title');
+      if (selectTitleModal) {
+        selectTitleModal.value = activeTitle;
+      }
+      
+      saveCoinsToLocalStorage();
+      syncCoinsToFirestore();
+      
+      const savedUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
+      renderProfileCustoms(savedUser);
+      updateXPUI();
+      playRetroSound('click');
+    });
+  }
+
+  // --- XP System Prestige Ascension Button Handler ---
+  const btnProfilePrestige = document.getElementById('btn-profile-prestige');
+  if (btnProfilePrestige) {
+    btnProfilePrestige.addEventListener('click', () => {
+      if (userLevel < 100) {
+        alert("❌ Error: You must reach Level 100 to Prestige!");
+        return;
+      }
+      
+      const confirmStr = `⭐ ASCENSION CONFIRMATION ⭐\n\nAre you ready to Prestige? This will:\n1. Reset your level to 1\n2. Reset your XP to 0\n3. Keep ALL of your coins, cosmetics, and achievements\n4. Give you a brand-new Prestige Badge!\n\nDo you wish to ascend?`;
+      if (confirm(confirmStr)) {
+        userPrestige++;
+        userLevel = 1;
+        userXP = 0;
+        
+        const prestigeBadge = getPrestigeBadge(userPrestige);
+        alert(`🎉 Congratulations! You have ascended to ${prestigeBadge}! Your level has reset, but your legacy continues!`);
+        
+        saveCoinsToLocalStorage();
+        syncCoinsToFirestore();
+        updateXPUI();
+        playRetroSound('victory');
+      }
+    });
+  }
 
   function updateStatsUI() {
     const elHours = document.getElementById('stat-hours-played');
@@ -6430,6 +6916,13 @@ document.addEventListener('DOMContentLoaded', () => {
         overlayTitle.style.color = "#FFD700";
         overlayDesc.innerHTML = `You defeated the ${enemy.name} and saved the day!<br><span style="font-size: 1.5rem; font-weight: 800; color: #00E676; display: block; margin: 10px 0;">+15 Catnip Coins</span>`;
         victoryClaimed = true;
+
+        // Award XP
+        if (enemy.name === 'Rat King') {
+          if (typeof addXP === 'function') addXP(150);
+        } else {
+          if (typeof addXP === 'function') addXP(75);
+        }
 
         // Save stats
         ratKillsCount++;
