@@ -2956,6 +2956,40 @@ document.addEventListener('DOMContentLoaded', () => {
       questItem.appendChild(actionBlock);
       container.appendChild(questItem);
     });
+
+    // Add developer reroll option if developer session is active
+    const isAuth = sessionStorage.getItem('dev_auth') === 'true';
+    if (isAuth) {
+      const devRerollBox = document.createElement('div');
+      devRerollBox.style.marginTop = '15px';
+      devRerollBox.style.borderTop = '1px dashed rgba(255, 255, 255, 0.15)';
+      devRerollBox.style.paddingTop = '15px';
+      devRerollBox.style.display = 'flex';
+      devRerollBox.style.justifyContent = 'center';
+      devRerollBox.style.width = '100%';
+      
+      const devRerollBtn = document.createElement('button');
+      devRerollBtn.className = 'btn btn-secondary btn-sm';
+      devRerollBtn.style.background = 'rgba(239, 68, 68, 0.12)';
+      devRerollBtn.style.borderColor = 'rgba(239, 68, 68, 0.25)';
+      devRerollBtn.style.color = '#f87171';
+      devRerollBtn.style.fontWeight = '700';
+      devRerollBtn.style.width = '100%';
+      devRerollBtn.textContent = "⚠️ Dev: Reroll Today's Quests";
+      
+      devRerollBtn.addEventListener('click', () => {
+        if (confirm("⚡ Developer Actions: Reroll all active daily quests? This will reset your progress for today's quests.")) {
+          localStorage.removeItem('scw_quests_date');
+          localStorage.removeItem('scw_active_quests');
+          playRetroSound('click');
+          initializeQuests();
+          alert("⚡ Today's active quests successfully re-rolled and updated!");
+        }
+      });
+      
+      devRerollBox.appendChild(devRerollBtn);
+      container.appendChild(devRerollBox);
+    }
   }
 
   window.updateQuestsUI = updateQuestsUI;
