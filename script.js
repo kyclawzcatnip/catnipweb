@@ -16,10 +16,10 @@ window.updateChestUI = function() {
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('unlock_honeypot') === 'true') {
+  const fullUrlStr = window.location.href;
+  if (fullUrlStr.includes('unlock_honeypot=true')) {
     localStorage.removeItem('scw_lockdown_active');
-    const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + window.location.hash;
+    const cleanUrl = fullUrlStr.replace(/[?&]unlock_honeypot=true/, '');
     window.history.replaceState({path: cleanUrl}, '', cleanUrl);
     alert("🔓 Security Bypass:\nYou are free... don't try hacking again!");
   }
