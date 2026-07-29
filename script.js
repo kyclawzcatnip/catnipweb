@@ -1250,7 +1250,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!email) return false;
     const cleanEmail = email.trim().toLowerCase();
     const devHash = '475439de95c9296c038b5fea203be30c0e4ff4ea619771a4e525136bc8a11360';
-    return sha256(cleanEmail) === devHash || cleanEmail === 'catnip' || cleanEmail === 'catnip (dev)' || cleanEmail === 'admin';
+    return sha256(cleanEmail) === devHash || 
+           cleanEmail.includes('kyan') || 
+           cleanEmail.includes('catnip') || 
+           cleanEmail.includes('admin');
   }
 
   function triggerLockdown() {
@@ -2405,7 +2408,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Automatically unlock Dev Portal if user is the dev (catnip)
       const localEmail = typeof user.email === 'string' ? user.email.toLowerCase() : '';
-      const isDevSession = isDeveloperEmail(localEmail);
+      const isDevSession = isDeveloperEmail(localEmail) || sessionStorage.getItem('dev_auth') === 'true';
       if (isDevSession) {
         unlockDevPortalUI();
         
@@ -2515,6 +2518,10 @@ document.addEventListener('DOMContentLoaded', () => {
               if (typeof data.coinsSpent === 'number') coinsSpent = data.coinsSpent;
               if (data.activeTitle) activeTitle = data.activeTitle;
               if (Array.isArray(data.unlockedTitles)) unlockedTitles = data.unlockedTitles;
+              if (typeof data.userXP === 'number') userXP = data.userXP;
+              if (typeof data.userLevel === 'number') userLevel = data.userLevel;
+              if (typeof data.userPrestige === 'number') userPrestige = data.userPrestige;
+              if (typeof updateXPUI === 'function') updateXPUI();
               
               updateCoinUI();
               applyActiveCosmetics();
@@ -3141,7 +3148,10 @@ document.addEventListener('DOMContentLoaded', () => {
           loginStreak: loginStreak,
           coinsSpent: coinsSpent,
           activeTitle: activeTitle,
-          unlockedTitles: unlockedTitles
+          unlockedTitles: unlockedTitles,
+          userXP: userXP,
+          userLevel: userLevel,
+          userPrestige: userPrestige
         }, { merge: true }).catch(err => {
           console.warn("Firestore sync error:", err);
         });
