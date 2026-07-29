@@ -93,7 +93,6 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'smash_king_1', text: 'Defeat the Rat King in Super Smash Cats', target: 1, reward: 35, type: 'smash_boss', isRare: false },
     { id: 'smash_jumps_50', text: 'Jump 50 times in Super Smash Cats', target: 50, reward: 20, type: 'smash_jumps', isRare: false },
     { id: 'smash_play_2', text: 'Play 2 Super Smash Cats matches', target: 2, reward: 20, type: 'smash_play', isRare: false },
-    { id: 'smash_rats_50', text: 'Defeat 50 Rats in Super Smash Cats', target: 50, reward: 45, type: 'smash_rats', isRare: false },
 
     // Cats Among Us (among_us)
     { id: 'among_play_1', text: 'Complete 1 game of Cats Among Us', target: 1, reward: 20, type: 'among_play', isRare: false },
