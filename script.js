@@ -2408,6 +2408,27 @@ document.addEventListener('DOMContentLoaded', () => {
       const isDevSession = isDeveloperEmail(localEmail);
       if (isDevSession) {
         unlockDevPortalUI();
+        
+        // Baseline 200+ XP for owner and staff accounts
+        if (userXP < 200) {
+          userXP = 200;
+          let tempXP = userXP;
+          let newLevel = 1;
+          while (true) {
+            const needed = getXPNeededForLevel(newLevel);
+            if (tempXP >= needed) {
+              tempXP -= needed;
+              newLevel++;
+            } else {
+              break;
+            }
+          }
+          userLevel = newLevel;
+          checkUnlockedTitles(userLevel);
+          saveCoinsToLocalStorage();
+          syncCoinsToFirestore();
+          updateXPUI();
+        }
       }
     } else {
       // User is logged out
