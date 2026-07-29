@@ -1010,6 +1010,66 @@
           </div>
         </div>
 
+        <!-- Catnip Bank Card -->
+        <div class="secrets-card scw-exchange-card catnip-bank-card" style="margin-bottom: 30px;">
+          <div class="exchange-info">
+            <span class="secrets-cat">Financial Operations</span>
+            <h3 style="margin-top: 5px; margin-bottom: 10px; color: var(--color-text-primary);">🏦 Catnip Savings Bank</h3>
+            <p style="font-size: 0.9rem; color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 15px;">
+              Deposit your surplus Catnip Coins into our high-yield vault. Your funds will be locked securely for <strong>7 days</strong>, maturing with a <strong>5% interest bonus</strong>.
+            </p>
+            
+            <div id="bank-active-deposit-info" style="display: none; border-top: 1px solid var(--border-light); padding-top: 15px;">
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
+                  <span style="color: var(--color-text-secondary);">Deposited Amount:</span>
+                  <strong style="color: #fff;" id="bank-deposit-amount-display">0 Coins</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
+                  <span style="color: var(--color-text-secondary);">Maturity Value (+5%):</span>
+                  <strong style="color: var(--color-primary);" id="bank-deposit-matured-display">0 Coins</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
+                  <span style="color: var(--color-text-secondary);">Unlocks On:</span>
+                  <span style="color: #fff;" id="bank-deposit-date-display">-</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.85rem; align-items: center; margin-top: 5px; padding: 10px; background: rgba(124, 77, 255, 0.08); border-radius: var(--radius-sm); border: 1px solid rgba(124, 77, 255, 0.2);">
+                  <span style="color: var(--color-accent); font-weight: 600;">Time Remaining:</span>
+                  <span style="font-weight: 700; color: #fff; font-family: monospace;" id="bank-deposit-timer-display">Calculating...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="exchange-form-box" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-light); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; justify-content: center; gap: 15px;">
+            <div id="bank-deposit-form">
+              <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px;">
+                <div>
+                  <label for="bank-deposit-input" style="display: block; font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 5px; text-transform: uppercase;">Amount to Deposit</label>
+                  <div style="position: relative; display: flex; align-items: center;">
+                    <input type="number" id="bank-deposit-input" class="form-input" min="10" placeholder="Min: 10 Coins" style="width: 100%; padding: 10px 45px 10px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); background: rgba(0,0,0,0.25); color: #fff; font-weight: 700; font-family: inherit;">
+                    <span style="position: absolute; right: 12px; color: var(--color-text-muted); font-size: 0.8rem; font-weight: 700;">COINS</span>
+                  </div>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--color-text-muted);">
+                  <span>Wallet Balance: <strong id="bank-wallet-balance-display" style="color: #fff;">0</strong></span>
+                  <span style="cursor: pointer; color: var(--color-accent); font-weight: 600;" id="btn-bank-deposit-max">Deposit Max</span>
+                </div>
+              </div>
+              <button class="btn btn-primary" id="btn-bank-deposit" style="width: 100%; font-weight: 700;">Initiate Deposit</button>
+            </div>
+            
+            <div id="bank-withdraw-form" style="display: none;">
+              <button class="btn btn-primary" id="btn-bank-withdraw" disabled style="width: 100%; font-weight: 700; background: linear-gradient(135deg, #059669, #047857); border-color: #34d399;">Claim Matured Coins</button>
+              
+              <div id="bank-dev-fastforward" style="display: none; margin-top: 10px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 10px;">
+                <button class="btn btn-secondary btn-sm" id="btn-bank-dev-ff" style="width: 100%; background: rgba(239, 68, 68, 0.15); border-color: rgba(239,68,68,0.3); color: #f87171;">Dev: Fast-Forward Maturity</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Shop Items Grid -->
         <h3 style="font-family: var(--font-headings); font-size: 1.5rem; margin-bottom: 20px; width: 100%; border-bottom: 1px solid var(--border-light); padding-bottom: 10px; color: var(--color-text-primary);">Available Customizations</h3>
         
@@ -2030,6 +2090,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
   <!-- Main Script File -->
-  <script src="script.js?v=20260726zk48"></script>
+  <script src="script.js?v=20260726zk49"></script>
 </body>
 </html>

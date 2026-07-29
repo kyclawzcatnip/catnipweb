@@ -55,6 +55,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let lastClaimTimestamp = 0;
   let activeCauRole = '';
   let activeCauExtraCats = 0;
+  let bankDepositAmount = 0;
+  let bankDepositTimestamp = 0;
 
   // Mix and Match Avatar & Profiles Customs System
   let avatarCat = 'cat_basic';
@@ -943,6 +945,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (sectionId === 'secrets') {
       if (typeof loadUserDirectory === 'function') loadUserDirectory();
+      if (typeof updateBankUI === 'function') updateBankUI();
     }
   }
 
@@ -2611,6 +2614,8 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem('scw_coins_spent', coinsSpent.toString());
       localStorage.setItem('scw_active_title', activeTitle);
       localStorage.setItem('scw_unlocked_titles', JSON.stringify(unlockedTitles));
+      localStorage.setItem('scw_bank_deposit_amount', bankDepositAmount.toString());
+      localStorage.setItem('scw_bank_deposit_timestamp', bankDepositTimestamp.toString());
 
       const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
       if (localUser) {
@@ -2653,11 +2658,14 @@ document.addEventListener('DOMContentLoaded', () => {
       coinsSpent = parseInt(localStorage.getItem('scw_coins_spent') || '0', 10);
       activeTitle = localStorage.getItem('scw_active_title') || '';
       unlockedTitles = JSON.parse(localStorage.getItem('scw_unlocked_titles') || '[]');
+      bankDepositAmount = parseInt(localStorage.getItem('scw_bank_deposit_amount') || '0', 10);
+      bankDepositTimestamp = parseInt(localStorage.getItem('scw_bank_deposit_timestamp') || '0', 10);
       
       updateCoinUI();
       applyActiveCosmetics();
       renderShopItems();
       updateChestUI();
+      if (typeof updateBankUI === 'function') updateBankUI();
     } catch (e) {
       console.error("Local storage loading error:", e);
     }
@@ -3333,6 +3341,185 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnOpenChest) {
     btnOpenChest.addEventListener('click', () => openMysteryChest(btnOpenChest));
   }
+
+  // ==================== CATNIP SAVINGS BANK SYSTEM ====================
+  function updateBankUI() {
+    const activeDepositInfo = document.getElementById('bank-active-deposit-info');
+    const depositForm = document.getElementById('bank-deposit-form');
+    const withdrawForm = document.getElementById('bank-withdraw-form');
+    const walletBalanceDisplay = document.getElementById('bank-wallet-balance-display');
+    
+    if (walletBalanceDisplay) {
+      walletBalanceDisplay.textContent = userCoins.toLocaleString();
+    }
+    
+    if (bankDepositAmount > 0) {
+      if (activeDepositInfo) activeDepositInfo.style.display = 'block';
+      if (depositForm) depositForm.style.display = 'none';
+      if (withdrawForm) withdrawForm.style.display = 'block';
+      
+      const depositAmountDisplay = document.getElementById('bank-deposit-amount-display');
+      const depositMaturedDisplay = document.getElementById('bank-deposit-matured-display');
+      const depositDateDisplay = document.getElementById('bank-deposit-date-display');
+      
+      const maturedAmount = Math.floor(bankDepositAmount * 1.05);
+      
+      if (depositAmountDisplay) depositAmountDisplay.textContent = `${bankDepositAmount.toLocaleString()} Coins`;
+      if (depositMaturedDisplay) depositMaturedDisplay.textContent = `${maturedAmount.toLocaleString()} Coins`;
+      
+      const lockDuration = 7 * 24 * 60 * 60 * 1000;
+      const maturityTime = bankDepositTimestamp + lockDuration;
+      const maturityDate = new Date(maturityTime);
+      
+      if (depositDateDisplay) {
+        depositDateDisplay.textContent = maturityDate.toLocaleString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      }
+      
+      const devFFContainer = document.getElementById('bank-dev-fastforward');
+      if (devFFContainer) {
+        const isAuth = sessionStorage.getItem('dev_auth') === 'true';
+        devFFContainer.style.display = isAuth ? 'block' : 'none';
+      }
+      
+      tickBankTimer();
+    } else {
+      if (activeDepositInfo) activeDepositInfo.style.display = 'none';
+      if (depositForm) depositForm.style.display = 'block';
+      if (withdrawForm) withdrawForm.style.display = 'none';
+      
+      const depositInput = document.getElementById('bank-deposit-input');
+      if (depositInput) depositInput.value = '';
+    }
+  }
+
+  window.updateBankUI = updateBankUI;
+
+  function tickBankTimer() {
+    if (bankDepositAmount <= 0) return;
+    
+    const timerDisplay = document.getElementById('bank-deposit-timer-display');
+    const withdrawBtn = document.getElementById('btn-bank-withdraw');
+    
+    const lockDuration = 7 * 24 * 60 * 60 * 1000;
+    const maturityTime = bankDepositTimestamp + lockDuration;
+    const now = Date.now();
+    const remainingTime = maturityTime - now;
+    
+    if (remainingTime <= 0) {
+      if (timerDisplay) {
+        timerDisplay.textContent = "MATURED / READY";
+        timerDisplay.style.color = "#00E676";
+      }
+      if (withdrawBtn) {
+        withdrawBtn.removeAttribute('disabled');
+        withdrawBtn.textContent = "Claim Matured Coins";
+      }
+    } else {
+      const totalSecs = Math.floor(remainingTime / 1000);
+      const days = Math.floor(totalSecs / (24 * 3600));
+      const hours = Math.floor((totalSecs % (24 * 3600)) / 3600);
+      const minutes = Math.floor((totalSecs % 3600) / 60);
+      const seconds = totalSecs % 60;
+      
+      let timerStr = '';
+      if (days > 0) timerStr += `${days}d `;
+      timerStr += `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      
+      if (timerDisplay) {
+        timerDisplay.textContent = timerStr;
+        timerDisplay.style.color = "var(--color-accent)";
+      }
+      if (withdrawBtn) {
+        withdrawBtn.setAttribute('disabled', 'true');
+        withdrawBtn.textContent = "Locked in Savings Vault";
+      }
+    }
+  }
+
+  // Bind Bank Deposit Buttons
+  const btnBankDeposit = document.getElementById('btn-bank-deposit');
+  const btnBankDepositMax = document.getElementById('btn-bank-deposit-max');
+  const btnBankWithdraw = document.getElementById('btn-bank-withdraw');
+  const btnBankDevFF = document.getElementById('btn-bank-dev-ff');
+  const bankDepositInput = document.getElementById('bank-deposit-input');
+
+  if (btnBankDepositMax && bankDepositInput) {
+    btnBankDepositMax.addEventListener('click', () => {
+      bankDepositInput.value = userCoins;
+      playRetroSound('click');
+    });
+  }
+
+  if (btnBankDeposit && bankDepositInput) {
+    btnBankDeposit.addEventListener('click', () => {
+      const amount = parseInt(bankDepositInput.value, 10);
+      if (isNaN(amount) || amount < 10) {
+        alert("❌ Error: Minimum deposit is 10 Catnip Coins!");
+        return;
+      }
+      if (amount > userCoins) {
+        alert("❌ Error: You do not have enough coins in your wallet!");
+        return;
+      }
+      
+      userCoins -= amount;
+      bankDepositAmount = amount;
+      bankDepositTimestamp = Date.now();
+      
+      updateCoinUI();
+      saveCoinsToLocalStorage();
+      syncCoinsToFirestore();
+      
+      playRetroSound('purchase');
+      updateBankUI();
+      alert(`🏦 Success: Deposited ${amount.toLocaleString()} Coins into the Savings Bank! Return in 7 days to claim your matured yield.`);
+    });
+  }
+
+  if (btnBankWithdraw) {
+    btnBankWithdraw.addEventListener('click', () => {
+      const lockDuration = 7 * 24 * 60 * 60 * 1000;
+      const maturityTime = bankDepositTimestamp + lockDuration;
+      if (Date.now() < maturityTime) {
+        alert("❌ Error: Your deposit has not matured yet!");
+        return;
+      }
+      
+      const interestEarned = Math.floor(bankDepositAmount * 0.05);
+      const totalReturn = bankDepositAmount + interestEarned;
+      
+      userCoins += totalReturn;
+      totalCoinsEarned += interestEarned;
+      
+      bankDepositAmount = 0;
+      bankDepositTimestamp = 0;
+      
+      updateCoinUI();
+      saveCoinsToLocalStorage();
+      syncCoinsToFirestore();
+      
+      playRetroSound('victory');
+      updateBankUI();
+      alert(`🎉 Congratulations! You successfully claimed your deposit of ${totalReturn.toLocaleString()} Coins (including a +${interestEarned.toLocaleString()} Coins saving yield bonus)!`);
+    });
+  }
+
+  if (btnBankDevFF) {
+    btnBankDevFF.addEventListener('click', () => {
+      bankDepositTimestamp = Date.now() - (8 * 24 * 60 * 60 * 1000);
+      tickBankTimer();
+      playRetroSound('click');
+      alert("⚡ Dev: Bank timelock matured successfully!");
+    });
+  }
+
+  setInterval(tickBankTimer, 1000);
 
   // Listen to cross-tab storage changes (e.g., from Super Smash Cats)
   window.addEventListener('storage', (e) => {
