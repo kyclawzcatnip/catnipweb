@@ -4709,6 +4709,10 @@ document.addEventListener('DOMContentLoaded', () => {
           // Increment customization stats
           gamesPlayed++;
           localStorage.setItem('scw_games_played', gamesPlayed.toString());
+          if (activeScwCoins > 0) {
+            incrementQuestProgress('scw_exchange', activeScwCoins);
+            incrementQuestProgress('scw_import');
+          }
         }
 
         if (typeof addCoins === 'function') {
