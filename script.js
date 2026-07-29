@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.removeItem('scw_lockdown_active');
     const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + window.location.hash;
     window.history.replaceState({path: cleanUrl}, '', cleanUrl);
+    alert("🔓 Security Bypass:\nYou are free... don't try hacking again!");
   }
 
   if (localStorage.getItem('scw_lockdown_active') === 'true') {
