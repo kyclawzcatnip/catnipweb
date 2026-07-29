@@ -3362,7 +3362,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const depositMaturedDisplay = document.getElementById('bank-deposit-matured-display');
       const depositDateDisplay = document.getElementById('bank-deposit-date-display');
       
-      const maturedAmount = Math.floor(bankDepositAmount * 1.05);
+      const maturedAmount = Math.floor(bankDepositAmount * 1.25);
       
       if (depositAmountDisplay) depositAmountDisplay.textContent = `${bankDepositAmount.toLocaleString()} Coins`;
       if (depositMaturedDisplay) depositMaturedDisplay.textContent = `${maturedAmount.toLocaleString()} Coins`;
@@ -3491,7 +3491,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
       
-      const interestEarned = Math.floor(bankDepositAmount * 0.05);
+      const interestEarned = Math.floor(bankDepositAmount * 0.25);
       const totalReturn = bankDepositAmount + interestEarned;
       
       userCoins += totalReturn;
