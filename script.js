@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'smash_king_1', text: 'Defeat the Rat King in Super Smash Cats', target: 1, reward: 35, type: 'smash_boss', isRare: false },
     { id: 'smash_jumps_50', text: 'Jump 50 times in Super Smash Cats', target: 50, reward: 20, type: 'smash_jumps', isRare: false },
     { id: 'smash_play_2', text: 'Play 2 Super Smash Cats matches', target: 2, reward: 20, type: 'smash_play', isRare: false },
-    { id: 'smash_rats_50', text: 'Defeat 50 enemies in Super Smash Cats', target: 50, reward: 45, type: 'smash_rats', isRare: false },
+    { id: 'smash_rats_50', text: 'Defeat 50 Rats in Super Smash Cats', target: 50, reward: 45, type: 'smash_rats', isRare: false },
 
     // Cats Among Us (among_us)
     { id: 'among_play_1', text: 'Complete 1 game of Cats Among Us', target: 1, reward: 20, type: 'among_play', isRare: false },
@@ -2986,13 +2986,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function incrementQuestProgress(type, amount = 1) {
+  function incrementQuestProgress(type, amount = 1, questId = null) {
     try {
       const activeQuests = JSON.parse(localStorage.getItem('scw_active_quests') || '[]');
       let changed = false;
 
       for (const q of activeQuests) {
-        if (q.type === type && !q.claimed) {
+        if (q.type === type && (!questId || q.id === questId) && !q.claimed) {
           const oldProgress = q.progress;
           q.progress = Math.min(q.target, q.progress + amount);
           
@@ -4705,6 +4705,14 @@ document.addEventListener('DOMContentLoaded', () => {
           localStorage.setItem('scw_victory_count', victoryCount.toString());
           localStorage.setItem('scw_games_played', gamesPlayed.toString());
           localStorage.setItem('scw_max_lobby_cats', Math.max(parseInt(localStorage.getItem('scw_max_lobby_cats') || '0', 10), activeCauExtraCats).toString());
+          
+          if (typeof incrementQuestProgress === 'function') {
+            incrementQuestProgress('among_play');
+            incrementQuestProgress('among_win');
+            if (activeCauRole) {
+              incrementQuestProgress('among_win', 1, 'among_win_' + activeCauRole);
+            }
+          }
         } else if (activeGameType === 'scw') {
           // Increment customization stats
           gamesPlayed++;
@@ -6013,6 +6021,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const startBattle = () => {
       // Increment games played stat
       gamesPlayed++;
+      if (typeof incrementQuestProgress === 'function') incrementQuestProgress('smash_play');
       saveCoinsToLocalStorage();
       syncCoinsToFirestore();
       const savedUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
@@ -6152,6 +6161,7 @@ document.addEventListener('DOMContentLoaded', () => {
         player.vy = -7.8;
         player.isJumping = true;
         synthAudio('jump');
+        if (typeof incrementQuestProgress === 'function') incrementQuestProgress('smash_jumps');
       }
       
       if (keys.j) {
@@ -6160,6 +6170,7 @@ document.addEventListener('DOMContentLoaded', () => {
           player.lastAttackTime = now;
           player.attackActiveTime = player.attackDuration;
           checkAttackHitbox(player, enemy, true);
+          if (typeof incrementQuestProgress === 'function') incrementQuestProgress('smash_attacks');
         }
       }
       
@@ -6386,6 +6397,31 @@ document.addEventListener('DOMContentLoaded', () => {
         overlayTitle.style.color = "#FFD700";
         overlayDesc.innerHTML = `You defeated the ${enemy.name} and saved the day!<br><span style="font-size: 1.5rem; font-weight: 800; color: #00E676; display: block; margin: 10px 0;">+15 Catnip Coins</span>`;
         victoryClaimed = true;
+
+        // Save stats
+        ratKillsCount++;
+        localStorage.setItem('scw_rat_kills_count', ratKillsCount.toString());
+        if (typeof updateStatsUI === 'function') updateStatsUI();
+
+        // Increment quests
+        if (typeof incrementQuestProgress === 'function') {
+          incrementQuestProgress('smash_rats');
+          incrementQuestProgress('smash_win');
+          
+          if (enemy.name === 'Rat King') {
+            incrementQuestProgress('smash_boss');
+          }
+          
+          // Defeated bosses today rare quest tracking
+          try {
+            let defeatedBosses = JSON.parse(localStorage.getItem('ssc_defeated_bosses_today') || '[]');
+            if (!defeatedBosses.includes(enemy.name)) {
+              defeatedBosses.push(enemy.name);
+              localStorage.setItem('ssc_defeated_bosses_today', JSON.stringify(defeatedBosses));
+              incrementQuestProgress('smash_boss_all');
+            }
+          } catch(e) {}
+        }
       } else {
         synthAudio('defeat');
         overlayIcon.textContent = "💀";
