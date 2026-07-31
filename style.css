@@ -3158,22 +3158,42 @@ p {
 }
 
 .cannon-muzzle-flash {
-  animation: muzzleFlash 0.4s ease-in-out infinite alternate;
+  animation: muzzleFlash 2.5s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
 }
 
 .laser-beam-red {
-  animation: laserPulseRed 0.6s linear infinite;
-  filter: drop-shadow(0 0 6px #FF1744);
+  animation: laserPulseRed 0.6s linear infinite, periodicLaserFireRed 3.2s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px #FF1744);
 }
 
 .laser-beam-blue {
-  animation: laserPulseBlue 0.5s linear infinite;
-  filter: drop-shadow(0 0 6px #00E5FF);
+  animation: laserPulseBlue 0.5s linear infinite, periodicLaserFireBlue 2.8s ease-in-out infinite 0.6s;
+  filter: drop-shadow(0 0 8px #00E5FF);
 }
 
 .laser-beam-gold {
-  animation: laserPulseGold 0.7s linear infinite;
-  filter: drop-shadow(0 0 6px #FFD700);
+  animation: laserPulseGold 0.7s linear infinite, periodicLaserFireGold 4s ease-in-out infinite 1.2s;
+  filter: drop-shadow(0 0 8px #FFD700);
+}
+
+@keyframes periodicLaserFireRed {
+  0%, 20% { opacity: 0; stroke-width: 0px; }
+  25%, 45% { opacity: 1; stroke-width: 3.5px; }
+  50%, 100% { opacity: 0; stroke-width: 0px; }
+}
+
+@keyframes periodicLaserFireBlue {
+  0%, 30% { opacity: 0; stroke-width: 0px; }
+  35%, 60% { opacity: 1; stroke-width: 3.5px; }
+  65%, 100% { opacity: 0; stroke-width: 0px; }
+}
+
+@keyframes periodicLaserFireGold {
+  0%, 15% { opacity: 0; stroke-width: 0px; }
+  22%, 52% { opacity: 1; stroke-width: 4px; }
+  60%, 100% { opacity: 0; stroke-width: 0px; }
 }
 
 @keyframes warDogfightRed {
@@ -3194,8 +3214,9 @@ p {
 }
 
 @keyframes muzzleFlash {
-  0% { r: 1.5px; opacity: 0.3; }
-  100% { r: 4px; opacity: 1; }
+  0%, 25% { opacity: 0; r: 1px; }
+  30%, 45% { opacity: 1; r: 5px; filter: drop-shadow(0 0 8px #FF3D00); }
+  50%, 100% { opacity: 0; r: 1px; }
 }
 
 @keyframes laserPulseRed {

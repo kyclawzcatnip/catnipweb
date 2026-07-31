@@ -18,7 +18,7 @@
   <link rel="apple-touch-icon" href="favicon.jpg">
 
   <!-- Core Stylesheet -->
-  <link rel="stylesheet" href="style.css?v=20260731t">
+  <link rel="stylesheet" href="style.css?v=20260731u">
 </head>
 <body>
 
@@ -1032,43 +1032,43 @@
 
               <!-- WORLD WAR CATNIP: 20-Ship Aerial Armada vs Enemy Naval Warships (Active during WWC Era) -->
               <g id="map-wwc-armada" data-era="during-wwc">
-                <!-- Enemy Naval Warships down in the ocean (Separated from sky airships) -->
-                <g class="naval-warship" data-ship-id="red-battleship" transform="translate(520, 260)">
+                <!-- Enemy Naval Warships floating in open blue ocean waters -->
+                <g class="naval-warship" data-ship-id="red-battleship" transform="translate(480, 205)">
                   <polygon points="-16,0 16,0 10,7 -10,7" fill="#37474F" stroke="#B0BEC5" stroke-width="1.5"/>
                   <rect x="-4" y="-5" width="8" height="5" fill="#263238"/>
                   <circle cx="0" cy="-7" r="2" fill="#FF3D00" class="cannon-muzzle-flash"/>
                   <text y="14" text-anchor="middle" fill="#FF5252" font-size="8" font-weight="800">⚓ Red Battleship</text>
                 </g>
 
-                <g class="naval-warship" data-ship-id="red-dreadnought" transform="translate(610, 270)">
+                <g class="naval-warship" data-ship-id="red-dreadnought" transform="translate(740, 240)">
                   <polygon points="-16,0 16,0 10,7 -10,7" fill="#37474F" stroke="#B0BEC5" stroke-width="1.5"/>
                   <rect x="-4" y="-5" width="8" height="5" fill="#263238"/>
                   <circle cx="0" cy="-7" r="2" fill="#FF3D00" class="cannon-muzzle-flash"/>
                   <text y="14" text-anchor="middle" fill="#FF5252" font-size="8" font-weight="800">⚓ Red Dreadnought</text>
                 </g>
 
-                <g class="naval-warship" data-ship-id="blue-cruiser" transform="translate(700, 255)">
+                <g class="naval-warship" data-ship-id="blue-cruiser" transform="translate(710, 110)">
                   <polygon points="-16,0 16,0 10,7 -10,7" fill="#1A237E" stroke="#80D8FF" stroke-width="1.5"/>
                   <rect x="-4" y="-5" width="8" height="5" fill="#0D47A1"/>
                   <circle cx="0" cy="-7" r="2" fill="#00E5FF" class="cannon-muzzle-flash"/>
                   <text y="14" text-anchor="middle" fill="#80D8FF" font-size="8" font-weight="800">⚓ Blue Defense Cruiser</text>
                 </g>
 
-                <g class="naval-warship" data-ship-id="blue-gunboat" transform="translate(580, 245)">
+                <g class="naval-warship" data-ship-id="blue-gunboat" transform="translate(460, 105)">
                   <polygon points="-16,0 16,0 10,7 -10,7" fill="#1A237E" stroke="#80D8FF" stroke-width="1.5"/>
                   <rect x="-4" y="-5" width="8" height="5" fill="#0D47A1"/>
                   <circle cx="0" cy="-7" r="2" fill="#00E5FF" class="cannon-muzzle-flash"/>
                   <text y="14" text-anchor="middle" fill="#80D8FF" font-size="8" font-weight="800">⚓ Blue Gunboat</text>
                 </g>
 
-                <!-- Dynamic Animated Laser & Cannon Beams Firing between Airships & Warships -->
+                <!-- Dynamic Animated Intermittent Firing Lasers between Airships & Warships -->
                 <g class="armada-laser-beams">
-                  <line x1="510" y1="130" x2="520" y2="260" stroke="#FF3D00" stroke-width="2.5" stroke-dasharray="6,4" class="laser-beam-red"/>
-                  <line x1="580" y1="125" x2="610" y2="270" stroke="#FF5252" stroke-width="2" stroke-dasharray="8,4" class="laser-beam-red"/>
-                  <line x1="640" y1="95" x2="700" y2="255" stroke="#00E5FF" stroke-width="2.5" stroke-dasharray="5,3" class="laser-beam-blue"/>
-                  <line x1="595" y1="80" x2="580" y2="245" stroke="#40C4FF" stroke-width="2" stroke-dasharray="7,4" class="laser-beam-blue"/>
-                  <line x1="605" y1="215" x2="520" y2="260" stroke="#FF9100" stroke-width="2" stroke-dasharray="4,4" class="laser-beam-gold"/>
-                  <line x1="685" y1="175" x2="610" y2="270" stroke="#FF1744" stroke-width="3" stroke-dasharray="6,3" class="laser-beam-red"/>
+                  <line x1="510" y1="130" x2="480" y2="205" stroke="#FF3D00" stroke-width="3" stroke-dasharray="6,4" class="laser-beam-red"/>
+                  <line x1="580" y1="125" x2="740" y2="240" stroke="#FF5252" stroke-width="2.5" stroke-dasharray="8,4" class="laser-beam-red"/>
+                  <line x1="640" y1="95" x2="710" y2="110" stroke="#00E5FF" stroke-width="3" stroke-dasharray="5,3" class="laser-beam-blue"/>
+                  <line x1="555" y1="95" x2="460" y2="105" stroke="#40C4FF" stroke-width="2.5" stroke-dasharray="7,4" class="laser-beam-blue"/>
+                  <line x1="685" y1="175" x2="740" y2="240" stroke="#FF1744" stroke-width="3" stroke-dasharray="6,3" class="laser-beam-red"/>
+                  <line x1="710" y1="90" x2="580" y2="125" stroke="#FFD700" stroke-width="3" stroke-dasharray="4,4" class="laser-beam-gold"/>
                 </g>
 
                 <!-- Red Faction War Airships (10 Ships, overhead in the sky) -->
@@ -2522,6 +2522,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
   <!-- Main Script File -->
-  <script src="script.js?v=20260726zk86"></script>
+  <script src="script.js?v=20260726zk87"></script>
 </body>
 </html>
