@@ -2404,6 +2404,106 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (e) {}
   }
 
+  // ==================== AIRSHIP LORE DATABASE ====================
+  const AIRSHIP_LORE_DB = {
+    'catnip': {
+      icon: '🛸',
+      name: 'Catnip',
+      year: 'Commissioned 3 BC',
+      class: 'Pioneer Prototype',
+      faction: 'Catnip Guild',
+      desc: 'Commissioned in 3 BC by Master Alchemist Purr, the "Catnip" was the world\'s very first gravity-crystal lifting vessel. Built with lightweight bamboo ribbing and powered by a raw Refined Anticatite engine, it proved felines could conquer the skies.',
+      hp: '750 HP',
+      speed: '95 Knots',
+      engine: 'Proto-Gravity Core'
+    },
+    'heavy-war-patroler': {
+      icon: '🛸',
+      name: 'Heavy War Patroler',
+      year: 'Commissioned 3 AD',
+      class: 'Armored Sky Fortress',
+      faction: 'Royal Sky Defense',
+      desc: 'Commissioned in 3 AD during early border skirmishes, the "Heavy War Patroler" features reinforced titanium-iron alloy plating, dual plasma defense cannons, and high-altitude optics to secure kingdom airspace.',
+      hp: '1,850 HP',
+      speed: '110 Knots',
+      engine: 'Twin Anticatite Mk-II'
+    },
+    'claw-cargo-ship': {
+      icon: '🛸',
+      name: 'Claw Cargo Ship',
+      year: 'Commissioned 35 AD',
+      class: 'Heavy Freight Zeppelin',
+      faction: 'Merchant Syndicate',
+      desc: 'Commissioned in 35 AD to supply energy crystal trade across oceans, the "Claw Cargo Ship" is a massive twin-hulled freighter capable of hauling up to 500 tons of raw Anticatite ore across continents.',
+      hp: '1,400 HP',
+      speed: '85 Knots',
+      engine: 'High-Torque Lift Rig'
+    },
+    'royal-flagship': {
+      icon: '👑',
+      name: 'Royal Sovereign Flagship',
+      year: 'Commissioned 12 AD',
+      class: 'Royal Command Vessel',
+      faction: 'Golden Collar Crown',
+      desc: 'Commissioned in 12 AD as King Leopold\'s personal royal flagship, the "Royal Sovereign" features gold-gilded hull armor, anti-gravity stabilizer rings, and luxurious quarters for high-altitude diplomatic summits.',
+      hp: '2,200 HP',
+      speed: '140 Knots',
+      engine: 'Royal Celestial Core'
+    },
+    'red-corsair': {
+      icon: '⚔️',
+      name: 'Red Faction War Corsair',
+      year: 'Commissioned WWC Era',
+      class: 'Strike Gunship',
+      faction: 'Scorched Fleet',
+      desc: 'Aggressive frontline attack craft deployed by the Red Faction. Outfitted with high-speed incendiary cannons designed for naval bombardment and aerial dogfighting.',
+      hp: '900 HP',
+      speed: '160 Knots',
+      engine: 'Overclocked Anticatite'
+    },
+    'blue-sentinel': {
+      icon: '🛡️',
+      name: 'Blue Faction Defense Sentinel',
+      year: 'Commissioned WWC Era',
+      class: 'Interceptor Cruiser',
+      faction: 'Kingdom Defense',
+      desc: 'Shield-heavy interception cruiser tasked with intercepting incoming bombardment shells and protecting ground fortifications.',
+      hp: '1,100 HP',
+      speed: '150 Knots',
+      engine: 'Plasma Barrier Drive'
+    }
+  };
+
+  function openAirshipLoreModal(shipId) {
+    const data = AIRSHIP_LORE_DB[shipId] || AIRSHIP_LORE_DB['catnip'];
+    const modal = document.getElementById('airship-lore-modal');
+    if (!modal) return;
+
+    document.getElementById('lore-ship-icon').textContent = data.icon;
+    document.getElementById('lore-ship-name').textContent = data.name;
+    document.getElementById('lore-ship-year').textContent = data.year;
+    document.getElementById('lore-ship-class').textContent = data.class;
+    document.getElementById('lore-ship-faction').textContent = data.faction;
+    document.getElementById('lore-ship-desc').textContent = data.desc;
+    document.getElementById('lore-ship-power').textContent = data.hp;
+    document.getElementById('lore-ship-speed').textContent = data.speed;
+    document.getElementById('lore-ship-engine').textContent = data.engine;
+
+    modal.style.display = 'block';
+
+    if (typeof playRegionAmbience === 'function') {
+      playRegionAmbience('scw');
+    }
+  }
+
+  const btnCloseLore = document.getElementById('btn-close-airship-lore');
+  if (btnCloseLore) {
+    btnCloseLore.addEventListener('click', () => {
+      const modal = document.getElementById('airship-lore-modal');
+      if (modal) modal.style.display = 'none';
+    });
+  }
+
   // Bind map pins click handler with event delegation fallback
   document.querySelectorAll('.map-pin').forEach(pin => {
     pin.addEventListener('click', (e) => {
@@ -2415,6 +2515,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (svgMap) {
     svgMap.addEventListener('click', (e) => {
+      const airship = e.target.closest('[data-ship-id]');
+      if (airship) {
+        const shipId = airship.getAttribute('data-ship-id');
+        openAirshipLoreModal(shipId);
+        return;
+      }
+
       const pin = e.target.closest('.map-pin');
       if (pin) {
         const locationId = pin.getAttribute('data-id');

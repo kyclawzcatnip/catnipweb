@@ -18,7 +18,7 @@
   <link rel="apple-touch-icon" href="favicon.jpg">
 
   <!-- Core Stylesheet -->
-  <link rel="stylesheet" href="style.css?v=20260731l">
+  <link rel="stylesheet" href="style.css?v=20260731m">
 </head>
 <body>
 
@@ -916,26 +916,26 @@
               </g>
 
               <!-- 3. World War Catnip (Scorched Lowland Trenches + Hill Fort) -->
-              <g class="map-island-group" id="group-wwc" data-era="present,pre-wwc,during-wwc">
+              <g class="map-island-group" id="group-wwc" data-era="present,pre-wwc,during-wwc,350bc">
                 <path class="map-island-tier tier-0" d="M 520 150 Q 580 110 680 160 T 700 230 T 560 210 Z"/>
                 <path class="map-island-tier tier-1" d="M 550 160 Q 595 125 660 170 T 670 215 T 580 195 Z"/>
               </g>
 
               <!-- 4. Catnip Kingdom (Golden Valley + High Palace Spire Slope) -->
-              <g class="map-island-group" id="group-kingdom" data-era="present,pre-wwc">
+              <g class="map-island-group" id="group-kingdom" data-era="present,pre-wwc,during-wwc,350bc">
                 <path class="map-island-tier tier-1" d="M 300 100 Q 350 80 420 100 T 450 160 T 320 140 Z"/>
                 <path class="map-island-tier tier-2" d="M 325 105 Q 360 90 405 105 T 425 145 T 340 130 Z"/>
                 <path class="map-island-tier tier-3" d="M 350 110 Q 375 100 390 110 T 400 135 T 360 125 Z"/>
               </g>
 
               <!-- 5. Kart Speedway (Shoreline Circuit + High Bank Slope) -->
-              <g class="map-island-group" id="group-kart-speedway" data-era="present">
+              <g class="map-island-group" id="group-kart-speedway" data-era="present,pre-wwc,during-wwc,350bc">
                 <path class="map-island-tier tier-0" d="M 540 280 Q 620 250 680 320 T 640 380 T 520 340 Z"/>
                 <path class="map-island-tier tier-1" d="M 565 285 Q 625 260 660 315 T 625 360 T 545 330 Z"/>
               </g>
 
               <!-- 6. Smash Arena (Rift Basin + Outer Ramparts + Champion Peak) -->
-              <g class="map-island-group" id="group-smash-arena" data-era="present">
+              <g class="map-island-group" id="group-smash-arena" data-era="present,pre-wwc,during-wwc,350bc">
                 <path class="map-island-tier tier-1" d="M 450 260 Q 480 220 530 235 T 550 285 T 480 290 Z"/>
                 <path class="map-island-tier tier-2" d="M 470 255 Q 490 230 520 240 T 535 275 T 490 280 Z"/>
                 <path class="map-island-tier tier-3" d="M 485 252 Q 500 238 512 245 T 520 268 T 498 270 Z"/>
@@ -976,32 +976,32 @@
                 <path d="M 380 120 L 400 350" fill="none" stroke="#FFD700" stroke-width="2.5" stroke-dasharray="5,5"/>
                 <text x="395" y="240" fill="#FFD700" font-size="10" font-weight="800">🚠 Sky Lift Express</text>
 
-                <!-- Airship 1: Airship Alpha -->
-                <g id="moving-airship-1" transform="translate(200, 260)">
+                <!-- Airship 1: "Catnip" (Made in 3 BC - First Prototype) -->
+                <g id="moving-airship-1" class="moving-airship-item" data-ship-id="catnip" transform="translate(200, 260)">
                   <ellipse rx="15" ry="8" fill="#7C4DFF" stroke="#FFF" stroke-width="1.5"/>
                   <rect x="-7" y="8" width="14" height="4" fill="#FFD700" rx="1"/>
-                  <text y="-11" text-anchor="middle" fill="#FFF" font-size="9" font-weight="800">🛸 Airship Alpha</text>
+                  <text y="-11" text-anchor="middle" fill="#FFF" font-size="9" font-weight="800">🛸 Catnip (3 BC)</text>
                 </g>
 
-                <!-- Airship 2: Airship Beta -->
-                <g id="moving-airship-2" transform="translate(450, 140)">
+                <!-- Airship 2: "Heavy War Patroler" (Made in 3 AD) -->
+                <g id="moving-airship-2" class="moving-airship-item" data-ship-id="heavy-war-patroler" transform="translate(450, 140)">
                   <ellipse rx="15" ry="8" fill="#00B0FF" stroke="#FFF" stroke-width="1.5"/>
                   <rect x="-7" y="8" width="14" height="4" fill="#00E676" rx="1"/>
-                  <text y="-11" text-anchor="middle" fill="#FFF" font-size="9" font-weight="800">🛸 Airship Beta</text>
+                  <text y="-11" text-anchor="middle" fill="#FFF" font-size="9" font-weight="800">🛸 Heavy War Patroler (3 AD)</text>
                 </g>
 
-                <!-- Airship 3: Airship Gamma (Cargo Zeppelin) -->
-                <g id="moving-airship-3" transform="translate(560, 200)">
+                <!-- Airship 3: "Claw Cargo Ship" (Made in 35 AD) -->
+                <g id="moving-airship-3" class="moving-airship-item" data-ship-id="claw-cargo-ship" transform="translate(560, 200)">
                   <ellipse rx="18" ry="9" fill="#FF3D00" stroke="#FFF" stroke-width="1.5"/>
                   <rect x="-8" y="9" width="16" height="5" fill="#FFD700" rx="1"/>
-                  <text y="-12" text-anchor="middle" fill="#FFF" font-size="9" font-weight="800">🛸 Cargo Zeppelin</text>
+                  <text y="-12" text-anchor="middle" fill="#FFF" font-size="9" font-weight="800">🛸 Claw Cargo Ship (35 AD)</text>
                 </g>
 
-                <!-- Airship 4: Airship Delta (Royal Flagship) -->
-                <g id="moving-airship-4" transform="translate(400, 330)">
+                <!-- Airship 4: "Royal Flagship" (Made in 12 AD) -->
+                <g id="moving-airship-4" class="moving-airship-item" data-ship-id="royal-flagship" transform="translate(400, 330)">
                   <ellipse rx="20" ry="10" fill="#FFD700" stroke="#FFF" stroke-width="2"/>
                   <rect x="-10" y="10" width="20" height="5" fill="#7C4DFF" rx="1"/>
-                  <text y="-13" text-anchor="middle" fill="#FFD700" font-size="9" font-weight="900">👑 Royal Flagship</text>
+                  <text y="-13" text-anchor="middle" fill="#FFD700" font-size="9" font-weight="900">👑 Royal Sovereign Flagship (12 AD)</text>
                 </g>
               </g>
 
@@ -1047,28 +1047,28 @@
                 </g>
 
                 <!-- Red Faction War Airships (10 Ships) -->
-                <g id="war-airship-r1" class="war-airship war-airship-red" transform="translate(520, 140)"><ellipse rx="12" ry="6" fill="#D50000" stroke="#FFF" stroke-width="1"/><rect x="-5" y="6" width="10" height="3" fill="#FFD700"/><text y="-8" text-anchor="middle" fill="#FF8A80" font-size="7" font-weight="900">⚔️ Red Corsair 1</text></g>
-                <g id="war-airship-r2" class="war-airship war-airship-red" transform="translate(550, 160)"><ellipse rx="12" ry="6" fill="#D50000" stroke="#FFF" stroke-width="1"/><rect x="-5" y="6" width="10" height="3" fill="#FFD700"/><text y="-8" text-anchor="middle" fill="#FF8A80" font-size="7" font-weight="900">⚔️ Red Corsair 2</text></g>
-                <g id="war-airship-r3" class="war-airship war-airship-red" transform="translate(580, 130)"><ellipse rx="14" ry="7" fill="#B71C1C" stroke="#FFF" stroke-width="1.5"/><rect x="-6" y="7" width="12" height="3" fill="#FFD700"/><text y="-9" text-anchor="middle" fill="#FF8A80" font-size="7" font-weight="900">🚀 Red Flagship</text></g>
-                <g id="war-airship-r4" class="war-airship war-airship-red" transform="translate(600, 150)"><ellipse rx="11" ry="5" fill="#D50000" stroke="#FFF" stroke-width="1"/><rect x="-4" y="5" width="8" height="3" fill="#FFD700"/></g>
-                <g id="war-airship-r5" class="war-airship war-airship-red" transform="translate(530, 180)"><ellipse rx="11" ry="5" fill="#D50000" stroke="#FFF" stroke-width="1"/><rect x="-4" y="5" width="8" height="3" fill="#FFD700"/></g>
-                <g id="war-airship-r6" class="war-airship war-airship-red" transform="translate(570, 190)"><ellipse rx="13" ry="6" fill="#B71C1C" stroke="#FFF" stroke-width="1"/><rect x="-5" y="6" width="10" height="3" fill="#FFD700"/></g>
-                <g id="war-airship-r7" class="war-airship war-airship-red" transform="translate(610, 190)"><ellipse rx="12" ry="6" fill="#D50000" stroke="#FFF" stroke-width="1"/><rect x="-5" y="6" width="10" height="3" fill="#FFD700"/></g>
-                <g id="war-airship-r8" class="war-airship war-airship-red" transform="translate(650, 160)"><ellipse rx="11" ry="5" fill="#D50000" stroke="#FFF" stroke-width="1"/><rect x="-4" y="5" width="8" height="3" fill="#FFD700"/></g>
-                <g id="war-airship-r9" class="war-airship war-airship-red" transform="translate(660, 170)"><ellipse rx="14" ry="7" fill="#B71C1C" stroke="#FFF" stroke-width="1.5"/><rect x="-6" y="7" width="12" height="3" fill="#FFD700"/></g>
-                <g id="war-airship-r10" class="war-airship war-airship-red" transform="translate(500, 160)"><ellipse rx="10" ry="5" fill="#D50000" stroke="#FFF" stroke-width="1"/><rect x="-4" y="5" width="8" height="3" fill="#FFD700"/></g>
+                <g id="war-airship-r1" class="war-airship war-airship-red" data-ship-id="red-corsair" transform="translate(520, 140)"><ellipse rx="12" ry="6" fill="#D50000" stroke="#FFF" stroke-width="1"/><rect x="-5" y="6" width="10" height="3" fill="#FFD700"/><text y="-8" text-anchor="middle" fill="#FF8A80" font-size="7" font-weight="900">⚔️ Red Corsair 1</text></g>
+                <g id="war-airship-r2" class="war-airship war-airship-red" data-ship-id="red-corsair" transform="translate(550, 160)"><ellipse rx="12" ry="6" fill="#D50000" stroke="#FFF" stroke-width="1"/><rect x="-5" y="6" width="10" height="3" fill="#FFD700"/><text y="-8" text-anchor="middle" fill="#FF8A80" font-size="7" font-weight="900">⚔️ Red Corsair 2</text></g>
+                <g id="war-airship-r3" class="war-airship war-airship-red" data-ship-id="red-flagship" transform="translate(580, 130)"><ellipse rx="14" ry="7" fill="#B71C1C" stroke="#FFF" stroke-width="1.5"/><rect x="-6" y="7" width="12" height="3" fill="#FFD700"/><text y="-9" text-anchor="middle" fill="#FF8A80" font-size="7" font-weight="900">🚀 Red Flagship</text></g>
+                <g id="war-airship-r4" class="war-airship war-airship-red" data-ship-id="red-corsair" transform="translate(600, 150)"><ellipse rx="11" ry="5" fill="#D50000" stroke="#FFF" stroke-width="1"/><rect x="-4" y="5" width="8" height="3" fill="#FFD700"/></g>
+                <g id="war-airship-r5" class="war-airship war-airship-red" data-ship-id="red-corsair" transform="translate(530, 180)"><ellipse rx="11" ry="5" fill="#D50000" stroke="#FFF" stroke-width="1"/><rect x="-4" y="5" width="8" height="3" fill="#FFD700"/></g>
+                <g id="war-airship-r6" class="war-airship war-airship-red" data-ship-id="red-corsair" transform="translate(570, 190)"><ellipse rx="13" ry="6" fill="#B71C1C" stroke="#FFF" stroke-width="1"/><rect x="-5" y="6" width="10" height="3" fill="#FFD700"/></g>
+                <g id="war-airship-r7" class="war-airship war-airship-red" data-ship-id="red-corsair" transform="translate(610, 190)"><ellipse rx="12" ry="6" fill="#D50000" stroke="#FFF" stroke-width="1"/><rect x="-5" y="6" width="10" height="3" fill="#FFD700"/></g>
+                <g id="war-airship-r8" class="war-airship war-airship-red" data-ship-id="red-corsair" transform="translate(650, 160)"><ellipse rx="11" ry="5" fill="#D50000" stroke="#FFF" stroke-width="1"/><rect x="-4" y="5" width="8" height="3" fill="#FFD700"/></g>
+                <g id="war-airship-r9" class="war-airship war-airship-red" data-ship-id="red-corsair" transform="translate(660, 170)"><ellipse rx="14" ry="7" fill="#B71C1C" stroke="#FFF" stroke-width="1.5"/><rect x="-6" y="7" width="12" height="3" fill="#FFD700"/></g>
+                <g id="war-airship-r10" class="war-airship war-airship-red" data-ship-id="red-corsair" transform="translate(500, 160)"><ellipse rx="10" ry="5" fill="#D50000" stroke="#FFF" stroke-width="1"/><rect x="-4" y="5" width="8" height="3" fill="#FFD700"/></g>
 
                 <!-- Blue Faction War Airships (10 Ships) -->
-                <g id="war-airship-b1" class="war-airship war-airship-blue" transform="translate(620, 120)"><ellipse rx="12" ry="6" fill="#0091EA" stroke="#FFF" stroke-width="1"/><rect x="-5" y="6" width="10" height="3" fill="#00E676"/><text y="-8" text-anchor="middle" fill="#80D8FF" font-size="7" font-weight="900">🛡️ Blue Sentinel 1</text></g>
-                <g id="war-airship-b2" class="war-airship war-airship-blue" transform="translate(640, 140)"><ellipse rx="12" ry="6" fill="#0091EA" stroke="#FFF" stroke-width="1"/><rect x="-5" y="6" width="10" height="3" fill="#00E676"/><text y="-8" text-anchor="middle" fill="#80D8FF" font-size="7" font-weight="900">🛡️ Blue Sentinel 2</text></g>
-                <g id="war-airship-b3" class="war-airship war-airship-blue" transform="translate(660, 110)"><ellipse rx="14" ry="7" fill="#0D47A1" stroke="#FFF" stroke-width="1.5"/><rect x="-6" y="7" width="12" height="3" fill="#00E676"/><text y="-9" text-anchor="middle" fill="#80D8FF" font-size="7" font-weight="900">⚡ Blue Command</text></g>
-                <g id="war-airship-b4" class="war-airship war-airship-blue" transform="translate(590, 100)"><ellipse rx="11" ry="5" fill="#0091EA" stroke="#FFF" stroke-width="1"/><rect x="-4" y="5" width="8" height="3" fill="#00E676"/></g>
-                <g id="war-airship-b5" class="war-airship war-airship-blue" transform="translate(560, 110)"><ellipse rx="11" ry="5" fill="#0091EA" stroke="#FFF" stroke-width="1"/><rect x="-4" y="5" width="8" height="3" fill="#00E676"/></g>
-                <g id="war-airship-b6" class="war-airship war-airship-blue" transform="translate(630, 170)"><ellipse rx="13" ry="6" fill="#0D47A1" stroke="#FFF" stroke-width="1"/><rect x="-5" y="6" width="10" height="3" fill="#00E676"/></g>
-                <g id="war-airship-b7" class="war-airship war-airship-blue" transform="translate(670, 180)"><ellipse rx="12" ry="6" fill="#0091EA" stroke="#FFF" stroke-width="1"/><rect x="-5" y="6" width="10" height="3" fill="#00E676"/></g>
-                <g id="war-airship-b8" class="war-airship war-airship-blue" transform="translate(680, 140)"><ellipse rx="11" ry="5" fill="#0091EA" stroke="#FFF" stroke-width="1"/><rect x="-4" y="5" width="8" height="3" fill="#00E676"/></g>
-                <g id="war-airship-b9" class="war-airship war-airship-blue" transform="translate(550, 130)"><ellipse rx="14" ry="7" fill="#0D47A1" stroke="#FFF" stroke-width="1.5"/><rect x="-6" y="7" width="12" height="3" fill="#00E676"/></g>
-                <g id="war-airship-b10" class="war-airship war-airship-blue" transform="translate(690, 160)"><ellipse rx="10" ry="5" fill="#0091EA" stroke="#FFF" stroke-width="1"/><rect x="-4" y="5" width="8" height="3" fill="#00E676"/></g>
+                <g id="war-airship-b1" class="war-airship war-airship-blue" data-ship-id="blue-sentinel" transform="translate(620, 120)"><ellipse rx="12" ry="6" fill="#0091EA" stroke="#FFF" stroke-width="1"/><rect x="-5" y="6" width="10" height="3" fill="#00E676"/><text y="-8" text-anchor="middle" fill="#80D8FF" font-size="7" font-weight="900">🛡️ Blue Sentinel 1</text></g>
+                <g id="war-airship-b2" class="war-airship war-airship-blue" data-ship-id="blue-sentinel" transform="translate(640, 140)"><ellipse rx="12" ry="6" fill="#0091EA" stroke="#FFF" stroke-width="1"/><rect x="-5" y="6" width="10" height="3" fill="#00E676"/><text y="-8" text-anchor="middle" fill="#80D8FF" font-size="7" font-weight="900">🛡️ Blue Sentinel 2</text></g>
+                <g id="war-airship-b3" class="war-airship war-airship-blue" data-ship-id="blue-command" transform="translate(660, 110)"><ellipse rx="14" ry="7" fill="#0D47A1" stroke="#FFF" stroke-width="1.5"/><rect x="-6" y="7" width="12" height="3" fill="#00E676"/><text y="-9" text-anchor="middle" fill="#80D8FF" font-size="7" font-weight="900">⚡ Blue Command</text></g>
+                <g id="war-airship-b4" class="war-airship war-airship-blue" data-ship-id="blue-sentinel" transform="translate(590, 100)"><ellipse rx="11" ry="5" fill="#0091EA" stroke="#FFF" stroke-width="1"/><rect x="-4" y="5" width="8" height="3" fill="#00E676"/></g>
+                <g id="war-airship-b5" class="war-airship war-airship-blue" data-ship-id="blue-sentinel" transform="translate(560, 110)"><ellipse rx="11" ry="5" fill="#0091EA" stroke="#FFF" stroke-width="1"/><rect x="-4" y="5" width="8" height="3" fill="#00E676"/></g>
+                <g id="war-airship-b6" class="war-airship war-airship-blue" data-ship-id="blue-sentinel" transform="translate(630, 170)"><ellipse rx="13" ry="6" fill="#0D47A1" stroke="#FFF" stroke-width="1"/><rect x="-5" y="6" width="10" height="3" fill="#00E676"/></g>
+                <g id="war-airship-b7" class="war-airship war-airship-blue" data-ship-id="blue-sentinel" transform="translate(670, 180)"><ellipse rx="12" ry="6" fill="#0091EA" stroke="#FFF" stroke-width="1"/><rect x="-5" y="6" width="10" height="3" fill="#00E676"/></g>
+                <g id="war-airship-b8" class="war-airship war-airship-blue" data-ship-id="blue-sentinel" transform="translate(680, 140)"><ellipse rx="11" ry="5" fill="#0091EA" stroke="#FFF" stroke-width="1"/><rect x="-4" y="5" width="8" height="3" fill="#00E676"/></g>
+                <g id="war-airship-b9" class="war-airship war-airship-blue" data-ship-id="blue-sentinel" transform="translate(550, 130)"><ellipse rx="14" ry="7" fill="#0D47A1" stroke="#FFF" stroke-width="1.5"/><rect x="-6" y="7" width="12" height="3" fill="#00E676"/></g>
+                <g id="war-airship-b10" class="war-airship war-airship-blue" data-ship-id="blue-sentinel" transform="translate(690, 160)"><ellipse rx="10" ry="5" fill="#0091EA" stroke="#FFF" stroke-width="1"/><rect x="-4" y="5" width="8" height="3" fill="#00E676"/></g>
               </g>
 
               <!-- OVERLAY LAYER 4: Story Guide Recommended Path -->
@@ -1093,28 +1093,28 @@
               </g>
 
               <!-- 3. World War Catnip -->
-              <g class="map-pin" id="pin-wwc" data-id="wwc" data-era="present,pre-wwc,during-wwc" transform="translate(620, 180)">
+              <g class="map-pin" id="pin-wwc" data-id="wwc" data-era="present,pre-wwc,during-wwc,350bc" transform="translate(620, 180)">
                 <circle r="22" class="pin-pulse pin-pulse-red"/>
                 <circle r="10" class="pin-core pin-core-red"/>
                 <text y="-28" text-anchor="middle" class="pin-label">⚔️ World War Catnip</text>
               </g>
 
               <!-- 4. Catnip Kingdom -->
-              <g class="map-pin" id="pin-kingdom" data-id="kingdom" data-era="present,pre-wwc" transform="translate(380, 120)">
+              <g class="map-pin" id="pin-kingdom" data-id="kingdom" data-era="present,pre-wwc,during-wwc,350bc" transform="translate(380, 120)">
                 <circle r="22" class="pin-pulse pin-pulse-gold"/>
                 <circle r="10" class="pin-core pin-core-gold"/>
                 <text y="-28" text-anchor="middle" class="pin-label">👑 Catnip Kingdom</text>
               </g>
 
               <!-- 5. Catnip Kart Speedway -->
-              <g class="map-pin" id="pin-kart-speedway" data-id="kart-speedway" data-era="present" transform="translate(600, 320)">
+              <g class="map-pin" id="pin-kart-speedway" data-id="kart-speedway" data-era="present,pre-wwc,during-wwc,350bc" transform="translate(600, 320)">
                 <circle r="22" class="pin-pulse pin-pulse-green"/>
                 <circle r="10" class="pin-core pin-core-green"/>
                 <text y="-28" text-anchor="middle" class="pin-label">🏎️ Kart Speedway</text>
               </g>
 
               <!-- 6. Super Smash Cats Arena -->
-              <g class="map-pin" id="pin-smash-arena" data-id="smash-arena" data-era="present" transform="translate(500, 260)">
+              <g class="map-pin" id="pin-smash-arena" data-id="smash-arena" data-era="present,pre-wwc,during-wwc,350bc" transform="translate(500, 260)">
                 <circle r="22" class="pin-pulse pin-pulse-red"/>
                 <circle r="10" class="pin-core pin-core-red"/>
                 <text y="-28" text-anchor="middle" class="pin-label">💥 Smash Arena</text>
@@ -2474,6 +2474,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
   <!-- Main Script File -->
-  <script src="script.js?v=20260726zk78"></script>
+  <script src="script.js?v=20260726zk79"></script>
 </body>
 </html>

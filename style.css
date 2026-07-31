@@ -3249,6 +3249,140 @@ p {
   100% { transform: translateY(0) scale(1); opacity: 1; }
 }
 
+/* 🛸 Airship Lore Card Modal */
+.airship-lore-modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 100;
+  width: 90%;
+  max-width: 420px;
+  pointer-events: auto;
+}
+
+.airship-lore-card {
+  position: relative;
+  background: rgba(12, 8, 28, 0.94);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(124, 77, 255, 0.5);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(124, 77, 255, 0.25);
+  border-radius: 16px;
+  padding: 20px;
+  animation: loreCardPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes loreCardPop {
+  0% { opacity: 0; transform: translate(-50%, -45%) scale(0.85); }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+.airship-lore-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #FFF;
+  font-size: 1.2rem;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.airship-lore-close:hover {
+  background: #FF3D00;
+  transform: scale(1.1);
+}
+
+.airship-lore-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.airship-badge-icon {
+  font-size: 2.2rem;
+  background: rgba(124, 77, 255, 0.15);
+  border: 1px solid rgba(124, 77, 255, 0.3);
+  padding: 10px;
+  border-radius: 12px;
+}
+
+.airship-title {
+  margin: 0 0 6px 0;
+  color: #FFF;
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.airship-meta-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.airship-pill {
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pill-year { background: rgba(255, 215, 0, 0.2); color: #FFD700; border: 1px solid rgba(255, 215, 0, 0.4); }
+.pill-class { background: rgba(0, 229, 255, 0.2); color: #00E5FF; border: 1px solid rgba(0, 229, 255, 0.4); }
+.pill-faction { background: rgba(124, 77, 255, 0.2); color: #B388FF; border: 1px solid rgba(124, 77, 255, 0.4); }
+
+.airship-lore-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(124, 77, 255, 0.4), transparent);
+  margin: 14px 0;
+}
+
+.airship-body-text {
+  color: #D1C4E9;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  margin: 0 0 14px 0;
+}
+
+.airship-specs-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.spec-box {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 8px;
+  text-align: center;
+}
+
+.spec-label {
+  display: block;
+  font-size: 0.62rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.spec-value {
+  display: block;
+  font-size: 0.78rem;
+  color: #FFF;
+  font-weight: 800;
+  margin-top: 2px;
+}
+
 .map-route {
   stroke-dashoffset: 0;
   animation: routeDash 30s linear infinite;
