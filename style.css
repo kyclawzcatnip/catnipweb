@@ -3092,25 +3092,36 @@ p {
 
 /* ⚔️ World War Catnip 20-Airship Armada & Warship Animations */
 .war-airship {
+  cursor: pointer;
+  pointer-events: all;
+}
+
+.war-airship-red ellipse,
+.war-airship-red rect {
   transform-box: fill-box;
   transform-origin: center;
-  cursor: pointer;
-}
-
-.war-airship-red {
   filter: drop-shadow(0 0 8px #FF3D00);
-  animation: warDogfightRed 5s ease-in-out infinite alternate;
+  animation: warDogfightRed 4s ease-in-out infinite alternate;
 }
 
-.war-airship-blue {
+.war-airship-blue ellipse,
+.war-airship-blue rect {
+  transform-box: fill-box;
+  transform-origin: center;
   filter: drop-shadow(0 0 8px #00E5FF);
-  animation: warDogfightBlue 6s ease-in-out infinite alternate;
+  animation: warDogfightBlue 5s ease-in-out infinite alternate;
 }
 
 .naval-warship {
+  cursor: pointer;
+  pointer-events: all;
+}
+
+.naval-warship polygon,
+.naval-warship rect {
   transform-box: fill-box;
   transform-origin: center;
-  animation: warshipFloat 4s ease-in-out infinite alternate;
+  animation: warshipFloat 3s ease-in-out infinite alternate;
 }
 
 .cannon-muzzle-flash {
