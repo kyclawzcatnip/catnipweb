@@ -2487,6 +2487,28 @@ document.addEventListener('DOMContentLoaded', () => {
       speed: '160 Knots',
       engine: 'Overclocked Anticatite'
     },
+    'red-flagship': {
+      icon: '🚀',
+      name: 'Red Fleet Supreme Flagship',
+      year: 'Commissioned WWC Era',
+      class: 'Armored Command Dreadnought',
+      faction: 'Scorched Fleet',
+      desc: 'The supreme aerial flagship of the Red Faction, carrying heavy artillery batteries, command communications, and twin Anticatite plasma lasers.',
+      hp: '2,500 HP',
+      speed: '120 Knots',
+      engine: 'Overclocked Anticatite'
+    },
+    'blue-command': {
+      icon: '⚡',
+      name: 'Blue Fleet Tactical Command',
+      year: 'Commissioned WWC Era',
+      class: 'Command Interceptor',
+      faction: 'Kingdom Defense',
+      desc: 'High-altitude strategic flagship of the Blue Faction, coordinating fleet defense matrix shields and air support during the siege of Scorched Ridge.',
+      hp: '2,200 HP',
+      speed: '140 Knots',
+      engine: 'Celestial Barrier Core'
+    },
     'blue-sentinel': {
       icon: '🛡️',
       name: 'Blue Faction Defense Sentinel',

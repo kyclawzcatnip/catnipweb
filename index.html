@@ -18,7 +18,7 @@
   <link rel="apple-touch-icon" href="favicon.jpg">
 
   <!-- Core Stylesheet -->
-  <link rel="stylesheet" href="style.css?v=20260731s">
+  <link rel="stylesheet" href="style.css?v=20260731t">
 </head>
 <body>
 
@@ -1032,29 +1032,29 @@
 
               <!-- WORLD WAR CATNIP: 20-Ship Aerial Armada vs Enemy Naval Warships (Active during WWC Era) -->
               <g id="map-wwc-armada" data-era="during-wwc">
-                <!-- Enemy Naval Warships in the Ocean -->
-                <g class="naval-warship" data-ship-id="red-battleship" transform="translate(540, 230)">
+                <!-- Enemy Naval Warships down in the ocean (Separated from sky airships) -->
+                <g class="naval-warship" data-ship-id="red-battleship" transform="translate(520, 260)">
                   <polygon points="-16,0 16,0 10,7 -10,7" fill="#37474F" stroke="#B0BEC5" stroke-width="1.5"/>
                   <rect x="-4" y="-5" width="8" height="5" fill="#263238"/>
                   <circle cx="0" cy="-7" r="2" fill="#FF3D00" class="cannon-muzzle-flash"/>
                   <text y="14" text-anchor="middle" fill="#FF5252" font-size="8" font-weight="800">⚓ Red Battleship</text>
                 </g>
 
-                <g class="naval-warship" data-ship-id="red-dreadnought" transform="translate(630, 240)">
+                <g class="naval-warship" data-ship-id="red-dreadnought" transform="translate(610, 270)">
                   <polygon points="-16,0 16,0 10,7 -10,7" fill="#37474F" stroke="#B0BEC5" stroke-width="1.5"/>
                   <rect x="-4" y="-5" width="8" height="5" fill="#263238"/>
                   <circle cx="0" cy="-7" r="2" fill="#FF3D00" class="cannon-muzzle-flash"/>
                   <text y="14" text-anchor="middle" fill="#FF5252" font-size="8" font-weight="800">⚓ Red Dreadnought</text>
                 </g>
 
-                <g class="naval-warship" data-ship-id="blue-cruiser" transform="translate(670, 135)">
+                <g class="naval-warship" data-ship-id="blue-cruiser" transform="translate(700, 255)">
                   <polygon points="-16,0 16,0 10,7 -10,7" fill="#1A237E" stroke="#80D8FF" stroke-width="1.5"/>
                   <rect x="-4" y="-5" width="8" height="5" fill="#0D47A1"/>
                   <circle cx="0" cy="-7" r="2" fill="#00E5FF" class="cannon-muzzle-flash"/>
                   <text y="14" text-anchor="middle" fill="#80D8FF" font-size="8" font-weight="800">⚓ Blue Defense Cruiser</text>
                 </g>
 
-                <g class="naval-warship" data-ship-id="blue-gunboat" transform="translate(580, 115)">
+                <g class="naval-warship" data-ship-id="blue-gunboat" transform="translate(580, 245)">
                   <polygon points="-16,0 16,0 10,7 -10,7" fill="#1A237E" stroke="#80D8FF" stroke-width="1.5"/>
                   <rect x="-4" y="-5" width="8" height="5" fill="#0D47A1"/>
                   <circle cx="0" cy="-7" r="2" fill="#00E5FF" class="cannon-muzzle-flash"/>
@@ -1063,37 +1063,37 @@
 
                 <!-- Dynamic Animated Laser & Cannon Beams Firing between Airships & Warships -->
                 <g class="armada-laser-beams">
-                  <line x1="520" y1="140" x2="540" y2="230" stroke="#FF3D00" stroke-width="2.5" stroke-dasharray="6,4" class="laser-beam-red"/>
-                  <line x1="580" y1="160" x2="630" y2="240" stroke="#FF5252" stroke-width="2" stroke-dasharray="8,4" class="laser-beam-red"/>
-                  <line x1="640" y1="180" x2="670" y2="135" stroke="#00E5FF" stroke-width="2.5" stroke-dasharray="5,3" class="laser-beam-blue"/>
-                  <line x1="580" y1="115" x2="550" y2="160" stroke="#40C4FF" stroke-width="2" stroke-dasharray="7,4" class="laser-beam-blue"/>
-                  <line x1="610" y1="190" x2="540" y2="230" stroke="#FF9100" stroke-width="2" stroke-dasharray="4,4" class="laser-beam-gold"/>
-                  <line x1="660" y1="170" x2="630" y2="240" stroke="#FF1744" stroke-width="3" stroke-dasharray="6,3" class="laser-beam-red"/>
+                  <line x1="510" y1="130" x2="520" y2="260" stroke="#FF3D00" stroke-width="2.5" stroke-dasharray="6,4" class="laser-beam-red"/>
+                  <line x1="580" y1="125" x2="610" y2="270" stroke="#FF5252" stroke-width="2" stroke-dasharray="8,4" class="laser-beam-red"/>
+                  <line x1="640" y1="95" x2="700" y2="255" stroke="#00E5FF" stroke-width="2.5" stroke-dasharray="5,3" class="laser-beam-blue"/>
+                  <line x1="595" y1="80" x2="580" y2="245" stroke="#40C4FF" stroke-width="2" stroke-dasharray="7,4" class="laser-beam-blue"/>
+                  <line x1="605" y1="215" x2="520" y2="260" stroke="#FF9100" stroke-width="2" stroke-dasharray="4,4" class="laser-beam-gold"/>
+                  <line x1="685" y1="175" x2="610" y2="270" stroke="#FF1744" stroke-width="3" stroke-dasharray="6,3" class="laser-beam-red"/>
                 </g>
 
-                <!-- Red Faction War Airships (10 Ships) -->
-                <g id="war-airship-r1" class="war-airship war-airship-red" data-ship-id="red-corsair" transform="translate(520, 140)"><ellipse rx="12" ry="6" fill="#D50000" stroke="#FFF" stroke-width="1"/><rect x="-5" y="6" width="10" height="3" fill="#FFD700"/><text y="-8" text-anchor="middle" fill="#FF8A80" font-size="7" font-weight="900">⚔️ Red Corsair 1</text></g>
-                <g id="war-airship-r2" class="war-airship war-airship-red" data-ship-id="red-corsair" transform="translate(550, 160)"><ellipse rx="12" ry="6" fill="#D50000" stroke="#FFF" stroke-width="1"/><rect x="-5" y="6" width="10" height="3" fill="#FFD700"/><text y="-8" text-anchor="middle" fill="#FF8A80" font-size="7" font-weight="900">⚔️ Red Corsair 2</text></g>
-                <g id="war-airship-r3" class="war-airship war-airship-red" data-ship-id="red-flagship" transform="translate(580, 130)"><ellipse rx="14" ry="7" fill="#B71C1C" stroke="#FFF" stroke-width="1.5"/><rect x="-6" y="7" width="12" height="3" fill="#FFD700"/><text y="-9" text-anchor="middle" fill="#FF8A80" font-size="7" font-weight="900">🚀 Red Flagship</text></g>
-                <g id="war-airship-r4" class="war-airship war-airship-red" data-ship-id="red-corsair" transform="translate(600, 150)"><ellipse rx="11" ry="5" fill="#D50000" stroke="#FFF" stroke-width="1"/><rect x="-4" y="5" width="8" height="3" fill="#FFD700"/></g>
-                <g id="war-airship-r5" class="war-airship war-airship-red" data-ship-id="red-corsair" transform="translate(530, 180)"><ellipse rx="11" ry="5" fill="#D50000" stroke="#FFF" stroke-width="1"/><rect x="-4" y="5" width="8" height="3" fill="#FFD700"/></g>
-                <g id="war-airship-r6" class="war-airship war-airship-red" data-ship-id="red-corsair" transform="translate(570, 190)"><ellipse rx="13" ry="6" fill="#B71C1C" stroke="#FFF" stroke-width="1"/><rect x="-5" y="6" width="10" height="3" fill="#FFD700"/></g>
-                <g id="war-airship-r7" class="war-airship war-airship-red" data-ship-id="red-corsair" transform="translate(610, 190)"><ellipse rx="12" ry="6" fill="#D50000" stroke="#FFF" stroke-width="1"/><rect x="-5" y="6" width="10" height="3" fill="#FFD700"/></g>
-                <g id="war-airship-r8" class="war-airship war-airship-red" data-ship-id="red-corsair" transform="translate(650, 160)"><ellipse rx="11" ry="5" fill="#D50000" stroke="#FFF" stroke-width="1"/><rect x="-4" y="5" width="8" height="3" fill="#FFD700"/></g>
-                <g id="war-airship-r9" class="war-airship war-airship-red" data-ship-id="red-corsair" transform="translate(660, 170)"><ellipse rx="14" ry="7" fill="#B71C1C" stroke="#FFF" stroke-width="1.5"/><rect x="-6" y="7" width="12" height="3" fill="#FFD700"/></g>
-                <g id="war-airship-r10" class="war-airship war-airship-red" data-ship-id="red-corsair" transform="translate(500, 160)"><ellipse rx="10" ry="5" fill="#D50000" stroke="#FFF" stroke-width="1"/><rect x="-4" y="5" width="8" height="3" fill="#FFD700"/></g>
+                <!-- Red Faction War Airships (10 Ships, overhead in the sky) -->
+                <g id="war-airship-r1" class="war-airship war-airship-red" data-ship-id="red-corsair" transform="translate(510, 130)"><ellipse rx="12" ry="6" fill="#D50000" stroke="#FFF" stroke-width="1"/><rect x="-5" y="6" width="10" height="3" fill="#FFD700"/><text y="-8" text-anchor="middle" fill="#FF8A80" font-size="7" font-weight="900">⚔️ Red Corsair 1</text></g>
+                <g id="war-airship-r2" class="war-airship war-airship-red" data-ship-id="red-corsair" transform="translate(545, 155)"><ellipse rx="12" ry="6" fill="#D50000" stroke="#FFF" stroke-width="1"/><rect x="-5" y="6" width="10" height="3" fill="#FFD700"/><text y="-8" text-anchor="middle" fill="#FF8A80" font-size="7" font-weight="900">⚔️ Red Corsair 2</text></g>
+                <g id="war-airship-r3" class="war-airship war-airship-red" data-ship-id="red-flagship" transform="translate(580, 125)"><ellipse rx="14" ry="7" fill="#B71C1C" stroke="#FFF" stroke-width="1.5"/><rect x="-6" y="7" width="12" height="3" fill="#FFD700"/><text y="-9" text-anchor="middle" fill="#FF8A80" font-size="7" font-weight="900">🚀 Red Flagship</text></g>
+                <g id="war-airship-r4" class="war-airship war-airship-red" data-ship-id="red-corsair" transform="translate(610, 145)"><ellipse rx="11" ry="5" fill="#D50000" stroke="#FFF" stroke-width="1"/><rect x="-4" y="5" width="8" height="3" fill="#FFD700"/></g>
+                <g id="war-airship-r5" class="war-airship war-airship-red" data-ship-id="red-corsair" transform="translate(520, 185)"><ellipse rx="11" ry="5" fill="#D50000" stroke="#FFF" stroke-width="1"/><rect x="-4" y="5" width="8" height="3" fill="#FFD700"/></g>
+                <g id="war-airship-r6" class="war-airship war-airship-red" data-ship-id="red-corsair" transform="translate(565, 205)"><ellipse rx="13" ry="6" fill="#B71C1C" stroke="#FFF" stroke-width="1"/><rect x="-5" y="6" width="10" height="3" fill="#FFD700"/></g>
+                <g id="war-airship-r7" class="war-airship war-airship-red" data-ship-id="red-corsair" transform="translate(605, 215)"><ellipse rx="12" ry="6" fill="#D50000" stroke="#FFF" stroke-width="1"/><rect x="-5" y="6" width="10" height="3" fill="#FFD700"/></g>
+                <g id="war-airship-r8" class="war-airship war-airship-red" data-ship-id="red-corsair" transform="translate(650, 195)"><ellipse rx="11" ry="5" fill="#D50000" stroke="#FFF" stroke-width="1"/><rect x="-4" y="5" width="8" height="3" fill="#FFD700"/></g>
+                <g id="war-airship-r9" class="war-airship war-airship-red" data-ship-id="red-corsair" transform="translate(685, 175)"><ellipse rx="14" ry="7" fill="#B71C1C" stroke="#FFF" stroke-width="1.5"/><rect x="-6" y="7" width="12" height="3" fill="#FFD700"/></g>
+                <g id="war-airship-r10" class="war-airship war-airship-red" data-ship-id="red-corsair" transform="translate(475, 165)"><ellipse rx="10" ry="5" fill="#D50000" stroke="#FFF" stroke-width="1"/><rect x="-4" y="5" width="8" height="3" fill="#FFD700"/></g>
 
-                <!-- Blue Faction War Airships (10 Ships) -->
-                <g id="war-airship-b1" class="war-airship war-airship-blue" data-ship-id="blue-sentinel" transform="translate(620, 120)"><ellipse rx="12" ry="6" fill="#0091EA" stroke="#FFF" stroke-width="1"/><rect x="-5" y="6" width="10" height="3" fill="#00E676"/><text y="-8" text-anchor="middle" fill="#80D8FF" font-size="7" font-weight="900">🛡️ Blue Sentinel 1</text></g>
-                <g id="war-airship-b2" class="war-airship war-airship-blue" data-ship-id="blue-sentinel" transform="translate(640, 140)"><ellipse rx="12" ry="6" fill="#0091EA" stroke="#FFF" stroke-width="1"/><rect x="-5" y="6" width="10" height="3" fill="#00E676"/><text y="-8" text-anchor="middle" fill="#80D8FF" font-size="7" font-weight="900">🛡️ Blue Sentinel 2</text></g>
-                <g id="war-airship-b3" class="war-airship war-airship-blue" data-ship-id="blue-command" transform="translate(660, 110)"><ellipse rx="14" ry="7" fill="#0D47A1" stroke="#FFF" stroke-width="1.5"/><rect x="-6" y="7" width="12" height="3" fill="#00E676"/><text y="-9" text-anchor="middle" fill="#80D8FF" font-size="7" font-weight="900">⚡ Blue Command</text></g>
-                <g id="war-airship-b4" class="war-airship war-airship-blue" data-ship-id="blue-sentinel" transform="translate(590, 100)"><ellipse rx="11" ry="5" fill="#0091EA" stroke="#FFF" stroke-width="1"/><rect x="-4" y="5" width="8" height="3" fill="#00E676"/></g>
-                <g id="war-airship-b5" class="war-airship war-airship-blue" data-ship-id="blue-sentinel" transform="translate(560, 110)"><ellipse rx="11" ry="5" fill="#0091EA" stroke="#FFF" stroke-width="1"/><rect x="-4" y="5" width="8" height="3" fill="#00E676"/></g>
-                <g id="war-airship-b6" class="war-airship war-airship-blue" data-ship-id="blue-sentinel" transform="translate(630, 170)"><ellipse rx="13" ry="6" fill="#0D47A1" stroke="#FFF" stroke-width="1"/><rect x="-5" y="6" width="10" height="3" fill="#00E676"/></g>
-                <g id="war-airship-b7" class="war-airship war-airship-blue" data-ship-id="blue-sentinel" transform="translate(670, 180)"><ellipse rx="12" ry="6" fill="#0091EA" stroke="#FFF" stroke-width="1"/><rect x="-5" y="6" width="10" height="3" fill="#00E676"/></g>
-                <g id="war-airship-b8" class="war-airship war-airship-blue" data-ship-id="blue-sentinel" transform="translate(680, 140)"><ellipse rx="11" ry="5" fill="#0091EA" stroke="#FFF" stroke-width="1"/><rect x="-4" y="5" width="8" height="3" fill="#00E676"/></g>
-                <g id="war-airship-b9" class="war-airship war-airship-blue" data-ship-id="blue-sentinel" transform="translate(550, 130)"><ellipse rx="14" ry="7" fill="#0D47A1" stroke="#FFF" stroke-width="1.5"/><rect x="-6" y="7" width="12" height="3" fill="#00E676"/></g>
-                <g id="war-airship-b10" class="war-airship war-airship-blue" data-ship-id="blue-sentinel" transform="translate(690, 160)"><ellipse rx="10" ry="5" fill="#0091EA" stroke="#FFF" stroke-width="1"/><rect x="-4" y="5" width="8" height="3" fill="#00E676"/></g>
+                <!-- Blue Faction War Airships (10 Ships, high sky formation) -->
+                <g id="war-airship-b1" class="war-airship war-airship-blue" data-ship-id="blue-sentinel" transform="translate(640, 95)"><ellipse rx="12" ry="6" fill="#0091EA" stroke="#FFF" stroke-width="1"/><rect x="-5" y="6" width="10" height="3" fill="#00E676"/><text y="-8" text-anchor="middle" fill="#80D8FF" font-size="7" font-weight="900">🛡️ Blue Sentinel 1</text></g>
+                <g id="war-airship-b2" class="war-airship war-airship-blue" data-ship-id="blue-sentinel" transform="translate(675, 115)"><ellipse rx="12" ry="6" fill="#0091EA" stroke="#FFF" stroke-width="1"/><rect x="-5" y="6" width="10" height="3" fill="#00E676"/><text y="-8" text-anchor="middle" fill="#80D8FF" font-size="7" font-weight="900">🛡️ Blue Sentinel 2</text></g>
+                <g id="war-airship-b3" class="war-airship war-airship-blue" data-ship-id="blue-command" transform="translate(710, 90)"><ellipse rx="14" ry="7" fill="#0D47A1" stroke="#FFF" stroke-width="1.5"/><rect x="-6" y="7" width="12" height="3" fill="#00E676"/><text y="-9" text-anchor="middle" fill="#80D8FF" font-size="7" font-weight="900">⚡ Blue Command</text></g>
+                <g id="war-airship-b4" class="war-airship war-airship-blue" data-ship-id="blue-sentinel" transform="translate(595, 80)"><ellipse rx="11" ry="5" fill="#0091EA" stroke="#FFF" stroke-width="1"/><rect x="-4" y="5" width="8" height="3" fill="#00E676"/></g>
+                <g id="war-airship-b5" class="war-airship war-airship-blue" data-ship-id="blue-sentinel" transform="translate(555, 95)"><ellipse rx="11" ry="5" fill="#0091EA" stroke="#FFF" stroke-width="1"/><rect x="-4" y="5" width="8" height="3" fill="#00E676"/></g>
+                <g id="war-airship-b6" class="war-airship war-airship-blue" data-ship-id="blue-sentinel" transform="translate(645, 160)"><ellipse rx="13" ry="6" fill="#0D47A1" stroke="#FFF" stroke-width="1"/><rect x="-5" y="6" width="10" height="3" fill="#00E676"/></g>
+                <g id="war-airship-b7" class="war-airship war-airship-blue" data-ship-id="blue-sentinel" transform="translate(695, 185)"><ellipse rx="12" ry="6" fill="#0091EA" stroke="#FFF" stroke-width="1"/><rect x="-5" y="6" width="10" height="3" fill="#00E676"/></g>
+                <g id="war-airship-b8" class="war-airship war-airship-blue" data-ship-id="blue-sentinel" transform="translate(715, 145)"><ellipse rx="11" ry="5" fill="#0091EA" stroke="#FFF" stroke-width="1"/><rect x="-4" y="5" width="8" height="3" fill="#00E676"/></g>
+                <g id="war-airship-b9" class="war-airship war-airship-blue" data-ship-id="blue-sentinel" transform="translate(535, 115)"><ellipse rx="14" ry="7" fill="#0D47A1" stroke="#FFF" stroke-width="1.5"/><rect x="-6" y="7" width="12" height="3" fill="#00E676"/></g>
+                <g id="war-airship-b10" class="war-airship war-airship-blue" data-ship-id="blue-sentinel" transform="translate(735, 165)"><ellipse rx="10" ry="5" fill="#0091EA" stroke="#FFF" stroke-width="1"/><rect x="-4" y="5" width="8" height="3" fill="#00E676"/></g>
               </g>
 
               <!-- WORLD WAR CATNIP: Battle Replay Animated Trajectory Layer -->
@@ -2522,6 +2522,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
   <!-- Main Script File -->
-  <script src="script.js?v=20260726zk85"></script>
+  <script src="script.js?v=20260726zk86"></script>
 </body>
 </html>

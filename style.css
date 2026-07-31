@@ -3134,6 +3134,22 @@ p {
   pointer-events: auto;
 }
 
+/* 🌟 High-Visibility Hover Highlighting for All Airships & Warships */
+.war-airship:hover,
+.moving-airship-item:hover,
+.naval-warship:hover {
+  filter: drop-shadow(0 0 16px #FFD700) !important;
+  cursor: pointer;
+}
+
+.war-airship:hover ellipse,
+.war-airship:hover rect,
+.naval-warship:hover polygon,
+.naval-warship:hover rect {
+  stroke: #FFD700 !important;
+  stroke-width: 2.5px !important;
+}
+
 .naval-warship polygon,
 .naval-warship rect {
   transform-box: fill-box;
