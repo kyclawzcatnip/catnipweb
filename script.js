@@ -1932,7 +1932,8 @@ document.addEventListener('DOMContentLoaded', () => {
       connections: [
         { id: 'catnip-forest', name: 'Catnip Forest' },
         { id: 'scw', name: 'Super Cat World' },
-        { id: 'kart-speedway', name: 'Kart Speedway' }
+        { id: 'kart-speedway', name: 'Kart Speedway' },
+        { id: 'smash-arena', name: 'Smash Arena' }
       ],
       wikiLink: 'feline-faction-war'
     },
@@ -1950,7 +1951,8 @@ document.addEventListener('DOMContentLoaded', () => {
       connections: [
         { id: 'catnip-forest', name: 'Catnip Forest' },
         { id: 'wwc', name: 'World War Catnip' },
-        { id: 'kingdom', name: 'Catnip Kingdom' }
+        { id: 'kingdom', name: 'Catnip Kingdom' },
+        { id: 'smash-arena', name: 'Smash Arena' }
       ],
       wikiLink: 'super-cat-world'
     },
