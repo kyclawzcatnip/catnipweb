@@ -1393,11 +1393,14 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('click', (e) => {
     const trigger = e.target.closest('.nav-trigger');
     if (trigger) {
-      e.preventDefault();
       const target = trigger.getAttribute('data-target');
-      window.location.hash = target;
-      if (typeof playRetroSound === 'function') {
-        playRetroSound('click');
+      if (target) {
+        e.preventDefault();
+        window.location.hash = target;
+        navigateTo(target);
+        if (typeof playRetroSound === 'function') {
+          playRetroSound('click');
+        }
       }
     }
   });
