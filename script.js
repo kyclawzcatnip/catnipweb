@@ -2254,6 +2254,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupOverlayToggle('btn-map-overlay-story', 'map-story-layer');
 
   // ==================== DAY / NIGHT SYSTEM ====================
+  const mapViewport = document.getElementById('map-viewport');
   const btnNight = document.getElementById('btn-map-toggle-night');
   if (btnNight && mapViewport) {
     btnNight.addEventListener('click', () => {
@@ -2388,7 +2389,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Map View Mode Toggles
   const btnMapStandard = document.getElementById('btn-map-mode-standard');
   const btnMapHeight = document.getElementById('btn-map-mode-height');
-  const mapViewport = document.getElementById('map-viewport');
   const mapHeightLegend = document.getElementById('map-height-legend');
 
   if (btnMapStandard && btnMapHeight && mapViewport) {
