@@ -784,9 +784,24 @@
           <p class="section-subtitle" style="font-size: 1.05rem; color: var(--color-text-secondary); max-width: 600px; margin: 8px auto 0 auto; line-height: 1.6;">Chart the territories, historical battlegrounds, and cosmic felines across the Catnip Studios Universe.</p>
         </div>
 
+        <div class="map-controls" style="display: flex; justify-content: center; gap: 15px; margin-bottom: 25px;">
+          <button class="btn btn-primary map-mode-btn active" id="btn-map-mode-standard" style="padding: 10px 20px; font-size: 0.9rem; font-weight: 600; border-radius: 8px; transition: all 0.3s ease;">🗺️ Standard Map</button>
+          <button class="btn btn-secondary map-mode-btn" id="btn-map-mode-height" style="padding: 10px 20px; font-size: 0.9rem; font-weight: 600; border-radius: 8px; transition: all 0.3s ease;">🏔️ Inspect Height</button>
+        </div>
+
         <div class="map-layout">
           <!-- The Map View Container -->
           <div class="map-viewport" id="map-viewport">
+            <!-- Elevation Height Legend overlay -->
+            <div class="map-height-legend" id="map-height-legend" style="display: none; position: absolute; bottom: 15px; left: 15px; background: rgba(10, 6, 22, 0.9); border: 1px solid var(--border-light); border-radius: 8px; padding: 12px; font-size: 0.8rem; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
+              <h4 style="margin: 0 0 8px 0; color: #FFF; font-size: 0.85rem; font-weight: 800;">Elevation Levels</h4>
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <div style="display: flex; align-items: center; gap: 8px; color: var(--color-text-muted);"><span style="width: 12px; height: 12px; background: #2e7d32; border-radius: 3px; display: inline-block;"></span> Sea Level - 2,000m</div>
+                <div style="display: flex; align-items: center; gap: 8px; color: var(--color-text-muted);"><span style="width: 12px; height: 12px; background: #fbc02d; border-radius: 3px; display: inline-block;"></span> 2,000m - 4,000m</div>
+                <div style="display: flex; align-items: center; gap: 8px; color: var(--color-text-muted);"><span style="width: 12px; height: 12px; background: #ef6c00; border-radius: 3px; display: inline-block;"></span> 4,000m - 6,000m</div>
+                <div style="display: flex; align-items: center; gap: 8px; color: var(--color-text-muted);"><span style="width: 12px; height: 12px; background: #c62828; border-radius: 3px; display: inline-block;"></span> 6,000m - 8,000m</div>
+              </div>
+            </div>
             <svg class="map-svg" viewBox="0 0 800 500" width="100%" height="100%">
               <!-- Decorative Grid Lines -->
               <defs>
@@ -813,13 +828,13 @@
               <path class="map-route" d="M 500 260 L 620 180" fill="none" stroke="rgba(255, 61, 0, 0.3)" stroke-width="2.5" stroke-dasharray="6,6"/>
 
               <!-- Landmass SVGs / Island Shapes -->
-              <path d="M 100 280 Q 150 240 220 300 T 260 360 T 140 370 Z" fill="rgba(0, 230, 118, 0.04)" stroke="rgba(0, 230, 118, 0.15)" stroke-width="2"/>
-              <path d="M 320 320 Q 380 280 460 330 T 480 400 T 360 410 Z" fill="rgba(124, 77, 255, 0.04)" stroke="rgba(124, 77, 255, 0.15)" stroke-width="2"/>
-              <path d="M 520 150 Q 580 110 680 160 T 700 230 T 560 210 Z" fill="rgba(0, 176, 255, 0.04)" stroke="rgba(0, 176, 255, 0.15)" stroke-width="2"/>
-              <path d="M 300 100 Q 350 80 420 100 T 450 160 T 320 140 Z" fill="rgba(255, 215, 0, 0.04)" stroke="rgba(255, 215, 0, 0.15)" stroke-width="2"/>
-              <path d="M 540 280 Q 620 250 680 320 T 640 380 T 520 340 Z" fill="rgba(0, 176, 255, 0.04)" stroke="rgba(0, 176, 255, 0.15)" stroke-width="2"/>
+              <path class="map-island" id="island-catnip-forest" d="M 100 280 Q 150 240 220 300 T 260 360 T 140 370 Z"/>
+              <path class="map-island" id="island-scw" d="M 320 320 Q 380 280 460 330 T 480 400 T 360 410 Z"/>
+              <path class="map-island" id="island-wwc" d="M 520 150 Q 580 110 680 160 T 700 230 T 560 210 Z"/>
+              <path class="map-island" id="island-kingdom" d="M 300 100 Q 350 80 420 100 T 450 160 T 320 140 Z"/>
+              <path class="map-island" id="island-kart-speedway" d="M 540 280 Q 620 250 680 320 T 640 380 T 520 340 Z"/>
               <!-- Smash Arena Island (Chaotic Volcano/Rifts Center) -->
-              <path d="M 450 260 Q 480 220 530 235 T 550 285 T 480 290 Z" fill="rgba(255, 61, 0, 0.04)" stroke="rgba(255, 61, 0, 0.15)" stroke-width="2"/>
+              <path class="map-island" id="island-smash-arena" d="M 450 260 Q 480 220 530 235 T 550 285 T 480 290 Z"/>
 
               <!-- Map Pin Elements -->
               <!-- 1. Catnip Forest -->
@@ -2181,6 +2196,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
   <!-- Main Script File -->
-  <script src="script.js?v=20260726zk62"></script>
+  <script src="script.js?v=20260726zk63"></script>
 </body>
 </html>

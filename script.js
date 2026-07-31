@@ -2130,6 +2130,34 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Map View Mode Toggles
+  const btnMapStandard = document.getElementById('btn-map-mode-standard');
+  const btnMapHeight = document.getElementById('btn-map-mode-height');
+  const mapViewport = document.getElementById('map-viewport');
+  const mapHeightLegend = document.getElementById('map-height-legend');
+
+  if (btnMapStandard && btnMapHeight && mapViewport) {
+    btnMapStandard.addEventListener('click', () => {
+      btnMapStandard.classList.add('btn-primary', 'active');
+      btnMapStandard.classList.remove('btn-secondary');
+      btnMapHeight.classList.add('btn-secondary');
+      btnMapHeight.classList.remove('btn-primary', 'active');
+      
+      mapViewport.classList.remove('inspect-height-active');
+      if (mapHeightLegend) mapHeightLegend.style.display = 'none';
+    });
+
+    btnMapHeight.addEventListener('click', () => {
+      btnMapHeight.classList.add('btn-primary', 'active');
+      btnMapHeight.classList.remove('btn-secondary');
+      btnMapStandard.classList.add('btn-secondary');
+      btnMapStandard.classList.remove('btn-primary', 'active');
+      
+      mapViewport.classList.add('inspect-height-active');
+      if (mapHeightLegend) mapHeightLegend.style.display = 'block';
+    });
+  }
+
   // Escape key closes modals
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {

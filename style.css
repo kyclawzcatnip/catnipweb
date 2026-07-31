@@ -2913,7 +2913,8 @@ p {
 }
 
 .map-viewport {
-  background: rgba(10, 6, 22, 0.6);
+  background: #0d1e3d; /* Sea Ocean Blue background */
+  background-image: radial-gradient(circle, #1a2f57 0%, #071226 100%);
   border: 2px solid var(--border-light);
   border-radius: 16px;
   overflow: hidden;
@@ -2924,6 +2925,48 @@ p {
 
 .map-viewport:hover {
   border-color: var(--color-primary);
+}
+
+.map-island {
+  fill: #1b4d22; /* Lush green land fill */
+  fill-opacity: 0.7;
+  stroke: #4caf50;
+  stroke-width: 2px;
+  transition: fill 0.4s ease, fill-opacity 0.4s ease, stroke 0.4s ease;
+  cursor: pointer;
+}
+
+.map-island:hover {
+  fill: #2d6a3f;
+  fill-opacity: 0.9;
+  stroke: #81c784;
+}
+
+/* Height Inspection View Mode classes */
+.inspect-height-active #island-catnip-forest,
+.inspect-height-active #island-kart-speedway,
+.inspect-height-active #island-wwc {
+  fill: #2e7d32 !important; /* Green: 0 to 2000m */
+  fill-opacity: 0.8 !important;
+  stroke: #81c784 !important;
+}
+
+.inspect-height-active #island-smash-arena {
+  fill: #fbc02d !important; /* Yellow: 2000 to 4000m */
+  fill-opacity: 0.8 !important;
+  stroke: #fff59d !important;
+}
+
+.inspect-height-active #island-kingdom {
+  fill: #ef6c00 !important; /* Orange: 4000 to 6000m */
+  fill-opacity: 0.8 !important;
+  stroke: #ffb74d !important;
+}
+
+.inspect-height-active #island-scw {
+  fill: #c62828 !important; /* Red: 6000 to 8000m */
+  fill-opacity: 0.8 !important;
+  stroke: #e57373 !important;
 }
 
 .map-svg {
