@@ -2927,46 +2927,60 @@ p {
   border-color: var(--color-primary);
 }
 
-.map-island {
-  fill: #2d7d46; /* Vibrant lush green land fill */
-  fill-opacity: 0.95; /* High opacity so dark background doesn't bleed through */
+.map-island-tier {
+  fill: #2d7d46;
+  fill-opacity: 0.95;
   stroke: #4caf50;
-  stroke-width: 2.5px;
+  stroke-width: 1.5px;
   transition: fill 0.4s ease, fill-opacity 0.4s ease, stroke 0.4s ease;
   cursor: pointer;
 }
 
-.map-island:hover {
-  fill: #3b9b5a;
-  fill-opacity: 1.0;
+.map-island-group:hover .map-island-tier {
   stroke: #a5d6a7;
 }
 
-/* Height Inspection View Mode classes */
-.inspect-height-active #island-catnip-forest,
-.inspect-height-active #island-kart-speedway,
-.inspect-height-active #island-wwc {
-  fill: #2e7d32 !important; /* Green: 0 to 2000m */
-  fill-opacity: 0.8 !important;
+.map-island-tier.tier-1 { fill: #338a4e; }
+.map-island-tier.tier-2 { fill: #399656; }
+.map-island-tier.tier-3 { fill: #41a35f; }
+.map-island-tier.tier-4 { fill: #48b067; }
+.map-island-tier.tier-5 { fill: #50bd70; }
+
+/* Height Inspection View Mode Topographical Slopes */
+.inspect-height-active .map-island-tier.tier-0 {
+  fill: #2e7d32 !important; /* 0m - 1,500m: Deep Green */
+  fill-opacity: 0.9 !important;
   stroke: #81c784 !important;
 }
 
-.inspect-height-active #island-smash-arena {
-  fill: #fbc02d !important; /* Yellow: 2000 to 4000m */
-  fill-opacity: 0.8 !important;
+.inspect-height-active .map-island-tier.tier-1 {
+  fill: #66bb6a !important; /* 1,500m - 3,000m: Light Green */
+  fill-opacity: 0.9 !important;
+  stroke: #a5d6a7 !important;
+}
+
+.inspect-height-active .map-island-tier.tier-2 {
+  fill: #fbc02d !important; /* 3,000m - 4,500m: Vibrant Yellow */
+  fill-opacity: 0.9 !important;
   stroke: #fff59d !important;
 }
 
-.inspect-height-active #island-kingdom {
-  fill: #ef6c00 !important; /* Orange: 4000 to 6000m */
-  fill-opacity: 0.8 !important;
+.inspect-height-active .map-island-tier.tier-3 {
+  fill: #ef6c00 !important; /* 4,500m - 6,000m: Warm Orange */
+  fill-opacity: 0.9 !important;
   stroke: #ffb74d !important;
 }
 
-.inspect-height-active #island-scw {
-  fill: #c62828 !important; /* Red: 6000 to 8000m */
-  fill-opacity: 0.8 !important;
-  stroke: #e57373 !important;
+.inspect-height-active .map-island-tier.tier-4 {
+  fill: #c62828 !important; /* 6,000m - 7,500m: Flame Red */
+  fill-opacity: 0.9 !important;
+  stroke: #ef9a9a !important;
+}
+
+.inspect-height-active .map-island-tier.tier-5 {
+  fill: #8e24aa !important; /* 7,500m - 9,000m: Cosmic Violet Summit */
+  fill-opacity: 0.95 !important;
+  stroke: #e1bee7 !important;
 }
 
 .map-svg {
