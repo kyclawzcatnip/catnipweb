@@ -2263,7 +2263,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==================== SEARCH & ZOOM ENGINE ====================
-  const searchInput = document.getElementById('map-search-input');
+  const mapSearchInput = document.getElementById('map-search-input');
   const svgMap = document.getElementById('map-svg');
 
   function flyToCoordinates(cx, cy, width = 400, height = 250) {
@@ -2278,8 +2278,8 @@ document.addEventListener('DOMContentLoaded', () => {
     svgMap.setAttribute('viewBox', '0 0 800 500');
   }
 
-  if (searchInput) {
-    searchInput.addEventListener('input', (e) => {
+  if (mapSearchInput) {
+    mapSearchInput.addEventListener('input', (e) => {
       const query = e.target.value.trim().toLowerCase();
       if (!query) {
         resetMapZoom();
