@@ -2504,6 +2504,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Bind airships click handler directly & with event delegation
+  document.querySelectorAll('[data-ship-id]').forEach(ship => {
+    ship.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const shipId = ship.getAttribute('data-ship-id');
+      if (shipId) openAirshipLoreModal(shipId);
+    });
+  });
+
   // Bind map pins click handler with event delegation fallback
   document.querySelectorAll('.map-pin').forEach(pin => {
     pin.addEventListener('click', (e) => {

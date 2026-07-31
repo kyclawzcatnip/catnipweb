@@ -3045,7 +3045,16 @@ p {
   100% { transform: translateY(-6px) scale(1.12); }
 }
 
-/* 🛸 Airship Fleet Animations */
+/* 🛸 Airship Fleet Animations & Pointer Interactivity */
+.moving-airship-item {
+  cursor: pointer;
+  pointer-events: all;
+}
+
+.moving-airship-item * {
+  pointer-events: auto;
+}
+
 #moving-airship-1 {
   animation: airshipPatrol1 22s ease-in-out infinite alternate;
   filter: drop-shadow(0 4px 10px rgba(0,0,0,0.6));
@@ -3079,9 +3088,9 @@ p {
 }
 
 @keyframes airshipPatrol3 {
-  0% { transform: translate(500px, 240px); }
-  50% { transform: translate(620px, 160px); }
-  100% { transform: translate(580px, 340px); }
+  0% { transform: translate(540px, 240px); }
+  50% { transform: translate(420px, 180px); }
+  100% { transform: translate(220px, 320px); }
 }
 
 @keyframes airshipPatrol4 {
@@ -3094,6 +3103,10 @@ p {
 .war-airship {
   cursor: pointer;
   pointer-events: all;
+}
+
+.war-airship * {
+  pointer-events: auto;
 }
 
 .war-airship-red ellipse,
