@@ -2404,13 +2404,24 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (e) {}
   }
 
-  // Bind map pins click handler
+  // Bind map pins click handler with event delegation fallback
   document.querySelectorAll('.map-pin').forEach(pin => {
-    pin.addEventListener('click', () => {
+    pin.addEventListener('click', (e) => {
+      e.stopPropagation();
       const locationId = pin.getAttribute('data-id');
-      selectMapLocation(locationId);
+      if (locationId) selectMapLocation(locationId);
     });
   });
+
+  if (svgMap) {
+    svgMap.addEventListener('click', (e) => {
+      const pin = e.target.closest('.map-pin');
+      if (pin) {
+        const locationId = pin.getAttribute('data-id');
+        if (locationId) selectMapLocation(locationId);
+      }
+    });
+  }
 
   // Map View Mode Toggles
   const btnMapStandard = document.getElementById('btn-map-mode-standard');

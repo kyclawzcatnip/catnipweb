@@ -3176,23 +3176,27 @@ p {
 /* Map Pins & Glowing Pulsars */
 .map-pin {
   cursor: pointer;
+  pointer-events: all;
   transform-box: fill-box;
   transform-origin: center;
 }
 
-.map-pin * {
-  pointer-events: none;
+.map-pin .pin-core,
+.map-pin .pin-pulse {
+  pointer-events: auto;
+  transform-box: fill-box;
+  transform-origin: center;
 }
 
-.crystal-deposit-marker * {
-  pointer-events: none;
+.crystal-deposit-marker polygon,
+.npc-pin-badge circle,
+.npc-pin-badge text {
+  pointer-events: auto;
 }
 
 .pin-core {
   stroke: rgba(255, 255, 255, 0.9);
   stroke-width: 2px;
-  transform-box: fill-box;
-  transform-origin: center;
   transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
@@ -3203,8 +3207,6 @@ p {
 .pin-pulse {
   fill: none;
   animation: pulsePin 2s cubic-bezier(0.25, 0, 0, 1) infinite;
-  transform-box: fill-box;
-  transform-origin: center;
 }
 
 @keyframes pulsePin {
