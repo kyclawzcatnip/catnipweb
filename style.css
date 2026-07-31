@@ -2928,18 +2928,18 @@ p {
 }
 
 .map-island {
-  fill: #1b4d22; /* Lush green land fill */
-  fill-opacity: 0.7;
+  fill: #2d7d46; /* Vibrant lush green land fill */
+  fill-opacity: 0.95; /* High opacity so dark background doesn't bleed through */
   stroke: #4caf50;
-  stroke-width: 2px;
+  stroke-width: 2.5px;
   transition: fill 0.4s ease, fill-opacity 0.4s ease, stroke 0.4s ease;
   cursor: pointer;
 }
 
 .map-island:hover {
-  fill: #2d6a3f;
-  fill-opacity: 0.9;
-  stroke: #81c784;
+  fill: #3b9b5a;
+  fill-opacity: 1.0;
+  stroke: #a5d6a7;
 }
 
 /* Height Inspection View Mode classes */
