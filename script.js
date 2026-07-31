@@ -2173,8 +2173,11 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem('scw_discovered_territories', JSON.stringify(discovered));
 
       // Award XP & Coins
-      catnipCoins += 15;
+      userCoins += 15;
+      totalCoinsEarned += 15;
       userXP += 25;
+      if (typeof updateCoinUI === 'function') updateCoinUI();
+      if (typeof updateXPUI === 'function') updateXPUI();
       saveCoinsToLocalStorage();
       syncCoinsToFirestore();
 
