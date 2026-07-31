@@ -2577,7 +2577,143 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  function openAirshipLoreModal(shipId) {
+  // ==================== DYNAMIC WWC SHIP REINFORCEMENTS ====================
+  let activeSelectedShip = null;
+  let reinforcementCounter = 0;
+
+  function spawnWWCReinforcement(faction) {
+    const armadaGroup = document.getElementById('map-wwc-armada');
+    if (!armadaGroup) return;
+
+    reinforcementCounter++;
+    const shipIdNum = 'reinf-' + reinforcementCounter;
+
+    let startX = 780, startY = 20; // Default Red: Top-Right
+    let targetX, targetY;
+    let color, strokeColor, label, shipClass, factionName;
+
+    if (faction === 'red') {
+      startX = 780;
+      startY = 20;
+      targetX = 500 + Math.floor(Math.random() * 160);
+      targetY = 130 + Math.floor(Math.random() * 90);
+      color = '#D50000';
+      strokeColor = '#FFF';
+      label = '⚔️ Red Corsair ' + (reinforcementCounter % 9 + 1);
+      shipClass = 'war-airship-red';
+      factionName = 'Top-Right Sky Fortress';
+    } else {
+      // Blue Faction: Comes from Catnip Forest (180, 320) or Catnip Kingdom (380, 120)
+      const isForestOrigin = Math.random() > 0.5;
+      if (isForestOrigin) {
+        startX = 180;
+        startY = 320;
+        factionName = 'Catnip Forest';
+      } else {
+        startX = 380;
+        startY = 120;
+        factionName = 'Catnip Kingdom';
+      }
+      targetX = 580 + Math.floor(Math.random() * 150);
+      targetY = 70 + Math.floor(Math.random() * 90);
+      color = '#0091EA';
+      strokeColor = '#FFF';
+      label = '🛡️ Blue Sentinel ' + (reinforcementCounter % 9 + 1);
+      shipClass = 'war-airship-blue';
+    }
+
+    // Create SVG element for incoming reinforcement ship
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('id', 'war-airship-' + shipIdNum);
+    g.setAttribute('class', 'war-airship ' + shipClass + ' dynamic-reinforcement-ship');
+    g.setAttribute('data-ship-id', faction === 'red' ? 'red-corsair' : 'blue-sentinel');
+    g.setAttribute('transform', `translate(${startX}, ${startY})`);
+    g.style.transition = 'transform 3.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s';
+    g.style.cursor = 'pointer';
+
+    g.innerHTML = `
+      <ellipse rx="13" ry="6.5" fill="${color}" stroke="${strokeColor}" stroke-width="1.5"/>
+      <rect x="-5" y="6" width="10" height="3" fill="#FFD700"/>
+      <text y="-9" text-anchor="middle" fill="#FFF" font-size="7" font-weight="900">${label}</text>
+    `;
+
+    g.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openAirshipLoreModal(g.getAttribute('data-ship-id'), g);
+    });
+
+    armadaGroup.appendChild(g);
+
+    // Smoothly fly ship from origin to destination formation
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        g.setAttribute('transform', `translate(${targetX}, ${targetY})`);
+      });
+    });
+
+    // Display battle reinforcement announcement toast
+    const toast = document.getElementById('map-discovery-toast');
+    const toastText = document.getElementById('map-discovery-toast-text');
+    if (toast && toastText) {
+      if (faction === 'red') {
+        toastText.textContent = `🚀 Red Faction Warship Reinforcements arrived from Top-Right Sky!`;
+      } else {
+        toastText.textContent = `🛡️ Blue Faction Air Reinforcements launched from ${factionName}!`;
+      }
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 3800);
+    }
+  }
+
+  function destroyShipAndTriggerReinforcement(shipElement) {
+    if (!shipElement) return;
+
+    // Determine ship coordinates
+    const transform = shipElement.getAttribute('transform') || '';
+    const match = transform.match(/translate\(\s*([\d.]+)[,\s]+([\d.]+)\s*\)/);
+    let x = 600, y = 150;
+    if (match) {
+      x = parseFloat(match[1]);
+      y = parseFloat(match[2]);
+    }
+
+    const isRed = shipElement.classList.contains('war-airship-red') || 
+                  shipElement.getAttribute('data-ship-id')?.includes('red') ||
+                  shipElement.getAttribute('id')?.includes('r');
+    const destroyedFaction = isRed ? 'red' : 'blue';
+
+    // Spawn Explosion Burst Effect in SVG
+    const svgMap = document.getElementById('map-svg');
+    if (svgMap) {
+      const explosion = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      explosion.setAttribute('transform', `translate(${x}, ${y})`);
+      explosion.innerHTML = `
+        <circle r="4" fill="#FF3D00" class="blast-ring"/>
+        <text y="5" text-anchor="middle" font-size="18">💥</text>
+      `;
+      svgMap.appendChild(explosion);
+      setTimeout(() => explosion.remove(), 1200);
+    }
+
+    // Play explosion sound effect
+    if (typeof playRetroSound === 'function') {
+      playRetroSound('hit');
+    }
+
+    // Fade out destroyed ship
+    shipElement.style.transition = 'opacity 0.6s, transform 0.6s';
+    shipElement.style.opacity = '0';
+    shipElement.style.transform = `translate(${x}, ${y + 15}) scale(0.2)`;
+
+    setTimeout(() => {
+      shipElement.remove();
+      // Spawn fresh reinforcement ship for the destroyed faction!
+      spawnWWCReinforcement(destroyedFaction);
+    }, 600);
+  }
+
+  function openAirshipLoreModal(shipId, targetShipEl = null) {
+    activeSelectedShip = targetShipEl;
     const data = AIRSHIP_LORE_DB[shipId] || AIRSHIP_LORE_DB['catnip'];
     const modal = document.getElementById('airship-lore-modal');
     if (!modal) return;
@@ -2591,6 +2727,16 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('lore-ship-power').textContent = data.hp;
     document.getElementById('lore-ship-speed').textContent = data.speed;
     document.getElementById('lore-ship-engine').textContent = data.engine;
+
+    // Show/Hide Engage button for WWC combat ships
+    const btnEngage = document.getElementById('btn-destroy-target-ship');
+    if (btnEngage) {
+      if (currentMapEra === 'during-wwc' && targetShipEl) {
+        btnEngage.style.display = 'block';
+      } else {
+        btnEngage.style.display = 'none';
+      }
+    }
 
     modal.style.display = 'block';
 
@@ -2607,12 +2753,28 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const btnEngageTarget = document.getElementById('btn-destroy-target-ship');
+  if (btnEngageTarget) {
+    btnEngageTarget.addEventListener('click', () => {
+      const modal = document.getElementById('airship-lore-modal');
+      if (modal) modal.style.display = 'none';
+      if (activeSelectedShip) {
+        destroyShipAndTriggerReinforcement(activeSelectedShip);
+        activeSelectedShip = null;
+      } else {
+        // Pick a random warship to destroy
+        const randomShip = document.querySelector('.war-airship');
+        if (randomShip) destroyShipAndTriggerReinforcement(randomShip);
+      }
+    });
+  }
+
   // Bind airships click handler directly & with event delegation
   document.querySelectorAll('[data-ship-id]').forEach(ship => {
     ship.addEventListener('click', (e) => {
       e.stopPropagation();
       const shipId = ship.getAttribute('data-ship-id');
-      if (shipId) openAirshipLoreModal(shipId);
+      if (shipId) openAirshipLoreModal(shipId, ship);
     });
   });
 
