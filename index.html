@@ -18,7 +18,7 @@
   <link rel="apple-touch-icon" href="favicon.jpg">
 
   <!-- Core Stylesheet -->
-  <link rel="stylesheet" href="style.css?v=20260731d">
+  <link rel="stylesheet" href="style.css?v=20260731e">
 </head>
 <body>
 
@@ -900,90 +900,6 @@
                 <circle cx="400" cy="350" r="55" fill="none" stroke="#7C4DFF" stroke-width="1.5" stroke-dasharray="4,4" class="gravity-core-ring r2"/>
               </g>
 
-              <!-- OVERLAY LAYER 2: Crystal Mines & Hazard Deposits -->
-              <g id="map-crystal-layer" style="display: none;">
-                <!-- Crystal Mine 1 (Catnip Forest Grove) -->
-                <g class="crystal-deposit-marker" transform="translate(190, 345)">
-                  <polygon points="0,-12 8,0 0,12 -8,0" fill="#00E676" stroke="#FFF" stroke-width="1.5"/>
-                  <text y="-16" text-anchor="middle" fill="#00E676" font-weight="800" font-size="10">💎 Forest Crystal Spire</text>
-                </g>
-                <!-- Crystal Mine 2 (Catnip Kingdom Vault) -->
-                <g class="crystal-deposit-marker" transform="translate(370, 115)">
-                  <polygon points="0,-12 8,0 0,12 -8,0" fill="#FFD700" stroke="#FFF" stroke-width="1.5"/>
-                  <text y="-16" text-anchor="middle" fill="#FFD700" font-weight="800" font-size="10">💎 Royal Gravity Vault</text>
-                </g>
-                <!-- Crystal Mine 3 (Super Cat World Core Deposit) -->
-                <g class="crystal-deposit-marker" transform="translate(410, 365)">
-                  <polygon points="0,-14 10,0 0,14 -10,0" fill="#00E5FF" stroke="#FFF" stroke-width="2"/>
-                  <text y="-18" text-anchor="middle" fill="#00E5FF" font-weight="800" font-size="10">💎 Sky Core Deposit</text>
-                </g>
-                <!-- Crystal Mine 4 (Speedway Energy Cell) -->
-                <g class="crystal-deposit-marker" transform="translate(610, 310)">
-                  <polygon points="0,-12 8,0 0,12 -8,0" fill="#7C4DFF" stroke="#FFF" stroke-width="1.5"/>
-                  <text y="-16" text-anchor="middle" fill="#7C4DFF" font-weight="800" font-size="10">💎 Turbo Energy Cell</text>
-                </g>
-                <!-- Anticatite Unstable Hazard Deposit (Smash Rift) -->
-                <g class="crystal-deposit-marker" transform="translate(490, 275)">
-                  <polygon points="0,-12 8,0 0,12 -8,0" fill="#FF3D00" stroke="#FFF" stroke-width="1.5"/>
-                  <text y="-16" text-anchor="middle" fill="#FF3D00" font-weight="800" font-size="10">⚠️ Unstable Anticatite</text>
-                </g>
-              </g>
-
-              <!-- OVERLAY LAYER 3: Transportation Layer & Airship Fleet -->
-              <g id="map-transit-layer" style="display: none;">
-                <!-- High Sky Lift Route -->
-                <path d="M 380 120 L 400 350" fill="none" stroke="#FFD700" stroke-width="2.5" stroke-dasharray="5,5"/>
-                <text x="395" y="240" fill="#FFD700" font-size="10" font-weight="800">🚠 Sky Lift Express</text>
-
-                <!-- Airship 1: Airship Alpha -->
-                <g id="moving-airship-1" transform="translate(200, 260)">
-                  <ellipse rx="15" ry="8" fill="#7C4DFF" stroke="#FFF" stroke-width="1.5"/>
-                  <rect x="-7" y="8" width="14" height="4" fill="#FFD700" rx="1"/>
-                  <text y="-11" text-anchor="middle" fill="#FFF" font-size="9" font-weight="800">🛸 Airship Alpha</text>
-                </g>
-
-                <!-- Airship 2: Airship Beta -->
-                <g id="moving-airship-2" transform="translate(450, 140)">
-                  <ellipse rx="15" ry="8" fill="#00B0FF" stroke="#FFF" stroke-width="1.5"/>
-                  <rect x="-7" y="8" width="14" height="4" fill="#00E676" rx="1"/>
-                  <text y="-11" text-anchor="middle" fill="#FFF" font-size="9" font-weight="800">🛸 Airship Beta</text>
-                </g>
-
-                <!-- Airship 3: Airship Gamma (Cargo Zeppelin) -->
-                <g id="moving-airship-3" transform="translate(560, 200)">
-                  <ellipse rx="18" ry="9" fill="#FF3D00" stroke="#FFF" stroke-width="1.5"/>
-                  <rect x="-8" y="9" width="16" height="5" fill="#FFD700" rx="1"/>
-                  <text y="-12" text-anchor="middle" fill="#FFF" font-size="9" font-weight="800">🛸 Cargo Zeppelin</text>
-                </g>
-
-                <!-- Airship 4: Airship Delta (Royal Flagship) -->
-                <g id="moving-airship-4" transform="translate(400, 330)">
-                  <ellipse rx="20" ry="10" fill="#FFD700" stroke="#FFF" stroke-width="2"/>
-                  <rect x="-10" y="10" width="20" height="5" fill="#7C4DFF" rx="1"/>
-                  <text y="-13" text-anchor="middle" fill="#FFD700" font-size="9" font-weight="900">👑 Royal Flagship</text>
-                </g>
-              </g>
-
-              <!-- OVERLAY LAYER 4: Story Guide Recommended Path -->
-              <g id="map-story-layer" style="display: none;">
-                <path d="M 320 340 Q 250 330 180 320 T 380 120 T 620 180 T 500 260 T 600 320" fill="none" stroke="#00E676" stroke-width="3.5" stroke-dasharray="10,6" class="story-path-pulse"/>
-              </g>
-
-              <!-- BATTLE REPLAY LAYER (World War Catnip Campaign) -->
-              <g id="map-battle-replay-layer" style="display: none;">
-                <!-- Red Faction Offensive Arrow -->
-                <path d="M 520 160 Q 590 130 650 170" fill="none" stroke="#FF3D00" stroke-width="4" marker-end="url(#red-arrow)" class="battle-arrow-red"/>
-                <!-- Blue Defense Barrier -->
-                <circle cx="620" cy="180" r="30" fill="none" stroke="#00B0FF" stroke-width="3" stroke-dasharray="5,5" class="battle-barrier-blue"/>
-                <!-- Battle Clash Icon -->
-                <text x="610" y="175" font-size="20" class="battle-clash-icon">⚔️</text>
-                <!-- Treaty Flag Pin (Appears at End) -->
-                <g id="battle-treaty-pin" transform="translate(620, 180)" style="display: none;">
-                  <text y="-32" text-anchor="middle" font-size="22">🏳️</text>
-                  <text y="-18" text-anchor="middle" fill="#FFD700" font-weight="800" font-size="10">Golden Collar Treaty Signed!</text>
-                </g>
-              </g>
-
               <!-- Landmass SVGs / Island Shapes (Topographical Contour Tiers) -->
               <!-- 1. Catnip Forest (Lowlands + Gentle Ridge) -->
               <g class="map-island-group" id="group-catnip-forest" data-era="present,pre-wwc,during-wwc,350bc">
@@ -1023,6 +939,70 @@
                 <path class="map-island-tier tier-1" d="M 450 260 Q 480 220 530 235 T 550 285 T 480 290 Z"/>
                 <path class="map-island-tier tier-2" d="M 470 255 Q 490 230 520 240 T 535 275 T 490 280 Z"/>
                 <path class="map-island-tier tier-3" d="M 485 252 Q 500 238 512 245 T 520 268 T 498 270 Z"/>
+              </g>
+
+              <!-- OVERLAY LAYER 2: Crystal Mines & Hazard Deposits (Rendered Above Islands) -->
+              <g id="map-crystal-layer" style="display: none;">
+                <!-- Crystal Mine 1 (Catnip Forest Grove) -->
+                <g class="crystal-deposit-marker" transform="translate(190, 345)">
+                  <polygon points="0,-12 8,0 0,12 -8,0" fill="#00E676" stroke="#FFF" stroke-width="1.5"/>
+                  <text y="-16" text-anchor="middle" fill="#00E676" font-weight="800" font-size="10">💎 Forest Crystal Spire</text>
+                </g>
+                <!-- Crystal Mine 2 (Catnip Kingdom Vault) -->
+                <g class="crystal-deposit-marker" transform="translate(370, 115)">
+                  <polygon points="0,-12 8,0 0,12 -8,0" fill="#FFD700" stroke="#FFF" stroke-width="1.5"/>
+                  <text y="-16" text-anchor="middle" fill="#FFD700" font-weight="800" font-size="10">💎 Royal Gravity Vault</text>
+                </g>
+                <!-- Crystal Mine 3 (Super Cat World Core Deposit) -->
+                <g class="crystal-deposit-marker" transform="translate(410, 365)">
+                  <polygon points="0,-14 10,0 0,14 -10,0" fill="#00E5FF" stroke="#FFF" stroke-width="2"/>
+                  <text y="-18" text-anchor="middle" fill="#00E5FF" font-weight="800" font-size="10">💎 Sky Core Deposit</text>
+                </g>
+                <!-- Crystal Mine 4 (Speedway Energy Cell) -->
+                <g class="crystal-deposit-marker" transform="translate(610, 310)">
+                  <polygon points="0,-12 8,0 0,12 -8,0" fill="#7C4DFF" stroke="#FFF" stroke-width="1.5"/>
+                  <text y="-16" text-anchor="middle" fill="#7C4DFF" font-weight="800" font-size="10">💎 Turbo Energy Cell</text>
+                </g>
+                <!-- Anticatite Unstable Hazard Deposit (Smash Rift) -->
+                <g class="crystal-deposit-marker" transform="translate(490, 275)">
+                  <polygon points="0,-12 8,0 0,12 -8,0" fill="#FF3D00" stroke="#FFF" stroke-width="1.5"/>
+                  <text y="-16" text-anchor="middle" fill="#FF3D00" font-weight="800" font-size="10">⚠️ Unstable Anticatite</text>
+                </g>
+              </g>
+
+              <!-- OVERLAY LAYER 3: Transportation Layer & Airship Fleet (Rendered Above Islands) -->
+              <g id="map-transit-layer" style="display: none;">
+                <!-- High Sky Lift Route -->
+                <path d="M 380 120 L 400 350" fill="none" stroke="#FFD700" stroke-width="2.5" stroke-dasharray="5,5"/>
+                <text x="395" y="240" fill="#FFD700" font-size="10" font-weight="800">🚠 Sky Lift Express</text>
+
+                <!-- Airship 1: Airship Alpha -->
+                <g id="moving-airship-1" transform="translate(200, 260)">
+                  <ellipse rx="15" ry="8" fill="#7C4DFF" stroke="#FFF" stroke-width="1.5"/>
+                  <rect x="-7" y="8" width="14" height="4" fill="#FFD700" rx="1"/>
+                  <text y="-11" text-anchor="middle" fill="#FFF" font-size="9" font-weight="800">🛸 Airship Alpha</text>
+                </g>
+
+                <!-- Airship 2: Airship Beta -->
+                <g id="moving-airship-2" transform="translate(450, 140)">
+                  <ellipse rx="15" ry="8" fill="#00B0FF" stroke="#FFF" stroke-width="1.5"/>
+                  <rect x="-7" y="8" width="14" height="4" fill="#00E676" rx="1"/>
+                  <text y="-11" text-anchor="middle" fill="#FFF" font-size="9" font-weight="800">🛸 Airship Beta</text>
+                </g>
+
+                <!-- Airship 3: Airship Gamma (Cargo Zeppelin) -->
+                <g id="moving-airship-3" transform="translate(560, 200)">
+                  <ellipse rx="18" ry="9" fill="#FF3D00" stroke="#FFF" stroke-width="1.5"/>
+                  <rect x="-8" y="9" width="16" height="5" fill="#FFD700" rx="1"/>
+                  <text y="-12" text-anchor="middle" fill="#FFF" font-size="9" font-weight="800">🛸 Cargo Zeppelin</text>
+                </g>
+
+                <!-- Airship 4: Airship Delta (Royal Flagship) -->
+                <g id="moving-airship-4" transform="translate(400, 330)">
+                  <ellipse rx="20" ry="10" fill="#FFD700" stroke="#FFF" stroke-width="2"/>
+                  <rect x="-10" y="10" width="20" height="5" fill="#7C4DFF" rx="1"/>
+                  <text y="-13" text-anchor="middle" fill="#FFD700" font-size="9" font-weight="900">👑 Royal Flagship</text>
+                </g>
               </g>
 
               <!-- Map Pin Elements -->
@@ -2422,6 +2402,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
   <!-- Main Script File -->
-  <script src="script.js?v=20260726zk70"></script>
+  <script src="script.js?v=20260726zk71"></script>
 </body>
 </html>
