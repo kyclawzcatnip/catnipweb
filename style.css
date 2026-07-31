@@ -3032,13 +3032,17 @@ p {
 .crystal-deposit-marker {
   cursor: pointer;
   filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.9));
+}
+
+.crystal-deposit-marker polygon {
   animation: crystalFloat 2.5s ease-in-out infinite alternate;
-  z-index: 15;
+  transform-box: fill-box;
+  transform-origin: center;
 }
 
 @keyframes crystalFloat {
   0% { transform: translateY(0) scale(1); }
-  100% { transform: translateY(-5px) scale(1.08); }
+  100% { transform: translateY(-6px) scale(1.12); }
 }
 
 /* 🛸 Airship Fleet Animations */
