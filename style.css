@@ -3031,25 +3031,59 @@ p {
 /* 💎 Crystal Deposit Markers */
 .crystal-deposit-marker {
   cursor: pointer;
-  filter: drop-shadow(0 0 6px rgba(0, 229, 255, 0.8));
-  animation: crystalFloat 3s ease-in-out infinite alternate;
+  filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.9));
+  animation: crystalFloat 2.5s ease-in-out infinite alternate;
+  z-index: 15;
 }
 
 @keyframes crystalFloat {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(-4px); }
+  0% { transform: translateY(0) scale(1); }
+  100% { transform: translateY(-5px) scale(1.08); }
 }
 
-/* 🛸 Moving Airship Animation */
+/* 🛸 Airship Fleet Animations */
 #moving-airship-1 {
-  animation: airshipPatrol 20s ease-in-out infinite alternate;
-  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+  animation: airshipPatrol1 22s ease-in-out infinite alternate;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.6));
 }
 
-@keyframes airshipPatrol {
-  0% { transform: translate(280px, 240px); }
-  50% { transform: translate(420px, 210px); }
-  100% { transform: translate(320px, 140px); }
+#moving-airship-2 {
+  animation: airshipPatrol2 18s ease-in-out infinite alternate;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.6));
+}
+
+#moving-airship-3 {
+  animation: airshipPatrol3 26s ease-in-out infinite alternate;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.6));
+}
+
+#moving-airship-4 {
+  animation: airshipPatrol4 15s ease-in-out infinite alternate;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.6));
+}
+
+@keyframes airshipPatrol1 {
+  0% { transform: translate(160px, 300px); }
+  50% { transform: translate(320px, 220px); }
+  100% { transform: translate(360px, 120px); }
+}
+
+@keyframes airshipPatrol2 {
+  0% { transform: translate(380px, 100px); }
+  50% { transform: translate(520px, 180px); }
+  100% { transform: translate(620px, 300px); }
+}
+
+@keyframes airshipPatrol3 {
+  0% { transform: translate(500px, 240px); }
+  50% { transform: translate(620px, 160px); }
+  100% { transform: translate(580px, 340px); }
+}
+
+@keyframes airshipPatrol4 {
+  0% { transform: translate(380px, 330px); }
+  50% { transform: translate(440px, 360px); }
+  100% { transform: translate(360px, 380px); }
 }
 
 /* ⚔️ Battle Replay Animations */
