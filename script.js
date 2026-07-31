@@ -1944,7 +1944,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { emoji: '🧙', name: 'Mystic Glimmer', desc: 'An elder mage researching gravity manipulation heights.' }
       ],
       timeline: [
-        { era: 'Year 20 AC', desc: 'First floating castle is stabilized using synthetic crystal cores.' },
+        { era: 'Year 350 BC', desc: 'Feline pioneers discover the floating sky islands and settle there, establishing the first skyward camps using gravity-defying core shards.' },
         { era: 'Year 35 AC', desc: 'The Sky Arena is built for the global physics trials tournament.' }
       ],
       connections: [
