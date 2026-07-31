@@ -2361,30 +2361,46 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ==================== WEB AUDIO REGION SYNTH ====================
+  let regionAudioCtx = null;
+
   function playRegionAmbience(locationId) {
     try {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       if (!AudioCtx) return;
-      const ctx = new AudioCtx();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
+      if (!regionAudioCtx) {
+        regionAudioCtx = new AudioCtx();
+      }
+      if (regionAudioCtx.state === 'suspended') {
+        regionAudioCtx.resume();
+      }
 
-      osc.connect(gain);
-      gain.connect(ctx.destination);
+      const now = regionAudioCtx.currentTime;
+      let baseFreq = 220;
+      let waveType = 'sine';
 
-      let freq = 220;
-      if (locationId === 'catnip-forest') freq = 330;
-      else if (locationId === 'kingdom') freq = 440;
-      else if (locationId === 'wwc') freq = 165;
-      else if (locationId === 'kart-speedway') freq = 523;
-      else if (locationId === 'smash-arena') freq = 293;
+      if (locationId === 'catnip-forest') { baseFreq = 329.63; waveType = 'sine'; }
+      else if (locationId === 'kingdom') { baseFreq = 440.00; waveType = 'triangle'; }
+      else if (locationId === 'wwc') { baseFreq = 146.83; waveType = 'sawtooth'; }
+      else if (locationId === 'kart-speedway') { baseFreq = 523.25; waveType = 'square'; }
+      else if (locationId === 'smash-arena') { baseFreq = 220.00; waveType = 'sawtooth'; }
+      else if (locationId === 'scw') { baseFreq = 587.33; waveType = 'sine'; }
 
-      osc.frequency.setValueAtTime(freq, ctx.currentTime);
-      gain.gain.setValueAtTime(0.05, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2);
+      [1, 1.5].forEach((mult, i) => {
+        const osc = regionAudioCtx.createOscillator();
+        const gain = regionAudioCtx.createGain();
 
-      osc.start();
-      osc.stop(ctx.currentTime + 1.2);
+        osc.type = waveType;
+        osc.frequency.setValueAtTime(baseFreq * mult, now);
+
+        gain.gain.setValueAtTime(0.08 / (i + 1), now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.5);
+
+        osc.connect(gain);
+        gain.connect(regionAudioCtx.destination);
+
+        osc.start(now);
+        osc.stop(now + 1.5);
+      });
     } catch (e) {}
   }
 
