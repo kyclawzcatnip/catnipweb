@@ -2224,6 +2224,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ==================== ANIMATED BATTLE REPLAY SYSTEM ====================
   function triggerBattleReplay() {
+    // 1. Switch map era selector to World War Catnip
+    setMapEra('during-wwc');
+    document.querySelectorAll('.btn-era').forEach(b => {
+      if (b.getAttribute('data-era-id') === 'during-wwc') {
+        b.classList.add('active', 'btn-primary');
+        b.classList.remove('btn-secondary');
+      } else {
+        b.classList.remove('active', 'btn-primary');
+        b.classList.add('btn-secondary');
+      }
+    });
+
     const battleLayer = document.getElementById('map-battle-replay-layer');
     const treatyPin = document.getElementById('battle-treaty-pin');
     if (!battleLayer) return;
@@ -2233,6 +2245,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Fly camera to World War Catnip coordinates (620, 180)
     flyToCoordinates(620, 180, 400, 250);
+
+    // Trigger WWC battle audio soundscape
+    if (typeof playRegionAmbience === 'function') {
+      playRegionAmbience('wwc');
+    }
+
+    // Display battle toast announcement
+    const toast = document.getElementById('map-discovery-toast');
+    const toastText = document.getElementById('map-discovery-toast-text');
+    if (toast && toastText) {
+      toastText.textContent = '⚔️ Replaying World War Catnip Aerial & Naval Battle!';
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 4000);
+    }
 
     setTimeout(() => {
       if (treatyPin) treatyPin.style.display = 'block';
