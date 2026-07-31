@@ -2508,6 +2508,50 @@ document.addEventListener('DOMContentLoaded', () => {
       hp: 'Peace Treaty',
       speed: 'Eternal',
       engine: 'Diplomatic Accord'
+    },
+    'red-dreadnought': {
+      icon: '⚓',
+      name: 'Red Dreadnought',
+      year: 'Commissioned 2 BC',
+      class: 'Heavy Naval Behemoth',
+      faction: 'Scorched Fleet',
+      desc: 'The pinnacle of Red Faction naval firepower, the Red Dreadnought carries reinforced steel armor plating and quadruple heavy mortar batteries capable of shelling coastal sky peaks.',
+      hp: '3,500 HP',
+      speed: '45 Knots',
+      engine: 'Triple Steam-Crystal Drive'
+    },
+    'red-battleship': {
+      icon: '⚓',
+      name: 'Red Battleship',
+      year: 'Commissioned 1 BC',
+      class: 'Coastal Destroyer',
+      faction: 'Scorched Fleet',
+      desc: 'Swift attack vessel armed with incendiary plasma cannons, specialized in shore bombardments and anti-air harassment against incoming sky fleets.',
+      hp: '2,200 HP',
+      speed: '65 Knots',
+      engine: 'Dual Anticatite Boiler'
+    },
+    'blue-cruiser': {
+      icon: '⚓',
+      name: 'Blue Defense Cruiser',
+      year: 'Commissioned 1 AD',
+      class: 'Heavy Shield Frigate',
+      faction: 'Kingdom Navy',
+      desc: 'Kingdom flagship of coastal waters, equipped with high-yield plasma point-defense turrets and heavy armor to shield allied ports.',
+      hp: '2,800 HP',
+      speed: '55 Knots',
+      engine: 'Hydro-Crystal Core'
+    },
+    'blue-gunboat': {
+      icon: '⚓',
+      name: 'Blue Gunboat',
+      year: 'Commissioned 2 AD',
+      class: 'Fast Patrol Corvette',
+      faction: 'Kingdom Navy',
+      desc: 'Highly maneuverable patrol boat used for coastal reconnaissance, escorts, and swift interceptor strikes during World War Catnip.',
+      hp: '1,200 HP',
+      speed: '80 Knots',
+      engine: 'Twin Hydro Engine'
     }
   };
 

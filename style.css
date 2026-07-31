@@ -3130,6 +3130,10 @@ p {
   pointer-events: all;
 }
 
+.naval-warship * {
+  pointer-events: auto;
+}
+
 .naval-warship polygon,
 .naval-warship rect {
   transform-box: fill-box;
