@@ -2497,6 +2497,17 @@ document.addEventListener('DOMContentLoaded', () => {
       hp: '1,100 HP',
       speed: '150 Knots',
       engine: 'Plasma Barrier Drive'
+    },
+    'armistice-treaty': {
+      icon: '📜',
+      name: 'Armistice Treaty of 4 AD',
+      year: 'Ratified 4 AD',
+      class: 'Historic Peace Accord',
+      faction: 'United Nations',
+      desc: 'Ratified in 4 AD at Scorched Ridge, the historic Armistice Treaty officially ended World War Catnip. Under its terms, all combat airships were decommissioned or converted into peaceful trade freighters, establishing the golden era of sky navigation.',
+      hp: 'Peace Treaty',
+      speed: 'Eternal',
+      engine: 'Diplomatic Accord'
     }
   };
 
