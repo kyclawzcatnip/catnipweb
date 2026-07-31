@@ -18,7 +18,7 @@
   <link rel="apple-touch-icon" href="favicon.jpg">
 
   <!-- Core Stylesheet -->
-  <link rel="stylesheet" href="style.css?v=20260731b">
+  <link rel="stylesheet" href="style.css?v=20260731c">
 </head>
 <body>
 
@@ -784,14 +784,60 @@
           <p class="section-subtitle" style="font-size: 1.05rem; color: var(--color-text-secondary); max-width: 600px; margin: 8px auto 0 auto; line-height: 1.6;">Chart the territories, historical battlegrounds, and cosmic felines across the Catnip Studios Universe.</p>
         </div>
 
-        <div class="map-controls" style="display: flex; justify-content: center; gap: 15px; margin-bottom: 25px;">
-          <button class="btn btn-primary map-mode-btn active" id="btn-map-mode-standard" style="padding: 10px 20px; font-size: 0.9rem; font-weight: 600; border-radius: 8px; transition: all 0.3s ease;">🗺️ Standard Map</button>
-          <button class="btn btn-secondary map-mode-btn" id="btn-map-mode-height" style="padding: 10px 20px; font-size: 0.9rem; font-weight: 600; border-radius: 8px; transition: all 0.3s ease;">🏔️ Inspect Height</button>
+        <!-- Map Control Toolbar & Search Header -->
+        <div class="map-controls-toolbar" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 20px; background: rgba(15, 10, 32, 0.7); backdrop-filter: blur(10px); border: 1px solid var(--border-light); border-radius: 14px; padding: 14px 18px;">
+          <!-- View Modes & Era Select -->
+          <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
+            <div class="btn-group" style="display: flex; gap: 6px;">
+              <button class="btn btn-primary map-mode-btn active" id="btn-map-mode-standard" style="padding: 7px 14px; font-size: 0.82rem; font-weight: 600; border-radius: 8px;">🗺️ Standard</button>
+              <button class="btn btn-secondary map-mode-btn" id="btn-map-mode-height" style="padding: 7px 14px; font-size: 0.82rem; font-weight: 600; border-radius: 8px;">🏔️ Heights</button>
+            </div>
+
+            <!-- Era Select Dropdown -->
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-size: 0.8rem; color: var(--color-text-muted); font-weight: 600;">Era:</span>
+              <select id="map-era-select" style="background: rgba(255,255,255,0.08); color: #FFF; border: 1px solid var(--border-light); border-radius: 8px; padding: 6px 10px; font-size: 0.82rem; font-family: var(--font-headings); font-weight: 600; cursor: pointer; outline: none;">
+                <option value="present" selected>📅 Present Day</option>
+                <option value="350bc">📅 Year 350 BC (Founding of SCW)</option>
+                <option value="pre-wwc">📅 Before World War Catnip</option>
+                <option value="during-wwc">📅 During World War Catnip</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Overlays & Environment Toggles -->
+          <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
+            <button class="btn btn-secondary map-overlay-btn" id="btn-map-overlay-gravity" title="Toggle Gravity Energy Streams" style="padding: 6px 10px; font-size: 0.8rem; border-radius: 8px;">🌌 Gravity</button>
+            <button class="btn btn-secondary map-overlay-btn" id="btn-map-overlay-crystals" title="Toggle Crystal Mines & Hazard Deposits" style="padding: 6px 10px; font-size: 0.8rem; border-radius: 8px;">💎 Crystals</button>
+            <button class="btn btn-secondary map-overlay-btn" id="btn-map-overlay-transit" title="Toggle Transportation & Airships" style="padding: 6px 10px; font-size: 0.8rem; border-radius: 8px;">🚄 Transit</button>
+            <button class="btn btn-secondary map-overlay-btn" id="btn-map-overlay-story" title="Highlight Story Recommended Path" style="padding: 6px 10px; font-size: 0.8rem; border-radius: 8px;">📜 Story Path</button>
+
+            <!-- Environment Toggles -->
+            <button class="btn btn-secondary" id="btn-map-toggle-night" title="Toggle Day / Night Shaders" style="padding: 6px 10px; font-size: 0.8rem; border-radius: 8px;">🌙 Night</button>
+            <button class="btn btn-secondary" id="btn-map-toggle-audio" title="Toggle Region Ambient Synth Audio" style="padding: 6px 10px; font-size: 0.8rem; border-radius: 8px;">🔊 Audio</button>
+          </div>
+
+          <!-- Real-Time Search & Zoom Controls -->
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="position: relative;">
+              <input type="text" id="map-search-input" placeholder="Search location, character, coords (400,350)..." style="background: rgba(0,0,0,0.4); border: 1px solid var(--border-light); border-radius: 8px; padding: 6px 12px; color: #FFF; font-size: 0.8rem; width: 220px; outline: none; transition: border-color 0.2s;">
+            </div>
+            <div style="display: flex; gap: 4px;">
+              <button class="btn btn-secondary" id="btn-map-zoom-in" title="Zoom In" style="padding: 6px 10px; font-size: 0.8rem; border-radius: 6px;">➕</button>
+              <button class="btn btn-secondary" id="btn-map-zoom-out" title="Zoom Out" style="padding: 6px 10px; font-size: 0.8rem; border-radius: 6px;">➖</button>
+              <button class="btn btn-secondary" id="btn-map-zoom-reset" title="Reset Zoom" style="padding: 6px 10px; font-size: 0.8rem; border-radius: 6px;">🎯</button>
+            </div>
+          </div>
         </div>
 
         <div class="map-layout">
           <!-- The Map View Container -->
           <div class="map-viewport" id="map-viewport">
+            <!-- Exploration Reward Toast Overlay -->
+            <div id="map-discovery-toast" style="display: none; position: absolute; top: 15px; right: 15px; background: linear-gradient(135deg, rgba(255, 215, 0, 0.95), rgba(255, 140, 0, 0.95)); color: #100a20; padding: 12px 18px; border-radius: 10px; font-weight: 800; font-size: 0.88rem; z-index: 20; box-shadow: 0 8px 24px rgba(255, 215, 0, 0.4); animation: toastPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+              ✨ <span id="map-discovery-toast-text">New Territory Discovered! +25 XP +15 Coins</span>
+            </div>
+
             <!-- Elevation Height Legend overlay -->
             <div class="map-height-legend" id="map-height-legend" style="display: none; position: absolute; top: 15px; left: 15px; background: rgba(10, 6, 22, 0.92); border: 1px solid var(--border-light); border-radius: 10px; padding: 14px; font-size: 0.8rem; z-index: 10; box-shadow: 0 8px 24px rgba(0,0,0,0.6); backdrop-filter: blur(8px);">
               <h4 style="margin: 0 0 10px 0; color: #FFF; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;">
@@ -806,7 +852,8 @@
                 <div style="display: flex; align-items: center; gap: 10px; color: #E0E0E0;"><span style="width: 14px; height: 14px; background: #8e24aa; border-radius: 4px; display: inline-block; box-shadow: 0 0 6px rgba(142, 36, 170, 0.6);"></span> 7,500m - 9,000m (Cosmic Sky Summits)</div>
               </div>
             </div>
-            <svg class="map-svg" viewBox="0 0 800 500" width="100%" height="100%">
+
+            <svg class="map-svg" id="map-svg" viewBox="0 0 800 500" width="100%" height="100%">
               <!-- Decorative Grid Lines -->
               <defs>
                 <pattern id="map-grid" width="40" height="40" patternUnits="userSpaceOnUse">
@@ -816,30 +863,104 @@
                   <stop offset="0%" stop-color="#7C4DFF" stop-opacity="0.15"/>
                   <stop offset="100%" stop-color="#7C4DFF" stop-opacity="0"/>
                 </radialGradient>
+                <linearGradient id="gravity-particle-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#00E5FF"/>
+                  <stop offset="100%" stop-color="#7C4DFF"/>
+                </linearGradient>
               </defs>
               <rect width="100%" height="100%" fill="url(#map-grid)"/>
               <rect width="100%" height="100%" fill="url(#nebula-glow)"/>
 
+              <!-- Micro-Animations: Coastal Fish & Drifting Sky Particles -->
+              <g id="map-living-details">
+                <circle cx="200" cy="400" r="3" fill="rgba(0,230,118,0.5)" class="fish-particle p1"/>
+                <circle cx="210" cy="405" r="2" fill="rgba(0,230,118,0.4)" class="fish-particle p2"/>
+                <circle cx="500" cy="380" r="3" fill="rgba(0,176,255,0.5)" class="fish-particle p3"/>
+              </g>
+
               <!-- Dotted Trade/Connection Routes -->
-              <path class="map-route" d="M 180 320 Q 300 220 400 350" fill="none" stroke="rgba(124, 77, 255, 0.3)" stroke-width="2.5" stroke-dasharray="6,6"/>
-              <path class="map-route" d="M 400 350 Q 550 250 620 180" fill="none" stroke="rgba(0, 176, 255, 0.3)" stroke-width="2.5" stroke-dasharray="6,6"/>
-              <path class="map-route" d="M 180 320 Q 380 120 620 180" fill="none" stroke="rgba(255, 61, 0, 0.3)" stroke-width="2.5" stroke-dasharray="6,6"/>
-              <path class="map-route" d="M 400 350 L 380 120" fill="none" stroke="rgba(255, 215, 0, 0.3)" stroke-width="2.5" stroke-dasharray="6,6"/>
-              <path class="map-route" d="M 600 320 L 620 180" fill="none" stroke="rgba(0, 230, 118, 0.3)" stroke-width="2.5" stroke-dasharray="6,6"/>
-              <path class="map-route" d="M 600 320 Q 500 220 380 120" fill="none" stroke="rgba(255, 61, 0, 0.3)" stroke-width="2.5" stroke-dasharray="6,6"/>
-              <!-- Connections to Smash Arena -->
-              <path class="map-route" d="M 400 350 L 500 260" fill="none" stroke="rgba(124, 77, 255, 0.3)" stroke-width="2.5" stroke-dasharray="6,6"/>
-              <path class="map-route" d="M 500 260 L 620 180" fill="none" stroke="rgba(255, 61, 0, 0.3)" stroke-width="2.5" stroke-dasharray="6,6"/>
+              <g id="map-routes-layer">
+                <path class="map-route route-standard" data-era="present,pre-wwc,350bc" d="M 180 320 Q 300 220 400 350" fill="none" stroke="rgba(124, 77, 255, 0.3)" stroke-width="2.5" stroke-dasharray="6,6"/>
+                <path class="map-route route-standard" data-era="present,during-wwc,pre-wwc" d="M 400 350 Q 550 250 620 180" fill="none" stroke="rgba(0, 176, 255, 0.3)" stroke-width="2.5" stroke-dasharray="6,6"/>
+                <path class="map-route route-standard" data-era="present,during-wwc,pre-wwc" d="M 180 320 Q 380 120 620 180" fill="none" stroke="rgba(255, 61, 0, 0.3)" stroke-width="2.5" stroke-dasharray="6,6"/>
+                <path class="map-route route-standard" data-era="present,pre-wwc" d="M 400 350 L 380 120" fill="none" stroke="rgba(255, 215, 0, 0.3)" stroke-width="2.5" stroke-dasharray="6,6"/>
+                <path class="map-route route-standard" data-era="present" d="M 600 320 L 620 180" fill="none" stroke="rgba(0, 230, 118, 0.3)" stroke-width="2.5" stroke-dasharray="6,6"/>
+                <path class="map-route route-standard" data-era="present" d="M 600 320 Q 500 220 380 120" fill="none" stroke="rgba(255, 61, 0, 0.3)" stroke-width="2.5" stroke-dasharray="6,6"/>
+                <path class="map-route route-standard" data-era="present" d="M 400 350 L 500 260" fill="none" stroke="rgba(124, 77, 255, 0.3)" stroke-width="2.5" stroke-dasharray="6,6"/>
+                <path class="map-route route-standard" data-era="present" d="M 500 260 L 620 180" fill="none" stroke="rgba(255, 61, 0, 0.3)" stroke-width="2.5" stroke-dasharray="6,6"/>
+              </g>
+
+              <!-- OVERLAY LAYER 1: Gravity Visualization Energy Streams -->
+              <g id="map-gravity-streams" style="display: none;">
+                <path class="gravity-stream-line" d="M 180 320 Q 280 280 400 350" fill="none" stroke="url(#gravity-particle-grad)" stroke-width="4" stroke-dasharray="8,8"/>
+                <path class="gravity-stream-line" d="M 380 120 Q 370 230 400 350" fill="none" stroke="url(#gravity-particle-grad)" stroke-width="4" stroke-dasharray="8,8"/>
+                <path class="gravity-stream-line" d="M 500 260 Q 440 310 400 350" fill="none" stroke="url(#gravity-particle-grad)" stroke-width="4" stroke-dasharray="8,8"/>
+                <!-- Gravity Core Pulse Rings over Super Cat World -->
+                <circle cx="400" cy="350" r="35" fill="none" stroke="#00E5FF" stroke-width="2" class="gravity-core-ring r1"/>
+                <circle cx="400" cy="350" r="55" fill="none" stroke="#7C4DFF" stroke-width="1.5" stroke-dasharray="4,4" class="gravity-core-ring r2"/>
+              </g>
+
+              <!-- OVERLAY LAYER 2: Crystal Mines & Hazard Deposits -->
+              <g id="map-crystal-layer" style="display: none;">
+                <!-- Crystal Mine 1 (Catnip Forest Grove) -->
+                <g class="crystal-deposit-marker" transform="translate(200, 340)">
+                  <polygon points="0,-10 7,0 0,10 -7,0" fill="#00E676" stroke="#FFF" stroke-width="1"/>
+                  <text y="-14" text-anchor="middle" fill="#00E676" font-weight="700" font-size="9">💎 Crystal Mine</text>
+                </g>
+                <!-- Crystal Mine 2 (Super Cat World Core Deposit) -->
+                <g class="crystal-deposit-marker" transform="translate(420, 370)">
+                  <polygon points="0,-12 9,0 0,12 -9,0" fill="#00E5FF" stroke="#FFF" stroke-width="1.5"/>
+                  <text y="-16" text-anchor="middle" fill="#00E5FF" font-weight="700" font-size="9">💎 Core Mine</text>
+                </g>
+                <!-- Anticatite Unstable Hazard Deposit (Smash Rift) -->
+                <g class="crystal-deposit-marker" transform="translate(470, 275)">
+                  <polygon points="0,-10 7,0 0,10 -7,0" fill="#FF3D00" stroke="#FFF" stroke-width="1"/>
+                  <text y="-14" text-anchor="middle" fill="#FF3D00" font-weight="700" font-size="9">⚠️ Unstable Anticatite</text>
+                </g>
+              </g>
+
+              <!-- OVERLAY LAYER 3: Transportation Layer & Animated Airships -->
+              <g id="map-transit-layer" style="display: none;">
+                <!-- High Sky Lift Route -->
+                <path d="M 380 120 L 400 350" fill="none" stroke="#FFD700" stroke-width="2" stroke-dasharray="4,4"/>
+                <text x="395" y="240" fill="#FFD700" font-size="9" font-weight="700">🚠 Sky Lift Express</text>
+                <!-- Moving Airship Icon -->
+                <g id="moving-airship-1" transform="translate(300, 230)">
+                  <ellipse rx="14" ry="7" fill="#7C4DFF" stroke="#FFF" stroke-width="1.5"/>
+                  <rect x="-6" y="7" width="12" height="4" fill="#FFD700" rx="1"/>
+                  <text y="-10" text-anchor="middle" fill="#FFF" font-size="8" font-weight="700">🛸 Airship Alpha</text>
+                </g>
+              </g>
+
+              <!-- OVERLAY LAYER 4: Story Guide Recommended Path -->
+              <g id="map-story-layer" style="display: none;">
+                <path d="M 320 340 Q 250 330 180 320 T 380 120 T 620 180 T 500 260 T 600 320" fill="none" stroke="#00E676" stroke-width="3.5" stroke-dasharray="10,6" class="story-path-pulse"/>
+              </g>
+
+              <!-- BATTLE REPLAY LAYER (World War Catnip Campaign) -->
+              <g id="map-battle-replay-layer" style="display: none;">
+                <!-- Red Faction Offensive Arrow -->
+                <path d="M 520 160 Q 590 130 650 170" fill="none" stroke="#FF3D00" stroke-width="4" marker-end="url(#red-arrow)" class="battle-arrow-red"/>
+                <!-- Blue Defense Barrier -->
+                <circle cx="620" cy="180" r="30" fill="none" stroke="#00B0FF" stroke-width="3" stroke-dasharray="5,5" class="battle-barrier-blue"/>
+                <!-- Battle Clash Icon -->
+                <text x="610" y="175" font-size="20" class="battle-clash-icon">⚔️</text>
+                <!-- Treaty Flag Pin (Appears at End) -->
+                <g id="battle-treaty-pin" transform="translate(620, 180)" style="display: none;">
+                  <text y="-32" text-anchor="middle" font-size="22">🏳️</text>
+                  <text y="-18" text-anchor="middle" fill="#FFD700" font-weight="800" font-size="10">Golden Collar Treaty Signed!</text>
+                </g>
+              </g>
 
               <!-- Landmass SVGs / Island Shapes (Topographical Contour Tiers) -->
               <!-- 1. Catnip Forest (Lowlands + Gentle Ridge) -->
-              <g class="map-island-group" id="group-catnip-forest">
+              <g class="map-island-group" id="group-catnip-forest" data-era="present,pre-wwc,during-wwc,350bc">
                 <path class="map-island-tier tier-0" d="M 100 280 Q 150 240 220 300 T 260 360 T 140 370 Z"/>
                 <path class="map-island-tier tier-1" d="M 130 285 Q 165 255 210 305 T 235 345 T 155 355 Z"/>
               </g>
 
               <!-- 2. Super Cat World (Floating Sky Citadel Range - 4 Slope Layers) -->
-              <g class="map-island-group" id="group-scw">
+              <g class="map-island-group" id="group-scw" data-era="present,pre-wwc,during-wwc,350bc">
                 <path class="map-island-tier tier-2" d="M 320 320 Q 380 280 460 330 T 480 400 T 360 410 Z"/>
                 <path class="map-island-tier tier-3" d="M 345 330 Q 395 295 445 340 T 455 385 T 375 390 Z"/>
                 <path class="map-island-tier tier-4" d="M 370 340 Q 410 310 430 350 T 435 375 T 390 375 Z"/>
@@ -847,26 +968,26 @@
               </g>
 
               <!-- 3. World War Catnip (Scorched Lowland Trenches + Hill Fort) -->
-              <g class="map-island-group" id="group-wwc">
+              <g class="map-island-group" id="group-wwc" data-era="present,pre-wwc,during-wwc">
                 <path class="map-island-tier tier-0" d="M 520 150 Q 580 110 680 160 T 700 230 T 560 210 Z"/>
                 <path class="map-island-tier tier-1" d="M 550 160 Q 595 125 660 170 T 670 215 T 580 195 Z"/>
               </g>
 
               <!-- 4. Catnip Kingdom (Golden Valley + High Palace Spire Slope) -->
-              <g class="map-island-group" id="group-kingdom">
+              <g class="map-island-group" id="group-kingdom" data-era="present,pre-wwc">
                 <path class="map-island-tier tier-1" d="M 300 100 Q 350 80 420 100 T 450 160 T 320 140 Z"/>
                 <path class="map-island-tier tier-2" d="M 325 105 Q 360 90 405 105 T 425 145 T 340 130 Z"/>
                 <path class="map-island-tier tier-3" d="M 350 110 Q 375 100 390 110 T 400 135 T 360 125 Z"/>
               </g>
 
               <!-- 5. Kart Speedway (Shoreline Circuit + High Bank Slope) -->
-              <g class="map-island-group" id="group-kart-speedway">
+              <g class="map-island-group" id="group-kart-speedway" data-era="present">
                 <path class="map-island-tier tier-0" d="M 540 280 Q 620 250 680 320 T 640 380 T 520 340 Z"/>
                 <path class="map-island-tier tier-1" d="M 565 285 Q 625 260 660 315 T 625 360 T 545 330 Z"/>
               </g>
 
               <!-- 6. Smash Arena (Rift Basin + Outer Ramparts + Champion Peak) -->
-              <g class="map-island-group" id="group-smash-arena">
+              <g class="map-island-group" id="group-smash-arena" data-era="present">
                 <path class="map-island-tier tier-1" d="M 450 260 Q 480 220 530 235 T 550 285 T 480 290 Z"/>
                 <path class="map-island-tier tier-2" d="M 470 255 Q 490 230 520 240 T 535 275 T 490 280 Z"/>
                 <path class="map-island-tier tier-3" d="M 485 252 Q 500 238 512 245 T 520 268 T 498 270 Z"/>
@@ -874,45 +995,82 @@
 
               <!-- Map Pin Elements -->
               <!-- 1. Catnip Forest -->
-              <g class="map-pin" id="pin-catnip-forest" data-id="catnip-forest" transform="translate(180, 320)">
+              <g class="map-pin" id="pin-catnip-forest" data-id="catnip-forest" data-era="present,pre-wwc,during-wwc,350bc" transform="translate(180, 320)">
                 <circle r="22" class="pin-pulse pin-pulse-green"/>
                 <circle r="10" class="pin-core pin-core-green"/>
                 <text y="-28" text-anchor="middle" class="pin-label">🌿 Catnip Forest</text>
               </g>
 
               <!-- 2. SCW -->
-              <g class="map-pin" id="pin-scw" data-id="scw" transform="translate(400, 350)">
+              <g class="map-pin" id="pin-scw" data-id="scw" data-era="present,pre-wwc,during-wwc,350bc" transform="translate(400, 350)">
                 <circle r="22" class="pin-pulse pin-pulse-purple"/>
                 <circle r="10" class="pin-core pin-core-purple"/>
                 <text y="-28" text-anchor="middle" class="pin-label">🏰 Super Cat World</text>
               </g>
 
               <!-- 3. World War Catnip -->
-              <g class="map-pin" id="pin-wwc" data-id="wwc" transform="translate(620, 180)">
+              <g class="map-pin" id="pin-wwc" data-id="wwc" data-era="present,pre-wwc,during-wwc" transform="translate(620, 180)">
                 <circle r="22" class="pin-pulse pin-pulse-red"/>
                 <circle r="10" class="pin-core pin-core-red"/>
                 <text y="-28" text-anchor="middle" class="pin-label">⚔️ World War Catnip</text>
               </g>
 
               <!-- 4. Catnip Kingdom -->
-              <g class="map-pin" id="pin-kingdom" data-id="kingdom" transform="translate(380, 120)">
+              <g class="map-pin" id="pin-kingdom" data-id="kingdom" data-era="present,pre-wwc" transform="translate(380, 120)">
                 <circle r="22" class="pin-pulse pin-pulse-gold"/>
                 <circle r="10" class="pin-core pin-core-gold"/>
                 <text y="-28" text-anchor="middle" class="pin-label">👑 Catnip Kingdom</text>
               </g>
 
               <!-- 5. Catnip Kart Speedway -->
-              <g class="map-pin" id="pin-kart-speedway" data-id="kart-speedway" transform="translate(600, 320)">
+              <g class="map-pin" id="pin-kart-speedway" data-id="kart-speedway" data-era="present" transform="translate(600, 320)">
                 <circle r="22" class="pin-pulse pin-pulse-green"/>
                 <circle r="10" class="pin-core pin-core-green"/>
                 <text y="-28" text-anchor="middle" class="pin-label">🏎️ Kart Speedway</text>
               </g>
 
               <!-- 6. Super Smash Cats Arena -->
-              <g class="map-pin" id="pin-smash-arena" data-id="smash-arena" transform="translate(500, 260)">
+              <g class="map-pin" id="pin-smash-arena" data-id="smash-arena" data-era="present" transform="translate(500, 260)">
                 <circle r="22" class="pin-pulse pin-pulse-red"/>
                 <circle r="10" class="pin-core pin-core-red"/>
                 <text y="-28" text-anchor="middle" class="pin-label">💥 Smash Arena</text>
+              </g>
+
+              <!-- NPC CHARACTER PINS (Living NPCs on Map) -->
+              <g id="map-npc-layer">
+                <!-- King Leopold & Professor Purr (Catnip Kingdom) -->
+                <g class="npc-pin-badge" id="npc-leopold" data-wiki="catnip-kingdom" transform="translate(360, 95)" title="King Leopold">
+                  <circle r="12" fill="#FFD700" stroke="#FFF" stroke-width="1.5"/>
+                  <text y="4" text-anchor="middle" font-size="12">👑</text>
+                </g>
+                <g class="npc-pin-badge" id="npc-purr" data-wiki="catnip-kingdom" transform="translate(400, 95)" title="Professor Purr">
+                  <circle r="12" fill="#7C4DFF" stroke="#FFF" stroke-width="1.5"/>
+                  <text y="4" text-anchor="middle" font-size="12">🧪</text>
+                </g>
+                <!-- Ranger Barnaby (Catnip Forest) -->
+                <g class="npc-pin-badge" id="npc-barnaby" data-wiki="catnip-forest" transform="translate(150, 305)" title="Ranger Barnaby">
+                  <circle r="12" fill="#00E676" stroke="#FFF" stroke-width="1.5"/>
+                  <text y="4" text-anchor="middle" font-size="12">🏹</text>
+                </g>
+                <!-- General Whiskers (World War Catnip) -->
+                <g class="npc-pin-badge" id="npc-whiskers" data-wiki="feline-faction-war" transform="translate(640, 155)" title="General Whiskers">
+                  <circle r="12" fill="#FF3D00" stroke="#FFF" stroke-width="1.5"/>
+                  <text y="4" text-anchor="middle" font-size="12">⚔️</text>
+                </g>
+                <!-- Mechanic Whisk (Kart Speedway) -->
+                <g class="npc-pin-badge" id="npc-whisk" data-wiki="catnip-kart" transform="translate(580, 300)" title="Mechanic Whisk">
+                  <circle r="12" fill="#00B0FF" stroke="#FFF" stroke-width="1.5"/>
+                  <text y="4" text-anchor="middle" font-size="12">🛠️</text>
+                </g>
+                <!-- Brawler Clawz & Rat King (Smash Arena) -->
+                <g class="npc-pin-badge" id="npc-clawz" data-wiki="super-smash-cats" transform="translate(480, 240)" title="Brawler Clawz">
+                  <circle r="12" fill="#FF3D00" stroke="#FFF" stroke-width="1.5"/>
+                  <text y="4" text-anchor="middle" font-size="12">😼</text>
+                </g>
+                <g class="npc-pin-badge" id="npc-ratking" data-wiki="super-smash-cats" transform="translate(520, 240)" title="Rat King">
+                  <circle r="12" fill="#9E9E9E" stroke="#FFF" stroke-width="1.5"/>
+                  <text y="4" text-anchor="middle" font-size="12">🐭</text>
+                </g>
               </g>
             </svg>
           </div>
@@ -2232,6 +2390,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
   <!-- Main Script File -->
-  <script src="script.js?v=20260726zk64"></script>
+  <script src="script.js?v=20260726zk65"></script>
 </body>
 </html>

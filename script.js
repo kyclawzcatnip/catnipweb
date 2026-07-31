@@ -2013,6 +2013,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const loc = mapLocations[locationId];
     if (!loc) return;
 
+    // Trigger territory discovery reward
+    discoverTerritory(locationId);
+
+    // Play region audio synth
+    playRegionAmbience(locationId);
+
     // Remove active styles from all pins
     document.querySelectorAll('.map-pin').forEach(pin => {
       pin.classList.remove('active-pin');
@@ -2041,8 +2047,30 @@ document.addEventListener('DOMContentLoaded', () => {
     if (content) {
       content.style.display = 'block';
       content.innerHTML = `
-        <h3 style="font-family: var(--font-headings); font-weight: 800; border-bottom: 1px solid var(--border-light); padding-bottom: 10px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">${loc.title}</h3>
+        <h3 style="font-family: var(--font-headings); font-weight: 800; border-bottom: 1px solid var(--border-light); padding-bottom: 10px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+          <span>${loc.title}</span>
+          <span style="font-size: 0.75rem; background: rgba(0,230,118,0.15); color: #00E676; padding: 4px 10px; border-radius: 20px; font-weight: 700;">100% Explored</span>
+        </h3>
         <p style="font-size: 0.85rem; color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 15px;">${loc.story}</p>
+
+        <!-- Discovery Completion Bars -->
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-light); border-radius: 10px; padding: 12px; margin-bottom: 15px;">
+          <div style="font-size: 0.75rem; font-weight: 800; color: var(--color-text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Discovery Completion</div>
+          <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.75rem;">
+            <div style="display: flex; justify-content: space-between;"><span>Lore Archives</span><span style="color: #00E676;">100%</span></div>
+            <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;"><div style="width: 100%; height: 100%; background: #00E676;"></div></div>
+            <div style="display: flex; justify-content: space-between;"><span>Characters</span><span style="color: #7C4DFF;">80%</span></div>
+            <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;"><div style="width: 80%; height: 100%; background: #7C4DFF;"></div></div>
+            <div style="display: flex; justify-content: space-between;"><span>Secrets & Items</span><span style="color: #FFD700;">90%</span></div>
+            <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;"><div style="width: 90%; height: 100%; background: #FFD700;"></div></div>
+          </div>
+        </div>
+
+        ${locationId === 'wwc' ? `
+          <button id="btn-replay-battle" class="btn btn-glow" style="width: 100%; margin-bottom: 15px; background: linear-gradient(135deg, #FF3D00, #FF6E40); color: #FFF; font-weight: 800; padding: 10px; border-radius: 8px; font-size: 0.85rem;">
+            ▶ Replay World War Catnip Battle
+          </button>
+        ` : ''}
         
         <h4 style="font-size: 0.8rem; color: var(--color-primary); text-transform: uppercase; letter-spacing: 1px; font-weight: 800; margin-top: 15px; margin-bottom: 8px;">Key Characters</h4>
         <div class="panel-characters-list" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px;">
@@ -2073,10 +2101,16 @@ document.addEventListener('DOMContentLoaded', () => {
           `).join('')}
         </div>
 
-        <a href="#wiki" class="btn btn-secondary nav-trigger" data-target="wiki" data-wiki-article="${loc.wikiLink}" style="margin-top: 15px; display: inline-flex; align-items: center; gap: 8px; width: 100%; justify-content: center; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; padding: 10px; border-radius: 8px;">
+        <a href="#wiki" class="btn btn-secondary nav-trigger" data-target="wiki" data-wiki-article="${loc.wikiLink}" style="margin-top: 10px; display: inline-flex; align-items: center; gap: 8px; width: 100%; justify-content: center; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; padding: 10px; border-radius: 8px;">
           📚 Read Wiki Archive
         </a>
       `;
+
+      // Bind Replay Battle button
+      const replayBtn = document.getElementById('btn-replay-battle');
+      if (replayBtn) {
+        replayBtn.addEventListener('click', triggerBattleReplay);
+      }
 
       // Bind connection buttons inside details panel
       content.querySelectorAll('.panel-conn-btn').forEach(btn => {
@@ -2120,6 +2154,224 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       }
     }
+  }
+
+  // ==================== DISCOVERY & REWARDS SYSTEM ====================
+  function discoverTerritory(locationId) {
+    let discovered = [];
+    try {
+      discovered = JSON.parse(localStorage.getItem('scw_discovered_territories') || '[]');
+    } catch (e) {
+      discovered = [];
+    }
+
+    if (!discovered.includes(locationId)) {
+      discovered.push(locationId);
+      localStorage.setItem('scw_discovered_territories', JSON.stringify(discovered));
+
+      // Award XP & Coins
+      catnipCoins += 15;
+      userXP += 25;
+      saveCoinsToLocalStorage();
+      syncCoinsToFirestore();
+
+      const toast = document.getElementById('map-discovery-toast');
+      const toastText = document.getElementById('map-discovery-toast-text');
+      if (toast && toastText) {
+        toastText.textContent = `New Territory Discovered! +25 XP +15 Coins`;
+        toast.style.display = 'block';
+        setTimeout(() => { toast.style.display = 'none'; }, 4000);
+      }
+
+      if (discovered.length >= 6) {
+        unlockAchievement('master_explorer');
+      }
+    }
+  }
+
+  // ==================== HISTORICAL ERAS SYSTEM ====================
+  function setMapEra(eraId) {
+    const eraElements = document.querySelectorAll('[data-era]');
+    eraElements.forEach(el => {
+      const allowedEras = el.getAttribute('data-era').split(',');
+      if (allowedEras.includes(eraId)) {
+        el.style.display = '';
+      } else {
+        el.style.display = 'none';
+      }
+    });
+  }
+
+  const eraSelect = document.getElementById('map-era-select');
+  if (eraSelect) {
+    eraSelect.addEventListener('change', (e) => {
+      setMapEra(e.target.value);
+    });
+  }
+
+  // ==================== ANIMATED BATTLE REPLAY SYSTEM ====================
+  function triggerBattleReplay() {
+    const battleLayer = document.getElementById('map-battle-replay-layer');
+    const treatyPin = document.getElementById('battle-treaty-pin');
+    if (!battleLayer) return;
+
+    battleLayer.style.display = 'block';
+    if (treatyPin) treatyPin.style.display = 'none';
+
+    // Fly camera to World War Catnip coordinates (620, 180)
+    flyToCoordinates(620, 180, 400, 250);
+
+    setTimeout(() => {
+      if (treatyPin) treatyPin.style.display = 'block';
+    }, 4000);
+  }
+
+  // ==================== OVERLAY TOGGLES ====================
+  function setupOverlayToggle(btnId, layerId) {
+    const btn = document.getElementById(btnId);
+    const layer = document.getElementById(layerId);
+    if (!btn || !layer) return;
+
+    btn.addEventListener('click', () => {
+      const isActive = layer.style.display !== 'none';
+      layer.style.display = isActive ? 'none' : 'block';
+      if (isActive) {
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-secondary');
+      } else {
+        btn.classList.add('btn-primary');
+        btn.classList.remove('btn-secondary');
+      }
+    });
+  }
+
+  setupOverlayToggle('btn-map-overlay-gravity', 'map-gravity-streams');
+  setupOverlayToggle('btn-map-overlay-crystals', 'map-crystal-layer');
+  setupOverlayToggle('btn-map-overlay-transit', 'map-transit-layer');
+  setupOverlayToggle('btn-map-overlay-story', 'map-story-layer');
+
+  // ==================== DAY / NIGHT SYSTEM ====================
+  const btnNight = document.getElementById('btn-map-toggle-night');
+  if (btnNight && mapViewport) {
+    btnNight.addEventListener('click', () => {
+      const isNight = mapViewport.classList.toggle('map-night-mode');
+      btnNight.textContent = isNight ? '☀️ Day' : '🌙 Night';
+    });
+  }
+
+  // ==================== SEARCH & ZOOM ENGINE ====================
+  const searchInput = document.getElementById('map-search-input');
+  const svgMap = document.getElementById('map-svg');
+
+  function flyToCoordinates(cx, cy, width = 400, height = 250) {
+    if (!svgMap) return;
+    const targetViewBox = `${cx - width / 2} ${cy - height / 2} ${width} ${height}`;
+    svgMap.style.transition = 'viewBox 0.8s cubic-bezier(0.25, 1, 0.5, 1)';
+    svgMap.setAttribute('viewBox', targetViewBox);
+  }
+
+  function resetMapZoom() {
+    if (!svgMap) return;
+    svgMap.setAttribute('viewBox', '0 0 800 500');
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.trim().toLowerCase();
+      if (!query) {
+        resetMapZoom();
+        return;
+      }
+
+      // Check coordinates match (e.g. 400,350)
+      if (query.includes(',')) {
+        const parts = query.split(',').map(p => parseFloat(p.trim()));
+        if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+          flyToCoordinates(parts[0], parts[1]);
+          return;
+        }
+      }
+
+      // Search location titles & characters
+      for (const [id, loc] of Object.entries(mapLocations)) {
+        if (loc.title.toLowerCase().includes(query) || loc.story.toLowerCase().includes(query)) {
+          selectMapLocation(id);
+          const pin = document.getElementById('pin-' + id);
+          if (pin) {
+            const transform = pin.getAttribute('transform') || '';
+            const coordsStr = transform.replace('translate(', '').replace(')', '');
+            const parts = coordsStr.split(',');
+            if (parts.length === 2 && !isNaN(parseFloat(parts[0]))) {
+              flyToCoordinates(parseFloat(parts[0]), parseFloat(parts[1]));
+            }
+          }
+          return;
+        }
+      }
+    });
+  }
+
+  const btnZoomIn = document.getElementById('btn-map-zoom-in');
+  const btnZoomOut = document.getElementById('btn-map-zoom-out');
+  const btnZoomReset = document.getElementById('btn-map-zoom-reset');
+
+  if (btnZoomIn) btnZoomIn.addEventListener('click', () => flyToCoordinates(400, 250, 450, 280));
+  if (btnZoomOut) btnZoomOut.addEventListener('click', () => flyToCoordinates(400, 250, 750, 470));
+  if (btnZoomReset) btnZoomReset.addEventListener('click', resetMapZoom);
+
+  // ==================== NPC BADGES BINDING ====================
+  document.querySelectorAll('.npc-pin-badge').forEach(npc => {
+    npc.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const articleKey = npc.getAttribute('data-wiki');
+      if (articleKey && typeof navigateTo === 'function') {
+        navigateTo('wiki');
+        const article = wikiArticles[articleKey];
+        if (article && wikiReaderBody && wikiReaderModal) {
+          wikiReaderBody.innerHTML = `
+            <div class="wiki-article-body">
+              <div class="wiki-article-header">
+                <span class="wiki-tag">${article.tag}</span>
+                <h2>${article.title}</h2>
+              </div>
+              <div class="wiki-article-text font-readable">
+                ${article.content}
+              </div>
+            </div>
+          `;
+          wikiReaderModal.style.display = 'flex';
+          document.body.style.overflow = 'hidden';
+        }
+      }
+    });
+  });
+
+  // ==================== WEB AUDIO REGION SYNTH ====================
+  function playRegionAmbience(locationId) {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      let freq = 220;
+      if (locationId === 'catnip-forest') freq = 330;
+      else if (locationId === 'kingdom') freq = 440;
+      else if (locationId === 'wwc') freq = 165;
+      else if (locationId === 'kart-speedway') freq = 523;
+      else if (locationId === 'smash-arena') freq = 293;
+
+      osc.frequency.setValueAtTime(freq, ctx.currentTime);
+      gain.gain.setValueAtTime(0.05, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2);
+
+      osc.start();
+      osc.stop(ctx.currentTime + 1.2);
+    } catch (e) {}
   }
 
   // Bind map pins click handler
