@@ -18,7 +18,7 @@
   <link rel="apple-touch-icon" href="favicon.jpg">
 
   <!-- Core Stylesheet -->
-  <link rel="stylesheet" href="style.css?v=20260731j">
+  <link rel="stylesheet" href="style.css?v=20260731k">
 </head>
 <body>
 
@@ -838,18 +838,18 @@
               ✨ <span id="map-discovery-toast-text">New Territory Discovered! +25 XP +15 Coins</span>
             </div>
 
-            <!-- Elevation Height Legend overlay -->
-            <div class="map-height-legend" id="map-height-legend" style="display: none; position: absolute; top: 15px; left: 15px; background: rgba(10, 6, 22, 0.92); border: 1px solid var(--border-light); border-radius: 10px; padding: 14px; font-size: 0.8rem; z-index: 10; box-shadow: 0 8px 24px rgba(0,0,0,0.6); backdrop-filter: blur(8px);">
-              <h4 style="margin: 0 0 10px 0; color: #FFF; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;">
+            <!-- Elevation Height Legend overlay (Side Dock) -->
+            <div class="map-height-legend" id="map-height-legend" style="display: none; position: absolute; top: 15px; right: 15px; background: rgba(10, 6, 22, 0.90); border: 1px solid rgba(124, 77, 255, 0.35); border-radius: 12px; padding: 10px 14px; font-size: 0.72rem; z-index: 10; box-shadow: 0 8px 24px rgba(0,0,0,0.6); backdrop-filter: blur(10px); max-width: 210px;">
+              <h4 style="margin: 0 0 6px 0; color: #FFF; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 5px;">
                 <span>🏔️</span> Topographical Slopes
               </h4>
-              <div style="display: flex; flex-direction: column; gap: 7px;">
-                <div style="display: flex; align-items: center; gap: 10px; color: #E0E0E0;"><span style="width: 14px; height: 14px; background: #2e7d32; border-radius: 4px; display: inline-block; box-shadow: 0 0 6px rgba(46, 125, 50, 0.6);"></span> 0m - 1,500m (Valleys & Coast)</div>
-                <div style="display: flex; align-items: center; gap: 10px; color: #E0E0E0;"><span style="width: 14px; height: 14px; background: #66bb6a; border-radius: 4px; display: inline-block; box-shadow: 0 0 6px rgba(102, 187, 106, 0.6);"></span> 1,500m - 3,000m (Low Slopes & Hills)</div>
-                <div style="display: flex; align-items: center; gap: 10px; color: #E0E0E0;"><span style="width: 14px; height: 14px; background: #fbc02d; border-radius: 4px; display: inline-block; box-shadow: 0 0 6px rgba(251, 192, 45, 0.6);"></span> 3,000m - 4,500m (Plateaus & Walls)</div>
-                <div style="display: flex; align-items: center; gap: 10px; color: #E0E0E0;"><span style="width: 14px; height: 14px; background: #ef6c00; border-radius: 4px; display: inline-block; box-shadow: 0 0 6px rgba(239, 108, 0, 0.6);"></span> 4,500m - 6,000m (Alpine Crags)</div>
-                <div style="display: flex; align-items: center; gap: 10px; color: #E0E0E0;"><span style="width: 14px; height: 14px; background: #c62828; border-radius: 4px; display: inline-block; box-shadow: 0 0 6px rgba(198, 40, 40, 0.6);"></span> 6,000m - 7,500m (Floating Levitations)</div>
-                <div style="display: flex; align-items: center; gap: 10px; color: #E0E0E0;"><span style="width: 14px; height: 14px; background: #8e24aa; border-radius: 4px; display: inline-block; box-shadow: 0 0 6px rgba(142, 36, 170, 0.6);"></span> 7,500m - 9,000m (Cosmic Sky Summits)</div>
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <div style="display: flex; align-items: center; gap: 8px; color: #E0E0E0;"><span style="width: 10px; height: 10px; background: #2e7d32; border-radius: 3px; display: inline-block;"></span> 0m - 1.5k (Valleys & Coast)</div>
+                <div style="display: flex; align-items: center; gap: 8px; color: #E0E0E0;"><span style="width: 10px; height: 10px; background: #66bb6a; border-radius: 3px; display: inline-block;"></span> 1.5k - 3k (Hills & Slopes)</div>
+                <div style="display: flex; align-items: center; gap: 8px; color: #E0E0E0;"><span style="width: 10px; height: 10px; background: #fbc02d; border-radius: 3px; display: inline-block;"></span> 3k - 4.5k (Plateaus & Walls)</div>
+                <div style="display: flex; align-items: center; gap: 8px; color: #E0E0E0;"><span style="width: 10px; height: 10px; background: #ef6c00; border-radius: 3px; display: inline-block;"></span> 4.5k - 6k (Alpine Crags)</div>
+                <div style="display: flex; align-items: center; gap: 8px; color: #E0E0E0;"><span style="width: 10px; height: 10px; background: #c62828; border-radius: 3px; display: inline-block;"></span> 6k - 7.5k (Levitations)</div>
+                <div style="display: flex; align-items: center; gap: 8px; color: #E0E0E0;"><span style="width: 10px; height: 10px; background: #8e24aa; border-radius: 3px; display: inline-block;"></span> 7.5k - 9k (Sky Summits)</div>
               </div>
             </div>
 
@@ -2474,6 +2474,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
   <!-- Main Script File -->
-  <script src="script.js?v=20260726zk76"></script>
+  <script src="script.js?v=20260726zk77"></script>
 </body>
 </html>
