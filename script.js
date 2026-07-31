@@ -2190,7 +2190,14 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       if (discovered.length >= 6) {
-        unlockAchievement('master_explorer');
+        if (!achievements.includes('master_explorer')) {
+          achievements.push('master_explorer');
+          saveCoinsToLocalStorage();
+          syncCoinsToFirestore();
+          if (typeof showAchievementToast === 'function') {
+            showAchievementToast('Master Explorer', '🏆', '+50 Coins, "Master Explorer" Title');
+          }
+        }
       }
     }
   }

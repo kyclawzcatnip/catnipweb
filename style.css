@@ -3118,11 +3118,17 @@ p {
 /* 👑 Living NPC Badges */
 .npc-pin-badge {
   cursor: pointer;
+  transform-box: fill-box;
+  transform-origin: center;
   transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.25s;
 }
 
+.npc-pin-badge * {
+  pointer-events: none;
+}
+
 .npc-pin-badge:hover {
-  transform: scale(1.35) translateY(-3px);
+  transform: scale(1.35);
   filter: drop-shadow(0 0 10px #FFD700);
 }
 
@@ -3166,11 +3172,23 @@ p {
 /* Map Pins & Glowing Pulsars */
 .map-pin {
   cursor: pointer;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.map-pin * {
+  pointer-events: none;
+}
+
+.crystal-deposit-marker * {
+  pointer-events: none;
 }
 
 .pin-core {
   stroke: rgba(255, 255, 255, 0.9);
   stroke-width: 2px;
+  transform-box: fill-box;
+  transform-origin: center;
   transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
@@ -3181,6 +3199,7 @@ p {
 .pin-pulse {
   fill: none;
   animation: pulsePin 2s cubic-bezier(0.25, 0, 0, 1) infinite;
+  transform-box: fill-box;
   transform-origin: center;
 }
 
