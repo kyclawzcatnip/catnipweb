@@ -1976,10 +1976,10 @@ document.addEventListener('DOMContentLoaded', () => {
       story: 'The grand racing capital of the Nine Realms. Built as a state-of-the-art grand prix circuit, the speedway features magnetic gravity loops, high-velocity drift corners, and glowing turbo pads where feline racers compete at absolute top speeds.',
       characters: [
         { emoji: '😼', name: 'Racer Speedy', desc: 'The legendary cup champion and current speedway track record holder.' },
-        { emoji: '🔧', name: 'Mechanic Whisk', desc: 'The chief developer of custom racing engines and aerodynamic kart models.' }
+        { emoji: '🔧', name: 'Mechanic Whisk', desc: 'The chief developer of custom racing engines and aerodynamic karts.' }
       ],
       timeline: [
-        { era: 'Year 18 AC', desc: 'The Allied Feline Council commissions the creation of a global racing hub to train cats in the art of fast racing for cats to have fun.' },
+        { era: 'Year 18 AC', desc: 'The Allied Feline Council commissions the creation of a global racing hub to train cats in the art of fast racing.' },
         { era: 'Year 22 AC', desc: 'The inaugural Grand Cup tournament is held, drawing spectators from all realms.' }
       ],
       connections: [
@@ -1987,6 +1987,23 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 'wwc', name: 'World War Catnip' }
       ],
       wikiLink: 'catnip-kart'
+    },
+    'smash-arena': {
+      title: '💥 Super Smash Cats Arena',
+      story: 'The chaotic combat stadium suspended over the central rifts. Feline gladiators from all factions assemble here to test their brawler skills in fast-paced combat, dodging weapon drops and challenging bosses like the Rat King.',
+      characters: [
+        { emoji: '😼', name: 'Brawler Clawz', desc: 'The reigning arena champion who specializes in spinning attacks.' },
+        { emoji: '🐭', name: 'Rat King', desc: 'The ancient throne usurper who periodically raids the arena with his rat legions.' }
+      ],
+      timeline: [
+        { era: 'Year 10 AC', desc: 'The Central Arena is built to channel faction rivalry into sanctioned athletic tournaments.' },
+        { era: 'Year 25 AC', desc: 'The Rat King establishes his subterranean tunnels directly underneath the arena floor.' }
+      ],
+      connections: [
+        { id: 'scw', name: 'Super Cat World' },
+        { id: 'wwc', name: 'World War Catnip' }
+      ],
+      wikiLink: 'super-smash-cats'
     }
   };
 

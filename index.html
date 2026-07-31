@@ -808,6 +808,9 @@
               <path class="map-route" d="M 400 350 L 380 120" fill="none" stroke="rgba(255, 215, 0, 0.3)" stroke-width="2.5" stroke-dasharray="6,6"/>
               <path class="map-route" d="M 600 320 L 620 180" fill="none" stroke="rgba(0, 230, 118, 0.3)" stroke-width="2.5" stroke-dasharray="6,6"/>
               <path class="map-route" d="M 600 320 Q 500 220 380 120" fill="none" stroke="rgba(255, 61, 0, 0.3)" stroke-width="2.5" stroke-dasharray="6,6"/>
+              <!-- Connections to Smash Arena -->
+              <path class="map-route" d="M 400 350 L 500 260" fill="none" stroke="rgba(124, 77, 255, 0.3)" stroke-width="2.5" stroke-dasharray="6,6"/>
+              <path class="map-route" d="M 500 260 L 620 180" fill="none" stroke="rgba(255, 61, 0, 0.3)" stroke-width="2.5" stroke-dasharray="6,6"/>
 
               <!-- Landmass SVGs / Island Shapes -->
               <path d="M 100 280 Q 150 240 220 300 T 260 360 T 140 370 Z" fill="rgba(0, 230, 118, 0.04)" stroke="rgba(0, 230, 118, 0.15)" stroke-width="2"/>
@@ -850,6 +853,13 @@
                 <circle r="22" class="pin-pulse pin-pulse-green"/>
                 <circle r="10" class="pin-core pin-core-green"/>
                 <text y="-28" text-anchor="middle" class="pin-label">🏎️ Kart Speedway</text>
+              </g>
+
+              <!-- 6. Super Smash Cats Arena -->
+              <g class="map-pin" id="pin-smash-arena" data-id="smash-arena" transform="translate(500, 260)">
+                <circle r="22" class="pin-pulse pin-pulse-red"/>
+                <circle r="10" class="pin-core pin-core-red"/>
+                <text y="-28" text-anchor="middle" class="pin-label">💥 Smash Arena</text>
               </g>
             </svg>
           </div>
@@ -2169,6 +2179,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
   <!-- Main Script File -->
-  <script src="script.js?v=20260726zk59"></script>
+  <script src="script.js?v=20260726zk60"></script>
 </body>
 </html>
