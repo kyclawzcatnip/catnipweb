@@ -18,7 +18,7 @@
   <link rel="apple-touch-icon" href="favicon.jpg">
 
   <!-- Core Stylesheet -->
-  <link rel="stylesheet" href="style.css?v=20260731n">
+  <link rel="stylesheet" href="style.css?v=20260731o">
 </head>
 <body>
 
@@ -850,6 +850,30 @@
                 <div style="display: flex; align-items: center; gap: 8px; color: #E0E0E0;"><span style="width: 10px; height: 10px; background: #ef6c00; border-radius: 3px; display: inline-block;"></span> 4.5k - 6k (Alpine Crags)</div>
                 <div style="display: flex; align-items: center; gap: 8px; color: #E0E0E0;"><span style="width: 10px; height: 10px; background: #c62828; border-radius: 3px; display: inline-block;"></span> 6k - 7.5k (Levitations)</div>
                 <div style="display: flex; align-items: center; gap: 8px; color: #E0E0E0;"><span style="width: 10px; height: 10px; background: #8e24aa; border-radius: 3px; display: inline-block;"></span> 7.5k - 9k (Sky Summits)</div>
+            </div>
+
+            <!-- Airship Lore Modal Overlay -->
+            <div id="airship-lore-modal" class="airship-lore-modal" style="display: none;">
+              <div class="airship-lore-card">
+                <button class="airship-lore-close" id="btn-close-airship-lore" title="Close Lore Card">&times;</button>
+                <div class="airship-lore-header">
+                  <span class="airship-badge-icon" id="lore-ship-icon">🛸</span>
+                  <div>
+                    <h3 id="lore-ship-name" class="airship-title">Airship Name</h3>
+                    <div class="airship-meta-pills">
+                      <span class="airship-pill pill-year" id="lore-ship-year">Commissioned 3 BC</span>
+                      <span class="airship-pill pill-class" id="lore-ship-class">Pioneer Prototype</span>
+                      <span class="airship-pill pill-faction" id="lore-ship-faction">Catnip Guild</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="airship-lore-divider"></div>
+                <p id="lore-ship-desc" class="airship-body-text">Lore narrative content...</p>
+                <div class="airship-specs-grid">
+                  <div class="spec-box"><span class="spec-label">Hull Armor</span><span class="spec-value" id="lore-ship-power">950 HP</span></div>
+                  <div class="spec-box"><span class="spec-label">Max Speed</span><span class="spec-value" id="lore-ship-speed">120 Knots</span></div>
+                  <div class="spec-box"><span class="spec-label">Lift Engine</span><span class="spec-value" id="lore-ship-engine">Gravity Core</span></div>
+                </div>
               </div>
             </div>
 
@@ -2474,6 +2498,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
   <!-- Main Script File -->
-  <script src="script.js?v=20260726zk80"></script>
+  <script src="script.js?v=20260726zk81"></script>
 </body>
 </html>
