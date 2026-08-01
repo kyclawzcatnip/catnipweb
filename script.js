@@ -2632,61 +2632,109 @@ document.addEventListener('DOMContentLoaded', () => {
   let activeSelectedShip = null;
   let reinforcementCounter = 0;
 
-  function spawnWWCReinforcement(faction) {
+  function spawnWWCReinforcement(faction, isNaval = false) {
     const armadaGroup = document.getElementById('map-wwc-armada');
     if (!armadaGroup) return;
 
     reinforcementCounter++;
     const shipIdNum = 'reinf-' + reinforcementCounter;
 
-    let startX = 780, startY = 20; // Default Red: Top-Right
-    let targetX, targetY;
-    let color, strokeColor, label, shipClass, factionName;
+    let startX, startY, targetX, targetY;
+    let color, strokeColor, label, shipClass, factionName, shipIdTag;
+    let svgMarkup = '';
 
-    if (faction === 'red') {
-      startX = 780;
-      startY = 20;
-      targetX = 500 + Math.floor(Math.random() * 160);
-      targetY = 130 + Math.floor(Math.random() * 90);
-      color = '#D50000';
-      strokeColor = '#FFF';
-      label = '⚔️ Red Corsair ' + (reinforcementCounter % 9 + 1);
-      shipClass = 'war-airship-red';
-      factionName = 'Top-Right Sky Fortress';
-    } else {
-      // Blue Faction: Comes from Catnip Forest (180, 320) or Catnip Kingdom (380, 120)
-      const isForestOrigin = Math.random() > 0.5;
-      if (isForestOrigin) {
-        startX = 180;
-        startY = 320;
-        factionName = 'Catnip Forest';
+    if (isNaval) {
+      if (faction === 'red') {
+        startX = 780;
+        startY = 240;
+        targetX = 480 + Math.floor(Math.random() * 260);
+        targetY = 205 + Math.floor(Math.random() * 35);
+        color = '#37474F';
+        strokeColor = '#B0BEC5';
+        label = '⚓ Red Naval Warship ' + (reinforcementCounter % 9 + 1);
+        shipClass = 'naval-warship';
+        shipIdTag = (reinforcementCounter % 2 === 0) ? 'red-dreadnought' : 'red-battleship';
+        factionName = 'Scorched Fleet Ocean Base';
+        svgMarkup = `
+          <polygon points="-16,0 16,0 10,7 -10,7" fill="${color}" stroke="${strokeColor}" stroke-width="1.5"/>
+          <rect x="-4" y="-5" width="8" height="5" fill="#263238"/>
+          <circle cx="0" cy="-7" r="2" fill="#FF3D00" class="cannon-muzzle-flash"/>
+          <text y="14" text-anchor="middle" fill="#FF5252" font-size="8" font-weight="800">${label}</text>
+        `;
       } else {
-        startX = 380;
-        startY = 120;
-        factionName = 'Catnip Kingdom';
+        const isForestBay = Math.random() > 0.5;
+        if (isForestBay) {
+          startX = 180;
+          startY = 340;
+          factionName = 'Catnip Forest Bay';
+        } else {
+          startX = 420;
+          startY = 40;
+          factionName = 'Catnip Kingdom Bay';
+        }
+        targetX = 460 + Math.floor(Math.random() * 250);
+        targetY = 55 + Math.floor(Math.random() * 55);
+        color = '#1A237E';
+        strokeColor = '#80D8FF';
+        label = '⚓ Blue Naval Warship ' + (reinforcementCounter % 9 + 1);
+        shipClass = 'naval-warship';
+        shipIdTag = (reinforcementCounter % 2 === 0) ? 'blue-cruiser' : 'blue-gunboat';
+        svgMarkup = `
+          <polygon points="-16,0 16,0 10,7 -10,7" fill="${color}" stroke="${strokeColor}" stroke-width="1.5"/>
+          <rect x="-4" y="-5" width="8" height="5" fill="#0D47A1"/>
+          <circle cx="0" cy="-7" r="2" fill="#00E5FF" class="cannon-muzzle-flash"/>
+          <text y="14" text-anchor="middle" fill="#80D8FF" font-size="8" font-weight="800">${label}</text>
+        `;
       }
-      targetX = 580 + Math.floor(Math.random() * 150);
-      targetY = 70 + Math.floor(Math.random() * 90);
-      color = '#0091EA';
-      strokeColor = '#FFF';
-      label = '🛡️ Blue Sentinel ' + (reinforcementCounter % 9 + 1);
-      shipClass = 'war-airship-blue';
+    } else {
+      // Sky Airship Reinforcement
+      if (faction === 'red') {
+        startX = 780;
+        startY = 20;
+        targetX = 500 + Math.floor(Math.random() * 160);
+        targetY = 130 + Math.floor(Math.random() * 90);
+        color = '#D50000';
+        strokeColor = '#FFF';
+        label = '⚔️ Red Corsair ' + (reinforcementCounter % 9 + 1);
+        shipClass = 'war-airship war-airship-red';
+        shipIdTag = 'red-corsair';
+        factionName = 'Top-Right Sky Fortress';
+      } else {
+        const isForestOrigin = Math.random() > 0.5;
+        if (isForestOrigin) {
+          startX = 180;
+          startY = 320;
+          factionName = 'Catnip Forest';
+        } else {
+          startX = 380;
+          startY = 120;
+          factionName = 'Catnip Kingdom';
+        }
+        targetX = 580 + Math.floor(Math.random() * 150);
+        targetY = 70 + Math.floor(Math.random() * 90);
+        color = '#0091EA';
+        strokeColor = '#FFF';
+        label = '🛡️ Blue Sentinel ' + (reinforcementCounter % 9 + 1);
+        shipClass = 'war-airship war-airship-blue';
+        shipIdTag = 'blue-sentinel';
+      }
+
+      svgMarkup = `
+        <ellipse rx="13" ry="6.5" fill="${color}" stroke="${strokeColor}" stroke-width="1.5"/>
+        <rect x="-5" y="6" width="10" height="3" fill="#FFD700"/>
+        <text y="-9" text-anchor="middle" fill="#FFF" font-size="7" font-weight="900">${label}</text>
+      `;
     }
 
     // Create SVG element for incoming reinforcement ship
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    g.setAttribute('id', 'war-airship-' + shipIdNum);
-    g.setAttribute('class', 'war-airship ' + shipClass + ' dynamic-reinforcement-ship');
-    g.setAttribute('data-ship-id', faction === 'red' ? 'red-corsair' : 'blue-sentinel');
+    g.setAttribute('id', (isNaval ? 'naval-ship-' : 'war-airship-') + shipIdNum);
+    g.setAttribute('class', shipClass + ' dynamic-reinforcement-ship');
+    g.setAttribute('data-ship-id', shipIdTag);
     g.setAttribute('transform', `translate(${startX}, ${startY})`);
     g.style.transition = 'transform 7.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.5s';
     g.style.cursor = 'pointer';
-
-    g.innerHTML = `
-      <ellipse rx="13" ry="6.5" fill="${color}" stroke="${strokeColor}" stroke-width="1.5"/>
-      <rect x="-5" y="6" width="10" height="3" fill="#FFD700"/>
-      <text y="-9" text-anchor="middle" fill="#FFF" font-size="7" font-weight="900">${label}</text>
-    `;
+    g.innerHTML = svgMarkup;
 
     g.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -2695,7 +2743,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     armadaGroup.appendChild(g);
 
-    // Smoothly fly ship from origin to destination formation
+    // Smoothly navigate ship from origin to destination position
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         g.setAttribute('transform', `translate(${targetX}, ${targetY})`);
@@ -2706,10 +2754,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const toast = document.getElementById('map-discovery-toast');
     const toastText = document.getElementById('map-discovery-toast-text');
     if (toast && toastText) {
-      if (faction === 'red') {
-        toastText.textContent = `🚀 Red Faction Warship Reinforcements arrived from Top-Right Sky!`;
+      if (isNaval) {
+        if (faction === 'red') {
+          toastText.textContent = `⚓ Red Faction Naval Fleet Warship arrived from Ocean Waters!`;
+        } else {
+          toastText.textContent = `⚓ Blue Faction Naval Warship deployed from ${factionName}!`;
+        }
       } else {
-        toastText.textContent = `🛡️ Blue Faction Air Reinforcements launched from ${factionName}!`;
+        if (faction === 'red') {
+          toastText.textContent = `🚀 Red Faction Warship Reinforcements arrived from Top-Right Sky!`;
+        } else {
+          toastText.textContent = `🛡️ Blue Faction Air Reinforcements launched from ${factionName}!`;
+        }
       }
       toast.style.display = 'block';
       setTimeout(() => { toast.style.display = 'none'; }, 3800);
@@ -2738,6 +2794,12 @@ document.addEventListener('DOMContentLoaded', () => {
                    elementId.includes('blue');
     const destroyedFaction = isBlue ? 'blue' : 'red';
 
+    const isNaval = shipClass.includes('naval-warship') || 
+                    shipId.includes('gunboat') || 
+                    shipId.includes('cruiser') || 
+                    shipId.includes('battleship') || 
+                    shipId.includes('dreadnought');
+
     // Spawn Explosion Burst Effect in SVG
     const svgMap = document.getElementById('map-svg');
     if (svgMap) {
@@ -2763,8 +2825,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setTimeout(() => {
       shipElement.remove();
-      // Spawn fresh reinforcement ship for the destroyed faction!
-      spawnWWCReinforcement(destroyedFaction);
+      // Spawn fresh reinforcement matching ship type (Naval or Airship)
+      spawnWWCReinforcement(destroyedFaction, isNaval);
     }, 600);
   }
 
