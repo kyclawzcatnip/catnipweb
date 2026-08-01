@@ -2728,10 +2728,15 @@ document.addEventListener('DOMContentLoaded', () => {
       y = parseFloat(match[2]);
     }
 
-    const isRed = shipElement.classList.contains('war-airship-red') || 
-                  shipElement.getAttribute('data-ship-id')?.includes('red') ||
-                  shipElement.getAttribute('id')?.includes('r');
-    const destroyedFaction = isRed ? 'red' : 'blue';
+    const shipId = (shipElement.getAttribute('data-ship-id') || '').toLowerCase();
+    const shipClass = (shipElement.getAttribute('class') || '').toLowerCase();
+    const elementId = (shipElement.getAttribute('id') || '').toLowerCase();
+
+    const isBlue = shipClass.includes('blue') || 
+                   shipId.includes('blue') || 
+                   elementId.includes('-b') || 
+                   elementId.includes('blue');
+    const destroyedFaction = isBlue ? 'blue' : 'red';
 
     // Spawn Explosion Burst Effect in SVG
     const svgMap = document.getElementById('map-svg');
