@@ -2204,7 +2204,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==================== HISTORICAL ERAS SYSTEM ====================
+  let currentMapEra = 'present';
+
   function setMapEra(eraId) {
+    currentMapEra = eraId;
     const eraElements = document.querySelectorAll('[data-era]');
     eraElements.forEach(el => {
       const allowedEras = el.getAttribute('data-era').split(',');
@@ -2779,7 +2782,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Show/Hide Engage button for WWC combat ships
     const btnEngage = document.getElementById('btn-destroy-target-ship');
     if (btnEngage) {
-      if (currentMapEra === 'during-wwc' && targetShipEl) {
+      const era = (typeof currentMapEra !== 'undefined') ? currentMapEra : 'present';
+      if ((era === 'during-wwc' || (targetShipEl && targetShipEl.classList.contains('war-airship'))) && targetShipEl) {
         btnEngage.style.display = 'block';
       } else {
         btnEngage.style.display = 'none';
