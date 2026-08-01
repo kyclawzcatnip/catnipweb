@@ -2223,7 +2223,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ==================== ANIMATED BATTLE REPLAY SYSTEM ====================
+  // ==================== ANIMATED 5-YEAR WAR TIMELINE SYSTEM ====================
+  let cinematicTimelineTimer1 = null;
+  let cinematicTimelineTimer2 = null;
+  let cinematicTimelineTimer3 = null;
+
   function triggerBattleReplay() {
     // 1. Switch map era selector to World War Catnip
     setMapEra('during-wwc');
@@ -2239,10 +2243,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const battleLayer = document.getElementById('map-battle-replay-layer');
     const treatyPin = document.getElementById('battle-treaty-pin');
+    const cinematicBanner = document.getElementById('wwc-cinematic-banner');
+    const yearLabel = document.getElementById('wwc-timeline-year-label');
+    const subLabel = document.getElementById('wwc-timeline-sub-label');
+    const progressBar = document.getElementById('wwc-timeline-progress-bar');
     if (!battleLayer) return;
 
     battleLayer.style.display = 'block';
     if (treatyPin) treatyPin.style.display = 'none';
+
+    // Clear previous timeline timers
+    if (cinematicTimelineTimer1) clearTimeout(cinematicTimelineTimer1);
+    if (cinematicTimelineTimer2) clearTimeout(cinematicTimelineTimer2);
+    if (cinematicTimelineTimer3) clearTimeout(cinematicTimelineTimer3);
 
     // Fly camera to World War Catnip coordinates (620, 180)
     flyToCoordinates(620, 180, 400, 250);
@@ -2252,18 +2265,52 @@ document.addEventListener('DOMContentLoaded', () => {
       playRegionAmbience('wwc');
     }
 
-    // Display battle toast announcement
-    const toast = document.getElementById('map-discovery-toast');
-    const toastText = document.getElementById('map-discovery-toast-text');
-    if (toast && toastText) {
-      toastText.textContent = '⚔️ Replaying World War Catnip Aerial & Naval Battle!';
-      toast.style.display = 'block';
-      setTimeout(() => { toast.style.display = 'none'; }, 4000);
+    // STAGE 1: Year 1 BC - Outbreak of World War Catnip (0s - 3.5s)
+    if (cinematicBanner && yearLabel && subLabel && progressBar) {
+      cinematicBanner.style.display = 'block';
+      yearLabel.textContent = '⚔️ Year 1 BC: Outbreak of World War Catnip';
+      subLabel.textContent = 'Anticatite gravity crystal extraction war erupts across Scorched Ridge!';
+      progressBar.style.width = '25%';
     }
 
-    setTimeout(() => {
+    // Spawn Red Faction warship arriving from Top-Right Sky
+    if (typeof spawnWWCReinforcement === 'function') {
+      spawnWWCReinforcement('red');
+    }
+
+    // STAGE 2: Years 1 AD - 3 AD - Peak Aerial & Naval Siege (3.5s - 8s)
+    cinematicTimelineTimer1 = setTimeout(() => {
+      if (yearLabel && subLabel && progressBar) {
+        yearLabel.textContent = '🔥 1 AD – 3 AD: Peak Aerial & Naval Siege';
+        subLabel.textContent = 'High-altitude dogfights and naval shore bombardments rage across Scorched Ridge!';
+        progressBar.style.width = '65%';
+      }
+      // Spawn Blue Faction air reinforcement from Catnip Kingdom/Forest
+      if (typeof spawnWWCReinforcement === 'function') {
+        spawnWWCReinforcement('blue');
+      }
+    }, 3500);
+
+    // STAGE 3: Year 4 AD - Armistice Treaty Signed at Scorched Ridge (8s - 12s)
+    cinematicTimelineTimer2 = setTimeout(() => {
+      if (yearLabel && subLabel && progressBar) {
+        yearLabel.textContent = '📜 Year 4 AD: Armistice Treaty Signed at Scorched Ridge';
+        subLabel.textContent = '5-year war ends! Combat airships disarm and convert into peaceful sky freighters.';
+        progressBar.style.width = '100%';
+      }
       if (treatyPin) treatyPin.style.display = 'block';
-    }, 4000);
+
+      if (typeof playRetroSound === 'function') {
+        playRetroSound('win');
+      }
+    }, 8000);
+
+    // Hide Banner after completion (12s)
+    cinematicTimelineTimer3 = setTimeout(() => {
+      if (cinematicBanner) {
+        cinematicBanner.style.display = 'none';
+      }
+    }, 12500);
   }
 
   // ==================== OVERLAY TOGGLES ====================
