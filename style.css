@@ -3056,22 +3056,22 @@ p {
 }
 
 #moving-airship-1 {
-  animation: airshipPatrol1 22s ease-in-out infinite alternate;
+  animation: airshipPatrol1 55s ease-in-out infinite alternate;
   filter: drop-shadow(0 4px 10px rgba(0,0,0,0.6));
 }
 
 #moving-airship-2 {
-  animation: airshipPatrol2 18s ease-in-out infinite alternate;
+  animation: airshipPatrol2 48s ease-in-out infinite alternate;
   filter: drop-shadow(0 4px 10px rgba(0,0,0,0.6));
 }
 
 #moving-airship-3 {
-  animation: airshipPatrol3 26s ease-in-out infinite alternate;
+  animation: airshipPatrol3 65s ease-in-out infinite alternate;
   filter: drop-shadow(0 4px 10px rgba(0,0,0,0.6));
 }
 
 #moving-airship-4 {
-  animation: airshipPatrol4 15s ease-in-out infinite alternate;
+  animation: airshipPatrol4 42s ease-in-out infinite alternate;
   filter: drop-shadow(0 4px 10px rgba(0,0,0,0.6));
 }
 
@@ -3114,7 +3114,7 @@ p {
   transform-box: fill-box;
   transform-origin: center;
   filter: drop-shadow(0 0 8px #FF3D00);
-  animation: warDogfightRed 4s ease-in-out infinite alternate;
+  animation: warDogfightRed 12s ease-in-out infinite alternate;
 }
 
 .war-airship-blue ellipse,
@@ -3122,7 +3122,7 @@ p {
   transform-box: fill-box;
   transform-origin: center;
   filter: drop-shadow(0 0 8px #00E5FF);
-  animation: warDogfightBlue 5s ease-in-out infinite alternate;
+  animation: warDogfightBlue 15s ease-in-out infinite alternate;
 }
 
 .naval-warship {

@@ -2679,7 +2679,7 @@ document.addEventListener('DOMContentLoaded', () => {
     g.setAttribute('class', 'war-airship ' + shipClass + ' dynamic-reinforcement-ship');
     g.setAttribute('data-ship-id', faction === 'red' ? 'red-corsair' : 'blue-sentinel');
     g.setAttribute('transform', `translate(${startX}, ${startY})`);
-    g.style.transition = 'transform 3.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s';
+    g.style.transition = 'transform 7.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.5s';
     g.style.cursor = 'pointer';
 
     g.innerHTML = `
