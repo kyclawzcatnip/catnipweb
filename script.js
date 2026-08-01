@@ -1929,8 +1929,9 @@ document.addEventListener('DOMContentLoaded', () => {
         { emoji: '😼', name: 'Sergeant Claw', desc: 'A veteran soldier who fought during the siege of the central ruins.' }
       ],
       timeline: [
-        { era: 'Year 0 AC', desc: 'The Great Faction wars break out over crystal extraction.' },
-        { era: 'Year 6 AC', desc: 'The treaty of the Golden Collar is signed, establishing peace.' }
+        { era: '1 BC (Outbreak)', desc: 'The Great Faction war breaks out over Anticatite gravity crystal extraction.' },
+        { era: '1 AD - 3 AD (Peak Conflict)', desc: 'High-altitude aerial dogfights and naval shore bombardments rage across Scorched Ridge.' },
+        { era: '4 AD (Armistice)', desc: 'The historic Armistice Treaty of 4 AD is signed at Scorched Ridge, ending the 5-year war and establishing sky trade.' }
       ],
       connections: [
         { id: 'catnip-forest', name: 'Catnip Forest' },
