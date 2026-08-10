@@ -3436,7 +3436,42 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
           const userCred = await firebaseAuth.createUserWithEmailAndPassword(email, password);
           await userCred.user.updateProfile({ displayName: username });
-          regFeedback.innerHTML = '<span style="color: #00E676;">Account created successfully!</span>';
+
+          // Immediately save profile & account log to Firestore so other computers see it in Account Log!
+          if (typeof firebase !== 'undefined' && firebase.firestore) {
+            try {
+              const db = firebase.firestore();
+              const uid = userCred.user.uid;
+              const createdAt = new Date().toISOString();
+
+              await db.collection('users').doc(uid).set({
+                username: username,
+                displayName: username,
+                email: email,
+                createdAt: createdAt,
+                coins: 0,
+                ownedItems: [],
+                activeCosmetics: [],
+                joinDate: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+                userXP: 0,
+                userLevel: 1,
+                status: 'Registered'
+              }, { merge: true });
+
+              await db.collection('account_log').add({
+                uid: uid,
+                username: username,
+                email: email,
+                timestamp: createdAt,
+                action: 'Account Created',
+                source: 'Firebase Auth'
+              });
+            } catch (fsErr) {
+              console.warn("Account log write warning:", fsErr);
+            }
+          }
+
+          regFeedback.innerHTML = '<span style="color: #00E676;">Account created successfully! Syncing to Cloud...</span>';
           setTimeout(closeAuthModal, 800);
         } catch (err) {
           const isFallbackError = !err.code || 
@@ -3866,6 +3901,32 @@ document.addEventListener('DOMContentLoaded', () => {
       localDb.push(profile);
     }
     localStorage.setItem('scw_local_profiles_database', JSON.stringify(localDb));
+
+    // Cloud sync to Firestore users & account_log so other computers see this account!
+    if (typeof firebase !== 'undefined' && firebase.firestore) {
+      try {
+        const db = firebase.firestore();
+        const docUid = 'local_' + (email || 'user').replace(/[^a-zA-Z0-9]/g, '_');
+        db.collection('users').doc(docUid).set({
+          username: username,
+          displayName: username,
+          email: email,
+          coins: coins,
+          ownedItems: cosmetics,
+          createdAt: new Date().toISOString(),
+          status: 'Local/Cloud Registered'
+        }, { merge: true }).catch(err => console.warn("Firestore fallback profile sync err:", err));
+
+        db.collection('account_log').add({
+          uid: docUid,
+          username: username,
+          email: email,
+          timestamp: new Date().toISOString(),
+          action: 'Account Created/Updated',
+          source: 'Local Database'
+        }).catch(err => console.warn("Firestore account_log sync err:", err));
+      } catch(e) {}
+    }
   }
 
   // Save current state to local storage
@@ -3965,11 +4026,16 @@ document.addEventListener('DOMContentLoaded', () => {
       const user = firebase.auth().currentUser;
       if (user) {
         const db = firebase.firestore();
+        const uname = user.displayName || (user.email ? user.email.split('@')[0] : 'Player');
         db.collection('users').doc(user.uid).set({
+          username: uname,
+          displayName: uname,
+          email: user.email || '',
           coins: userCoins,
           ownedItems: ownedItems,
           activeCosmetics: activeCosmetics,
           lastClaimTimestamp: lastClaimTimestamp,
+          lastSeen: new Date().toISOString(),
           avatarCat: avatarCat,
           avatarExpression: avatarExpression,
           avatarFrame: avatarFrame,
@@ -5279,29 +5345,31 @@ document.addEventListener('DOMContentLoaded', () => {
       console.warn("Failed loading local profiles database:", e);
     }
 
-    // 3. If Firebase Firestore is active, query the database dynamically
+    // 3. If Firebase Firestore is active, query the database dynamically with real-time sync & account log
     if (typeof firebase !== 'undefined' && firebase.firestore) {
       try {
         const db = firebase.firestore();
-        db.collection('users').get().then((snapshot) => {
+
+        // Realtime listener on 'users' collection so new accounts created anywhere show up instantly
+        db.collection('users').onSnapshot((snapshot) => {
           snapshot.forEach((doc) => {
             const data = doc.data();
             const uid = doc.id;
             
-            // Check if user is already added (e.g. avoid duplicate of local session)
             const isSelf = firebase.auth().currentUser && firebase.auth().currentUser.uid === uid;
-            const username = data.username || data.displayName || (isSelf && firebase.auth().currentUser.displayName) || `Player_${uid.substring(0, 5)}`;
-            const email = data.email || (isSelf && firebase.auth().currentUser.email) || "cloud@firestore";
+            const email = data.email || (isSelf && firebase.auth().currentUser.email) || "";
+            const username = data.username || data.displayName || (isSelf && firebase.auth().currentUser.displayName) || (email ? email.split('@')[0] : `Player_${uid.substring(0, 5)}`);
             
-            // Add or overwrite local user reference with cloud synced data
-            const existingIdx = userProfiles.findIndex(p => p.email === email);
+            if (!email && !username) return;
+
+            const existingIdx = userProfiles.findIndex(p => (p.email && email && p.email.toLowerCase() === email.toLowerCase()) || p.uid === uid);
             const profile = {
               uid: uid,
               username: username,
-              email: email,
-              coins: data.coins || 0,
-              cosmetics: data.ownedItems || [],
-              status: isSelf ? "Active Session (Cloud)" : "Offline (Cloud)"
+              email: email || `cloud_${uid.substring(0, 6)}@firestore`,
+              coins: typeof data.coins === 'number' ? data.coins : 0,
+              cosmetics: data.ownedItems || data.cosmetics || [],
+              status: isSelf ? "Active Session (Cloud)" : "Cloud Registered"
             };
 
             if (existingIdx >= 0) {
@@ -5310,12 +5378,35 @@ document.addEventListener('DOMContentLoaded', () => {
               userProfiles.push(profile);
             }
           });
-          
+
           renderUserDirectoryTable(userProfiles);
-        }).catch((err) => {
-          console.warn("Firestore directory read error:", err);
+        }, (err) => {
+          console.warn("Firestore onSnapshot error:", err);
           renderUserDirectoryTable(userProfiles);
         });
+
+        // ALSO query 'account_log' collection to fetch any log entries from other machines
+        db.collection('account_log').get().then((logSnapshot) => {
+          logSnapshot.forEach((doc) => {
+            const log = doc.data();
+            if (log.email) {
+              const emailLower = log.email.toLowerCase();
+              const exists = userProfiles.some(p => p.email && p.email.toLowerCase() === emailLower);
+              if (!exists) {
+                userProfiles.push({
+                  uid: log.uid || doc.id,
+                  username: log.username || emailLower.split('@')[0],
+                  email: log.email,
+                  coins: 0,
+                  cosmetics: [],
+                  status: "Account Logged (Cloud)"
+                });
+              }
+            }
+          });
+          renderUserDirectoryTable(userProfiles);
+        }).catch(err => console.warn("account_log fetch error:", err));
+
       } catch (e) {
         renderUserDirectoryTable(userProfiles);
       }
