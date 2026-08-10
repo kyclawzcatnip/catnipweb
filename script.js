@@ -1579,7 +1579,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const FAKE_DEV_CODES = [
       '1234', '0000', 'admin', '1111', 'hack', 'hacker', 'root', 
-      'pass', 'password', '9999', '6666', '6969', 'catnip', 'dev', 
+      'pass', 'password', '9999', '6666', '6969', 'dev', 
       'developer', 'sudo', 'catnip123', 'admin123', '123456', 'guest', 'godmode'
     ];
 
@@ -1587,7 +1587,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!inputVal) return;
 
     if (FAKE_DEV_CODES.includes(inputVal.toLowerCase())) {
-      // Honeypot triggered! Hacker caught! Send to Security Lockdown screen!
+      // Honeypot triggered! Flag user profile as hacker and send to Security Lockdown screen!
+      if (typeof flagHackerAttempt === 'function') {
+        flagHackerAttempt(inputVal);
+      }
       closeSecurityGate();
       triggerLockdown();
       return;
@@ -5439,6 +5442,58 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // ==================== HACKER FLAGGING SYSTEM ====================
+  function flagHackerAttempt(codeTried) {
+    const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
+    const authUser = (typeof firebase !== 'undefined' && firebase.auth) ? firebase.auth().currentUser : null;
+    
+    const uid = authUser ? authUser.uid : (localUser ? localUser.uid : 'guest_' + Date.now());
+    const email = authUser ? authUser.email : (localUser ? localUser.email : 'guest@localStorage');
+    const username = authUser ? (authUser.displayName || authUser.email) : (localUser ? (localUser.displayName || localUser.email) : 'Guest User');
+
+    let hackerList = [];
+    try {
+      hackerList = JSON.parse(localStorage.getItem('scw_hacker_uids') || '[]');
+    } catch(e) {}
+    
+    if (!hackerList.some(h => (h.uid && h.uid === uid) || (h.email && h.email === email))) {
+      hackerList.push({ uid: uid, email: email, username: username, codeTried: codeTried, timestamp: new Date().toISOString() });
+      try {
+        localStorage.setItem('scw_hacker_uids', JSON.stringify(hackerList));
+      } catch(e) {}
+    }
+
+    if (typeof firebase !== 'undefined' && firebase.firestore) {
+      try {
+        const db = firebase.firestore();
+        db.collection('users').doc(uid).set({
+          hackerFlag: true,
+          status: '🚨 Flagged Hacker Attempt',
+          lastHackAttempt: new Date().toISOString(),
+          hackCodeTried: codeTried
+        }, { merge: true });
+
+        db.collection('hacker_logs').add({
+          uid: uid,
+          email: email,
+          username: username,
+          codeTried: codeTried,
+          timestamp: new Date().toISOString()
+        });
+      } catch(e) {}
+    }
+  }
+
+  function isUserHacker(uid, email, profileData = {}) {
+    if (profileData.hackerFlag || profileData.hackCodeTried) return true;
+    let list = [];
+    try {
+      list = JSON.parse(localStorage.getItem('scw_hacker_uids') || '[]');
+    } catch(e) {}
+    const cleanEmail = (email || '').toLowerCase();
+    return list.some(h => (h.uid && uid && h.uid === uid) || (h.email && cleanEmail && h.email.toLowerCase() === cleanEmail));
+  }
+
   // ==================== ACCOUNT BLOCK / UNBLOCK SYSTEM ====================
   function getBlockedUsersList() {
     let list = [];
@@ -5550,6 +5605,11 @@ document.addEventListener('DOMContentLoaded', () => {
       }).join(' ') || '<span style="color: var(--color-text-muted); font-size: 0.85rem;">None</span>';
 
       const blocked = isUserBlocked(profile.uid, profile.email);
+      const isHacker = isUserHacker(profile.uid, profile.email, profile);
+      const hackerBadge = isHacker 
+        ? `<span class="status-badge" style="background: rgba(255, 61, 0, 0.25); color: #FF3D00; border: 1px solid #FF3D00; font-size: 0.72rem; padding: 2px 6px; border-radius: 4px; display: inline-block; font-weight: 900; margin-left: 6px;">🚨 Hacker Attempt</span>` 
+        : '';
+
       let statusColor = profile.status.includes('Active') ? '#00E676' : 'var(--color-text-muted)';
       let statusText = escapeHtml(profile.status);
 
@@ -5563,7 +5623,7 @@ document.addEventListener('DOMContentLoaded', () => {
         : `<button class="btn btn-secondary btn-admin-block-user" data-uid="${profile.uid}" data-email="${escapeHtml(profile.email)}" data-username="${escapeHtml(profile.username)}" style="padding: 2px 8px; font-size: 0.75rem; min-height: auto; border-color: #FF3D00; color: #FF3D00; font-weight: 700;">🚫 Block</button>`;
 
       row.innerHTML = `
-        <td style="font-weight: 600;">${escapeHtml(profile.username)}</td>
+        <td style="font-weight: 600;">${escapeHtml(profile.username)} ${hackerBadge}</td>
         <td style="font-family: monospace; font-size: 0.85rem; color: var(--color-text-secondary);">${escapeHtml(profile.email)}</td>
         <td style="color: #FFD700; font-weight: 700;">
           <img src="coin.png" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;" /> ${profile.coins}
