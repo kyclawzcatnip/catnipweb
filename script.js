@@ -1568,8 +1568,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (isCurrentlyLocked()) return;
 
+    const FAKE_DEV_CODES = [
+      '1234', '0000', 'admin', '1111', 'hack', 'hacker', 'root', 
+      'pass', 'password', '9999', '6666', '6969', 'catnip', 'dev', 
+      'developer', 'sudo', 'catnip123', 'admin123', '123456', 'guest', 'godmode'
+    ];
+
     const inputVal = codeInput.value.trim();
     if (!inputVal) return;
+
+    if (FAKE_DEV_CODES.includes(inputVal.toLowerCase())) {
+      // Honeypot triggered! Hacker caught! Send to Security Lockdown screen!
+      closeSecurityGate();
+      triggerLockdown();
+      return;
+    }
 
     const card = securityModal.querySelector('.security-card-modal');
     card.classList.remove('shake-animation');
@@ -3407,11 +3420,13 @@ document.addEventListener('DOMContentLoaded', () => {
           }
           renderProfileCustoms(savedUser);
           checkAchievements();
+          if (typeof checkCurrentSessionBlocked === 'function') checkCurrentSessionBlocked();
         } else {
           updateAuthStateUI(null);
           loadCoinsFromLocalStorage();
         }
       }
+      if (typeof checkCurrentSessionBlocked === 'function') checkCurrentSessionBlocked();
     });
   }
 
@@ -5415,6 +5430,100 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // ==================== ACCOUNT BLOCK / UNBLOCK SYSTEM ====================
+  function getBlockedUsersList() {
+    let list = [];
+    try {
+      list = JSON.parse(localStorage.getItem('scw_blocked_users') || '[]');
+    } catch(e) { list = []; }
+    return Array.isArray(list) ? list : [];
+  }
+
+  function isUserBlocked(uid, email) {
+    if (!uid && !email) return false;
+    const blocked = getBlockedUsersList();
+    const cleanEmail = (email || '').toLowerCase();
+    const uidMatch = uid && blocked.some(b => (b.uid && b.uid === uid) || b === uid);
+    const emailMatch = cleanEmail && blocked.some(b => (b.email || b).toLowerCase() === cleanEmail);
+    return uidMatch || emailMatch;
+  }
+
+  function adminBlockUser(uid, email, username) {
+    if (!confirm(`🚫 Are you sure you want to BLOCK and suspend the account "${username}" (${email})?`)) return;
+
+    let blocked = getBlockedUsersList();
+    const cleanEmail = (email || '').toLowerCase();
+    
+    if (!blocked.some(b => (b.uid && b.uid === uid) || (b.email && b.email === cleanEmail))) {
+      blocked.push({ uid: uid, email: cleanEmail, username: username, timestamp: new Date().toISOString() });
+    }
+
+    try {
+      localStorage.setItem('scw_blocked_users', JSON.stringify(blocked));
+    } catch(e) {}
+
+    // Sync block state to Firestore
+    if (typeof firebase !== 'undefined' && firebase.firestore) {
+      try {
+        const db = firebase.firestore();
+        if (uid) db.collection('users').doc(uid).set({ blocked: true, status: '🚫 Blocked / Suspended' }, { merge: true });
+        db.collection('blocked_users').doc(uid || `blocked_${cleanEmail.replace(/[^a-zA-Z0-9]/g, '_')}`).set({
+          uid: uid,
+          email: cleanEmail,
+          username: username,
+          timestamp: new Date().toISOString()
+        }, { merge: true });
+      } catch(e) {}
+    }
+
+    if (typeof playRetroSound === 'function') playRetroSound('hit');
+    alert(`🚫 Account "${username}" (${email}) has been BLOCKED and suspended!`);
+    
+    loadUserDirectory();
+    checkCurrentSessionBlocked();
+  }
+
+  function adminUnblockUser(uid, email, username) {
+    if (!confirm(`✅ Are you sure you want to UNBLOCK the account "${username}" (${email})?`)) return;
+
+    let blocked = getBlockedUsersList();
+    const cleanEmail = (email || '').toLowerCase();
+    blocked = blocked.filter(b => (b.uid && b.uid !== uid) && (b.email && b.email !== cleanEmail) && b !== uid && b !== cleanEmail);
+
+    try {
+      localStorage.setItem('scw_blocked_users', JSON.stringify(blocked));
+    } catch(e) {}
+
+    // Sync unblock state to Firestore
+    if (typeof firebase !== 'undefined' && firebase.firestore) {
+      try {
+        const db = firebase.firestore();
+        if (uid) db.collection('users').doc(uid).set({ blocked: false, status: 'Active / Registered' }, { merge: true });
+        const docId = uid || `blocked_${cleanEmail.replace(/[^a-zA-Z0-9]/g, '_')}`;
+        db.collection('blocked_users').doc(docId).delete().catch(() => {});
+      } catch(e) {}
+    }
+
+    if (typeof playRetroSound === 'function') playRetroSound('purchase');
+    alert(`✅ Account "${username}" (${email}) has been UNBLOCKED!`);
+    
+    loadUserDirectory();
+  }
+
+  function checkCurrentSessionBlocked() {
+    const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
+    const authUser = (typeof firebase !== 'undefined' && firebase.auth) ? firebase.auth().currentUser : null;
+    
+    const currentUid = authUser ? authUser.uid : (localUser ? localUser.uid : '');
+    const currentEmail = authUser ? authUser.email : (localUser ? localUser.email : '');
+
+    if (currentEmail && isDeveloperEmail(currentEmail)) return; // Developer admin exempt
+
+    if (isUserBlocked(currentUid, currentEmail)) {
+      triggerLockdown();
+    }
+  }
+
   function renderUserDirectoryTable(profiles) {
     const tbody = document.getElementById('user-directory-tbody');
     if (!tbody) return;
@@ -5427,7 +5536,18 @@ document.addEventListener('DOMContentLoaded', () => {
         return `<span class="status-badge" style="background: rgba(124, 77, 255, 0.15); color: #7C4DFF; font-size: 0.75rem; padding: 2px 6px; margin: 2px; border-radius: 4px; display: inline-block;">${name}</span>`;
       }).join(' ') || '<span style="color: var(--color-text-muted); font-size: 0.85rem;">None</span>';
 
-      const statusColor = profile.status.includes('Active') ? '#00E676' : 'var(--color-text-muted)';
+      const blocked = isUserBlocked(profile.uid, profile.email);
+      let statusColor = profile.status.includes('Active') ? '#00E676' : 'var(--color-text-muted)';
+      let statusText = escapeHtml(profile.status);
+
+      if (blocked) {
+        statusColor = '#FF3D00';
+        statusText = '🚫 BLOCKED / SUSPENDED';
+      }
+
+      const blockBtnHtml = blocked
+        ? `<button class="btn btn-secondary btn-admin-unblock-user" data-uid="${profile.uid}" data-email="${escapeHtml(profile.email)}" data-username="${escapeHtml(profile.username)}" style="padding: 2px 8px; font-size: 0.75rem; min-height: auto; border-color: #00E676; color: #00E676; font-weight: 700;">✅ Unblock</button>`
+        : `<button class="btn btn-secondary btn-admin-block-user" data-uid="${profile.uid}" data-email="${escapeHtml(profile.email)}" data-username="${escapeHtml(profile.username)}" style="padding: 2px 8px; font-size: 0.75rem; min-height: auto; border-color: #FF3D00; color: #FF3D00; font-weight: 700;">🚫 Block</button>`;
 
       row.innerHTML = `
         <td style="font-weight: 600;">${escapeHtml(profile.username)}</td>
@@ -5438,12 +5558,13 @@ document.addEventListener('DOMContentLoaded', () => {
         <td>${cosmeticBadges}</td>
         <td>
           <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: ${statusColor}; margin-right: 6px; vertical-align: middle;"></span>
-          <span style="font-size: 0.85rem; color: ${statusColor}; font-weight: 600;">${escapeHtml(profile.status)}</span>
+          <span style="font-size: 0.85rem; color: ${statusColor}; font-weight: 700;">${statusText}</span>
         </td>
         <td>
-          <div style="display: flex; gap: 8px;">
+          <div style="display: flex; gap: 6px; flex-wrap: wrap;">
             <button class="btn btn-primary btn-admin-add-coins" data-uid="${profile.uid}" data-username="${escapeHtml(profile.username)}" style="padding: 2px 8px; font-size: 0.75rem; min-height: auto; font-weight: 700;">+ Add</button>
-            <button class="btn btn-secondary btn-admin-remove-coins" data-uid="${profile.uid}" data-username="${escapeHtml(profile.username)}" style="padding: 2px 8px; font-size: 0.75rem; min-height: auto; border-color: #FF5252; color: #FF5252; font-weight: 700;">- Remove</button>
+            <button class="btn btn-secondary btn-admin-remove-coins" data-uid="${profile.uid}" data-username="${escapeHtml(profile.username)}" style="padding: 2px 8px; font-size: 0.75rem; min-height: auto; border-color: #FF9100; color: #FF9100; font-weight: 700;">- Remove</button>
+            ${blockBtnHtml}
           </div>
         </td>
       `;
@@ -5453,6 +5574,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add click listeners to admin buttons
     const addBtns = tbody.querySelectorAll('.btn-admin-add-coins');
     const removeBtns = tbody.querySelectorAll('.btn-admin-remove-coins');
+    const blockBtns = tbody.querySelectorAll('.btn-admin-block-user');
+    const unblockBtns = tbody.querySelectorAll('.btn-admin-unblock-user');
 
     addBtns.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -5467,6 +5590,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const uid = btn.getAttribute('data-uid');
         const username = btn.getAttribute('data-username');
         adminModifyCoins(uid, username, 'remove');
+      });
+    });
+
+    blockBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const uid = btn.getAttribute('data-uid');
+        const email = btn.getAttribute('data-email');
+        const username = btn.getAttribute('data-username');
+        adminBlockUser(uid, email, username);
+      });
+    });
+
+    unblockBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const uid = btn.getAttribute('data-uid');
+        const email = btn.getAttribute('data-email');
+        const username = btn.getAttribute('data-username');
+        adminUnblockUser(uid, email, username);
       });
     });
   }
