@@ -1284,6 +1284,15 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.appendChild(overlay);
   }
 
+  function removeLockdownScreen() {
+    localStorage.removeItem('scw_lockdown_active');
+    const overlay = document.getElementById('lockdown-overlay');
+    if (overlay) {
+      overlay.remove();
+      document.body.style.overflow = '';
+    }
+  }
+
   // ==================== SPA NAVIGATION SYSTEM ====================
   
   // Navigate to target section
@@ -5505,8 +5514,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (typeof playRetroSound === 'function') playRetroSound('purchase');
-    alert(`✅ Account "${username}" (${email}) has been UNBLOCKED!`);
+    alert(`✅ Account "${username}" (${email}) has been UNBLOCKED! All profile data, coins, and achievements have been restored!`);
     
+    // Clear lockdown screen if active on current device
+    removeLockdownScreen();
     loadUserDirectory();
   }
 
@@ -5521,6 +5532,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (isUserBlocked(currentUid, currentEmail)) {
       triggerLockdown();
+    } else {
+      removeLockdownScreen();
     }
   }
 
