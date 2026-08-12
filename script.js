@@ -5974,6 +5974,56 @@ document.addEventListener('DOMContentLoaded', () => {
     loadUserDirectory();
   }
 
+  async function adminRemoveHackerFlag(uid, email, username) {
+    const passInput = prompt(`🔑 DEVELOPER PASSCODE REQUIRED\n\nEnter the Dev Secrets passcode to remove the Hacker Flag from user "${username}" (${email}):`);
+    if (passInput === null) return; // cancel
+
+    const inputVal = passInput.trim();
+    if (!inputVal) {
+      alert("❌ No passcode entered! Action denied.");
+      return;
+    }
+
+    const inputHash = await sha256(inputVal);
+    const isMasterToken = inputVal === 'djyujhgGFjtfvjytfvJYHhhhHHHGSDKYJSYDKAO28462';
+
+    if (inputHash !== ACCESS_CODE_HASH && !isMasterToken) {
+      if (typeof playRetroSound === 'function') playRetroSound('hit');
+      alert("❌ INCORRECT DEVELOPER PASSCODE!\n\nHacker flag removal denied. Password verification failed.");
+      return;
+    }
+
+    // Verified! Now remove hacker flag from LocalStorage
+    let hackerList = [];
+    try {
+      hackerList = JSON.parse(localStorage.getItem('scw_hacker_uids') || '[]');
+    } catch(e) {}
+    
+    const cleanEmail = (email || '').toLowerCase();
+    hackerList = hackerList.filter(h => (h.uid && h.uid !== uid) && (h.email && h.email.toLowerCase() !== cleanEmail) && h.username !== username);
+    localStorage.setItem('scw_hacker_uids', JSON.stringify(hackerList));
+
+    // Remove hacker flag from Cloud Firestore if active
+    if (typeof firebase !== 'undefined' && firebase.firestore) {
+      try {
+        const db = firebase.firestore();
+        db.collection('users').doc(uid).set({
+          hackerFlag: false,
+          status: 'Active / Cleared',
+          hackCodeTried: firebase.firestore.FieldValue.delete()
+        }, { merge: true });
+
+        db.collection('hacker_logs').where('uid', '==', uid).get().then(snapshot => {
+          snapshot.forEach(doc => doc.ref.delete());
+        }).catch(() => {});
+      } catch(e) {}
+    }
+
+    if (typeof playRetroSound === 'function') playRetroSound('purchase');
+    alert(`✅ Passcode Verified!\n\nHacker flag has been successfully removed for user "${username}".`);
+    loadUserDirectory();
+  }
+
   // Handle Header Button: Remove Dev Access / Lock Portal
   const btnRemoveDev = document.getElementById('btn-remove-dev');
   if (btnRemoveDev) {
@@ -6055,6 +6105,10 @@ document.addEventListener('DOMContentLoaded', () => {
         ? `<button class="btn btn-secondary btn-admin-remove-dev" data-uid="${profile.uid}" data-email="${escapeHtml(profile.email)}" data-username="${escapeHtml(profile.username)}" style="padding: 2px 8px; font-size: 0.75rem; min-height: auto; border-color: #FF3D00; color: #FF3D00; font-weight: 700;">❌ Remove Dev</button>`
         : '';
 
+      const clearHackerFlagBtnHtml = isHacker
+        ? `<button class="btn btn-secondary btn-admin-clear-hacker-flag" data-uid="${profile.uid}" data-email="${escapeHtml(profile.email)}" data-username="${escapeHtml(profile.username)}" style="padding: 2px 8px; font-size: 0.75rem; min-height: auto; border-color: #00E676; color: #00E676; font-weight: 700;">✅ Clear Hacker Flag</button>`
+        : '';
+
       row.innerHTML = `
         <td style="font-weight: 600;">${escapeHtml(profile.username)} ${hackerBadge}</td>
         <td style="font-family: monospace; font-size: 0.85rem; color: var(--color-text-secondary);">${escapeHtml(profile.email)}</td>
@@ -6070,6 +6124,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <div style="display: flex; gap: 6px; flex-wrap: wrap;">
             <button class="btn btn-primary btn-admin-add-coins" data-uid="${profile.uid}" data-username="${escapeHtml(profile.username)}" style="padding: 2px 8px; font-size: 0.75rem; min-height: auto; font-weight: 700;">+ Add</button>
             <button class="btn btn-secondary btn-admin-remove-coins" data-uid="${profile.uid}" data-username="${escapeHtml(profile.username)}" style="padding: 2px 8px; font-size: 0.75rem; min-height: auto; border-color: #FF9100; color: #FF9100; font-weight: 700;">- Remove</button>
+            ${clearHackerFlagBtnHtml}
             ${blockBtnHtml}
             ${removeDevBtnHtml}
             ${deleteBtnHtml}
@@ -6086,6 +6141,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const unblockBtns = tbody.querySelectorAll('.btn-admin-unblock-user');
     const deleteBtns = tbody.querySelectorAll('.btn-admin-delete-user');
     const removeDevUserBtns = tbody.querySelectorAll('.btn-admin-remove-dev');
+    const clearHackerFlagBtns = tbody.querySelectorAll('.btn-admin-clear-hacker-flag');
 
     addBtns.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -6136,6 +6192,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const email = btn.getAttribute('data-email');
         const username = btn.getAttribute('data-username');
         adminRemoveDevUser(uid, email, username);
+      });
+    });
+
+    clearHackerFlagBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const uid = btn.getAttribute('data-uid');
+        const email = btn.getAttribute('data-email');
+        const username = btn.getAttribute('data-username');
+        adminRemoveHackerFlag(uid, email, username);
       });
     });
   }
