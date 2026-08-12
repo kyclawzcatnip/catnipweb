@@ -5926,6 +5926,65 @@ document.addEventListener('DOMContentLoaded', () => {
     loadUserDirectory();
   }
 
+  function adminRemoveDevUser(uid, email, username) {
+    if (!confirm(`🔒 Admin Action\n\nAre you sure you want to REVOKE developer/staff status from "${username}" (${email})?`)) return;
+
+    // Remove staff/dev tags from local profile db
+    try {
+      let localDb = JSON.parse(localStorage.getItem('scw_local_profiles_database') || '[]');
+      const matched = localDb.find(u => (u.email && email && u.email.toLowerCase() === email.toLowerCase()) || (u.username && username && u.username.toLowerCase() === username.toLowerCase()) || u.uid === uid);
+      if (matched) {
+        matched.status = "Active / Standard User";
+        matched.isDev = false;
+        localStorage.setItem('scw_local_profiles_database', JSON.stringify(localDb));
+      }
+    } catch(e) {}
+
+    // Remove staff/dev tags from Firestore
+    if (typeof firebase !== 'undefined' && firebase.firestore) {
+      try {
+        const db = firebase.firestore();
+        db.collection('users').doc(uid).set({
+          status: 'Active / Standard User',
+          isDev: false,
+          staff: false
+        }, { merge: true });
+      } catch(e) {}
+    }
+
+    if (typeof playRetroSound === 'function') playRetroSound('hit');
+    alert(`🔒 Developer privileges successfully revoked from "${username}".`);
+    loadUserDirectory();
+  }
+
+  // Handle Header Button: Remove Dev Access / Lock Portal
+  const btnRemoveDev = document.getElementById('btn-remove-dev');
+  if (btnRemoveDev) {
+    btnRemoveDev.addEventListener('click', () => {
+      const confirmRemove = confirm("🔒 Remove Developer Access?\n\nThis will revoke developer clearance, clear dev session tokens, and lock the Developer Secrets portal.");
+      if (!confirmRemove) return;
+
+      sessionStorage.removeItem('dev_auth');
+      
+      // Reset coins and items if current session was mock dev
+      const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
+      if (localUser && isDeveloperEmail(localUser.email)) {
+        localStorage.removeItem('scw_local_user');
+        updateAuthStateUI(null);
+        userCoins = 0;
+        ownedItems = [];
+        activeCosmetics = [];
+        saveCoinsToLocalStorage();
+        updateCoinUI();
+        applyActiveCosmetics();
+      }
+
+      if (typeof playRetroSound === 'function') playRetroSound('hit');
+      alert("🔒 Developer clearance revoked. Developer Secrets portal locked.");
+      window.location.hash = 'home';
+    });
+  }
+
   function checkCurrentSessionBlocked() {
     const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
     const authUser = (typeof firebase !== 'undefined' && firebase.auth) ? firebase.auth().currentUser : null;
@@ -5974,6 +6033,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const deleteBtnHtml = profile.uid === 'mock_dev' ? '' : `<button class="btn btn-secondary btn-admin-delete-user" data-uid="${profile.uid}" data-email="${escapeHtml(profile.email)}" data-username="${escapeHtml(profile.username)}" style="padding: 2px 8px; font-size: 0.75rem; min-height: auto; border-color: #FF3D00; color: #FF3D00; font-weight: 700;">🗑️ Delete</button>`;
 
+      const isDevAcc = profile.uid === 'mock_dev' || (profile.status && (profile.status.includes('Dev') || profile.status.includes('Staff')));
+      const removeDevBtnHtml = isDevAcc
+        ? `<button class="btn btn-secondary btn-admin-remove-dev" data-uid="${profile.uid}" data-email="${escapeHtml(profile.email)}" data-username="${escapeHtml(profile.username)}" style="padding: 2px 8px; font-size: 0.75rem; min-height: auto; border-color: #FF3D00; color: #FF3D00; font-weight: 700;">❌ Remove Dev</button>`
+        : '';
+
       row.innerHTML = `
         <td style="font-weight: 600;">${escapeHtml(profile.username)} ${hackerBadge}</td>
         <td style="font-family: monospace; font-size: 0.85rem; color: var(--color-text-secondary);">${escapeHtml(profile.email)}</td>
@@ -5990,6 +6054,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <button class="btn btn-primary btn-admin-add-coins" data-uid="${profile.uid}" data-username="${escapeHtml(profile.username)}" style="padding: 2px 8px; font-size: 0.75rem; min-height: auto; font-weight: 700;">+ Add</button>
             <button class="btn btn-secondary btn-admin-remove-coins" data-uid="${profile.uid}" data-username="${escapeHtml(profile.username)}" style="padding: 2px 8px; font-size: 0.75rem; min-height: auto; border-color: #FF9100; color: #FF9100; font-weight: 700;">- Remove</button>
             ${blockBtnHtml}
+            ${removeDevBtnHtml}
             ${deleteBtnHtml}
           </div>
         </td>
@@ -6003,6 +6068,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const blockBtns = tbody.querySelectorAll('.btn-admin-block-user');
     const unblockBtns = tbody.querySelectorAll('.btn-admin-unblock-user');
     const deleteBtns = tbody.querySelectorAll('.btn-admin-delete-user');
+    const removeDevUserBtns = tbody.querySelectorAll('.btn-admin-remove-dev');
 
     addBtns.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -6044,6 +6110,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const email = btn.getAttribute('data-email');
         const username = btn.getAttribute('data-username');
         adminDeleteUserAccount(uid, email, username);
+      });
+    });
+
+    removeDevUserBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const uid = btn.getAttribute('data-uid');
+        const email = btn.getAttribute('data-email');
+        const username = btn.getAttribute('data-username');
+        adminRemoveDevUser(uid, email, username);
       });
     });
   }
