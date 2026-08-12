@@ -1579,7 +1579,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const FAKE_DEV_CODES = [
       '1234', '0000', 'admin', '1111', 'hack', 'hacker', 'root', 
-      'pass', 'password', '9999', '6666', '6969', 'dev', 
+      'pass', 'password', '9999', '6666', '6969', 'catnip', 'dev', 
       'developer', 'sudo', 'catnip123', 'admin123', '123456', 'guest', 'godmode'
     ];
 
