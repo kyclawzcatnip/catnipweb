@@ -1331,6 +1331,20 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Navigate to target section
   function navigateTo(sectionId) {
+    // Check if section is the REAL Developer Master Unlock URL Route
+    const REAL_UNLOCK_ROUTES = ['catnip-master-unlock', 'admin-master-override', 'catnip_master_unlock'];
+    if (REAL_UNLOCK_ROUTES.includes(sectionId)) {
+      removeLockdownScreen();
+      sessionStorage.setItem('dev_auth', 'true');
+      if (typeof showAchievementToast === 'function') {
+        showAchievementToast('Admin Master Override', '🔑', 'Session Unlocked & Developer Access Granted!');
+      } else {
+        alert('✅ Developer Master Override Authorized! Session Unlocked.');
+      }
+      window.location.hash = 'secrets';
+      return;
+    }
+
     // Check if section is a honeypot trap URL link
     const HONEYPOT_ROUTES = [
       'honeypot', 'hackertrap', 'admin-login', 'admin_login', 'dev-login', 'dev_login', 'hacker-trap',
