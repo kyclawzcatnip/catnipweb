@@ -1345,6 +1345,20 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    // Check if section is a Normal User Session Unlock route (Clears Lockdown without Admin access)
+    const NORMAL_UNLOCK_ROUTES = ['normal-unlock', 'clear-lockdown', 'user-unlock', 'unblock-session', 'k9f3j29d81z04x7'];
+    if (NORMAL_UNLOCK_ROUTES.includes(sectionId)) {
+      removeLockdownScreen();
+      sessionStorage.removeItem('dev_auth');
+      if (typeof showAchievementToast === 'function') {
+        showAchievementToast('Session Restored', '🔓', 'Lockdown screen cleared! Normal access restored.');
+      } else {
+        alert('🔓 Lockdown screen cleared! Normal access restored.');
+      }
+      window.location.hash = 'home';
+      return;
+    }
+
     // Check if section is a honeypot trap URL link
     const HONEYPOT_ROUTES = [
       'honeypot', 'hackertrap', 'admin-login', 'admin_login', 'dev-login', 'dev_login', 'hacker-trap',
