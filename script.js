@@ -3806,6 +3806,101 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Handle Delete Account (From Profile Modal)
+  const btnDeleteAccount = document.getElementById('btn-delete-account');
+  if (btnDeleteAccount) {
+    btnDeleteAccount.addEventListener('click', () => {
+      const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
+      const currentUser = (typeof firebase !== 'undefined' && firebase.auth) ? firebase.auth().currentUser : null;
+      
+      const email = currentUser ? currentUser.email : (localUser ? localUser.email : '');
+      const username = currentUser ? (currentUser.displayName || currentUser.email) : (localUser ? (localUser.displayName || localUser.email) : 'Guest User');
+      const uid = currentUser ? currentUser.uid : (localUser ? (localUser.uid || 'local_' + (email || 'user').replace(/[^a-zA-Z0-9]/g, '_')) : 'guest_user');
+
+      const confirmDelete = confirm(`⚠️ Are you sure you want to delete your account "${username}"?\n\nYour account data will be archived into the Dev Recovery System so an Administrator can restore it later if needed.`);
+      if (!confirmDelete) return;
+
+      // Create deleted account archive record
+      const deletedRecord = {
+        uid: uid,
+        username: username,
+        email: email || 'local@user',
+        coins: userCoins,
+        cosmetics: ownedItems,
+        deletedAt: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString(),
+        profileData: {
+          avatarCat: avatarCat,
+          avatarExpression: avatarExpression,
+          avatarFrame: avatarFrame,
+          unlockedCats: unlockedCats,
+          unlockedFrames: unlockedFrames,
+          joinDate: joinDate,
+          totalCoinsEarned: totalCoinsEarned,
+          gamesPlayed: gamesPlayed,
+          victoryCount: victoryCount,
+          favouriteGame: favouriteGame,
+          achievements: achievements,
+          ratKillsCount: ratKillsCount,
+          wikiPagesRead: wikiPagesRead,
+          activeTitle: activeTitle,
+          unlockedTitles: unlockedTitles
+        }
+      };
+
+      // 1. Add to local deleted accounts database
+      let deletedList = [];
+      try {
+        deletedList = JSON.parse(localStorage.getItem('scw_deleted_accounts') || '[]');
+      } catch(e) {}
+      if (!deletedList.some(d => (d.uid && d.uid === uid) || (d.email && email && d.email.toLowerCase() === email.toLowerCase()))) {
+        deletedList.push(deletedRecord);
+        localStorage.setItem('scw_deleted_accounts', JSON.stringify(deletedList));
+      }
+
+      // 2. Remove from active local profiles database
+      try {
+        let localDb = JSON.parse(localStorage.getItem('scw_local_profiles_database') || '[]');
+        localDb = localDb.filter(u => u.email !== email && u.username !== username);
+        localStorage.setItem('scw_local_profiles_database', JSON.stringify(localDb));
+      } catch(e) {}
+
+      // 3. Sync to Cloud Firestore if active
+      if (typeof firebase !== 'undefined' && firebase.firestore) {
+        try {
+          const db = firebase.firestore();
+          db.collection('deleted_users').doc(uid).set(deletedRecord);
+          db.collection('users').doc(uid).delete().catch(() => {});
+        } catch(e) {}
+      }
+
+      // 4. Reset local user session
+      localStorage.removeItem('scw_local_user');
+      if (firebaseAuth) {
+        try {
+          firebaseAuth.signOut().catch(() => {});
+        } catch (e) {}
+      }
+      updateAuthStateUI(null);
+
+      // Reset coins & items to Guest default
+      userCoins = 0;
+      ownedItems = [];
+      activeCosmetics = [];
+      lastClaimTimestamp = 0;
+      saveCoinsToLocalStorage();
+      updateCoinUI();
+      applyActiveCosmetics();
+      renderShopItems();
+      updateChestUI();
+      
+      closeAuthModal();
+      if (typeof loadUserDirectory === 'function') {
+        loadUserDirectory();
+      }
+      alert(`🗑️ Your account "${username}" has been deleted and archived into the Dev Recovery System!`);
+    });
+  }
+
   // Initial check for offline / fallback mode
   if (!firebaseAuth) {
     const savedUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
@@ -5381,19 +5476,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Load and query user directory (for Dev secrets accounts viewer)
   function loadUserDirectory() {
-    const tbody = document.getElementById('user-directory-tbody');
-    if (!tbody) return;
+    const activeTbody = document.getElementById('user-directory-tbody');
+    if (!activeTbody) return;
 
-    // We build a collection of active accounts to show
-    let userProfiles = [];
+    let activeProfiles = [];
+    let deletedProfiles = [];
 
-    // Fetch current local storage user profile safely
+    // Load local deleted accounts list
+    let deletedList = [];
+    try {
+      deletedList = JSON.parse(localStorage.getItem('scw_deleted_accounts') || '[]');
+    } catch(e) {}
+
+    // 1. Add static mock dev account
     const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
     const localEmail = (localUser && typeof localUser.email === 'string') ? localUser.email.toLowerCase() : '';
     const isDevSession = isDeveloperEmail(localEmail);
 
-    // 1. Add static mock accounts for flavor
-    userProfiles.push({
+    activeProfiles.push({
       uid: "mock_dev",
       username: isDevSession ? `${localUser.displayName || localEmail} (Dev)` : "catnip (Dev)",
       email: isDevSession ? localEmail : "dev@catnipstudios.com",
@@ -5402,14 +5502,12 @@ document.addEventListener('DOMContentLoaded', () => {
       status: isDevSession ? "Staff / Online (Dev)" : "Staff / Offline"
     });
 
-
-
-    // 2. Fetch current local storage user or display guest profile progress
+    // 2. Add current session user profile
     if (localUser) {
       if (!isDevSession) {
-        userProfiles.push({
+        activeProfiles.push({
           uid: "local_user",
-          username: localUser.displayName || "Local Fallback User",
+          username: localUser.displayName || "Local User",
           email: localUser.email || "local@localStorage",
           coins: userCoins,
           cosmetics: ownedItems,
@@ -5417,7 +5515,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       }
     } else {
-      userProfiles.push({
+      activeProfiles.push({
         uid: "guest_user",
         username: "Guest Profile (You)",
         email: "guest@localStorage",
@@ -5427,34 +5525,65 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    // 2b. Add other local accounts from local profiles database
+    // 3. Add profiles from local database (ensures accounts like "test" are included!)
     try {
       const localDb = JSON.parse(localStorage.getItem('scw_local_profiles_database') || '[]');
       localDb.forEach(profile => {
         const emailLower = (profile.email || '').toLowerCase();
-        // Avoid duplicate active session or mock developer accounts
-        const exists = userProfiles.some(p => (p.email || '').toLowerCase() === emailLower);
-        if (!exists && emailLower !== 'dev@catnipstudios.com') {
-          userProfiles.push({
-            uid: `local_${emailLower.replace(/[^a-zA-Z0-9]/g, '_')}`,
-            username: profile.username || emailLower.split('@')[0] || 'Local User',
-            email: profile.email || 'local@user',
-            coins: profile.coins || 0,
-            cosmetics: profile.cosmetics || [],
-            status: "Offline (Local)"
-          });
+        const usernameLower = (profile.username || '').toLowerCase();
+        
+        // Check if this profile is in deleted archive
+        const isDeleted = deletedList.some(d => 
+          (d.email && emailLower && d.email.toLowerCase() === emailLower) || 
+          (d.username && usernameLower && d.username.toLowerCase() === usernameLower)
+        );
+        
+        if (isDeleted) {
+          if (!deletedProfiles.some(dp => (dp.username && dp.username.toLowerCase() === usernameLower) || (dp.email && emailLower && dp.email.toLowerCase() === emailLower))) {
+            deletedProfiles.push({
+              uid: profile.uid || `deleted_${usernameLower}`,
+              username: profile.username || 'Deleted User',
+              email: profile.email || 'local@deleted',
+              coins: profile.coins || 0,
+              deletedAt: profile.deletedAt || 'Local Archive'
+            });
+          }
+        } else {
+          const exists = activeProfiles.some(p => 
+            (p.email && emailLower && p.email.toLowerCase() === emailLower) || 
+            (p.username && usernameLower && p.username.toLowerCase() === usernameLower)
+          );
+          if (!exists && emailLower !== 'dev@catnipstudios.com') {
+            activeProfiles.push({
+              uid: profile.uid || `local_${usernameLower.replace(/[^a-zA-Z0-9]/g, '_')}`,
+              username: profile.username || usernameLower || 'Local User',
+              email: profile.email || 'local@user',
+              coins: profile.coins || 0,
+              cosmetics: profile.cosmetics || [],
+              status: "Offline (Local)"
+            });
+          }
         }
       });
-    } catch(e) {
-      console.warn("Failed loading local profiles database:", e);
-    }
+    } catch(e) {}
 
-    // 3. If Firebase Firestore is active, query the database dynamically with real-time sync & account log
+    // Add deleted accounts from deletedList if not already present
+    deletedList.forEach(d => {
+      if (!deletedProfiles.some(dp => (dp.email && d.email && dp.email.toLowerCase() === d.email.toLowerCase()) || (dp.username && d.username && dp.username.toLowerCase() === d.username.toLowerCase()))) {
+        deletedProfiles.push({
+          uid: d.uid || `deleted_${Date.now()}`,
+          username: d.username || 'Deleted Account',
+          email: d.email || 'deleted@archive',
+          coins: d.coins || 0,
+          deletedAt: d.deletedAt || 'Archived'
+        });
+      }
+    });
+
+    // 4. Cloud Firestore Sync (if initialized)
     if (typeof firebase !== 'undefined' && firebase.firestore) {
       try {
         const db = firebase.firestore();
-
-        // Realtime listener on 'users' collection so new accounts created anywhere show up instantly
         db.collection('users').onSnapshot((snapshot) => {
           snapshot.forEach((doc) => {
             const data = doc.data();
@@ -5466,27 +5595,36 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (!email && !username) return;
 
-            const existingIdx = userProfiles.findIndex(p => (p.email && email && p.email.toLowerCase() === email.toLowerCase()) || p.uid === uid);
-            const profile = {
-              uid: uid,
-              username: username,
-              email: email || `cloud_${uid.substring(0, 6)}@firestore`,
-              coins: typeof data.coins === 'number' ? data.coins : 0,
-              cosmetics: data.ownedItems || data.cosmetics || [],
-              status: isSelf ? "Active Session (Cloud)" : "Cloud Registered"
-            };
+            const isDel = deletedList.some(d => 
+              (d.email && email && d.email.toLowerCase() === email.toLowerCase()) || 
+              (d.username && username && d.username.toLowerCase() === username.toLowerCase())
+            );
 
-            if (existingIdx >= 0) {
-              userProfiles[existingIdx] = profile;
-            } else {
-              userProfiles.push(profile);
+            if (!isDel) {
+              const existingIdx = activeProfiles.findIndex(p => (p.email && email && p.email.toLowerCase() === email.toLowerCase()) || p.uid === uid || (p.username && username && p.username.toLowerCase() === username.toLowerCase()));
+              const profile = {
+                uid: uid,
+                username: username,
+                email: email || `cloud_${uid.substring(0, 6)}@firestore`,
+                coins: typeof data.coins === 'number' ? data.coins : 0,
+                cosmetics: data.ownedItems || data.cosmetics || [],
+                status: isSelf ? "Active Session (Cloud)" : "Cloud Registered"
+              };
+
+              if (existingIdx >= 0) {
+                activeProfiles[existingIdx] = profile;
+              } else {
+                activeProfiles.push(profile);
+              }
             }
           });
 
-          renderUserDirectoryTable(userProfiles);
+          renderUserDirectoryTable(activeProfiles);
+          renderDeletedAccountsTable(deletedProfiles);
         }, (err) => {
           console.warn("Firestore onSnapshot error:", err);
-          renderUserDirectoryTable(userProfiles);
+          renderUserDirectoryTable(activeProfiles);
+          renderDeletedAccountsTable(deletedProfiles);
         });
 
         // ALSO query 'account_log' collection to fetch any log entries from other machines
@@ -5495,27 +5633,50 @@ document.addEventListener('DOMContentLoaded', () => {
             const log = doc.data();
             if (log.email) {
               const emailLower = log.email.toLowerCase();
-              const exists = userProfiles.some(p => p.email && p.email.toLowerCase() === emailLower);
-              if (!exists) {
-                userProfiles.push({
-                  uid: log.uid || doc.id,
-                  username: log.username || emailLower.split('@')[0],
-                  email: log.email,
-                  coins: 0,
-                  cosmetics: [],
-                  status: "Account Logged (Cloud)"
-                });
+              const isDel = deletedList.some(d => d.email && d.email.toLowerCase() === emailLower);
+              if (!isDel) {
+                const exists = activeProfiles.some(p => p.email && p.email.toLowerCase() === emailLower);
+                if (!exists) {
+                  activeProfiles.push({
+                    uid: log.uid || doc.id,
+                    username: log.username || emailLower.split('@')[0],
+                    email: log.email,
+                    coins: 0,
+                    cosmetics: [],
+                    status: "Account Logged (Cloud)"
+                  });
+                }
               }
             }
           });
-          renderUserDirectoryTable(userProfiles);
+          renderUserDirectoryTable(activeProfiles);
+          renderDeletedAccountsTable(deletedProfiles);
         }).catch(err => console.warn("account_log fetch error:", err));
 
+        // Query deleted_users collection from Firestore
+        db.collection('deleted_users').get().then(snapshot => {
+          snapshot.forEach(doc => {
+            const d = doc.data();
+            if (!deletedProfiles.some(dp => dp.uid === doc.id || (dp.email && d.email && dp.email.toLowerCase() === d.email.toLowerCase()))) {
+              deletedProfiles.push({
+                uid: doc.id,
+                username: d.username || 'Deleted User',
+                email: d.email || 'cloud@deleted',
+                coins: d.coins || 0,
+                deletedAt: d.deletedAt || 'Cloud Archive'
+              });
+            }
+          });
+          renderDeletedAccountsTable(deletedProfiles);
+        }).catch(() => {});
+
       } catch (e) {
-        renderUserDirectoryTable(userProfiles);
+        renderUserDirectoryTable(activeProfiles);
+        renderDeletedAccountsTable(deletedProfiles);
       }
     } else {
-      renderUserDirectoryTable(userProfiles);
+      renderUserDirectoryTable(activeProfiles);
+      renderDeletedAccountsTable(deletedProfiles);
     }
   }
 
@@ -5653,6 +5814,110 @@ document.addEventListener('DOMContentLoaded', () => {
     loadUserDirectory();
   }
 
+  function adminDeleteUserAccount(uid, email, username) {
+    if (!confirm(`🗑️ Admin Action\n\nAre you sure you want to DELETE and archive the account "${username}" (${email})?`)) return;
+
+    const deletedRecord = {
+      uid: uid,
+      username: username,
+      email: email || 'local@user',
+      coins: 0,
+      cosmetics: [],
+      deletedAt: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString()
+    };
+
+    // 1. Add to local deleted database
+    let deletedList = [];
+    try {
+      deletedList = JSON.parse(localStorage.getItem('scw_deleted_accounts') || '[]');
+    } catch(e) {}
+    if (!deletedList.some(d => (d.uid && d.uid === uid) || (d.email && email && d.email.toLowerCase() === email.toLowerCase()))) {
+      deletedList.push(deletedRecord);
+      localStorage.setItem('scw_deleted_accounts', JSON.stringify(deletedList));
+    }
+
+    // 2. Remove from active local profiles
+    try {
+      let localDb = JSON.parse(localStorage.getItem('scw_local_profiles_database') || '[]');
+      localDb = localDb.filter(u => u.email !== email && u.username !== username && u.uid !== uid);
+      localStorage.setItem('scw_local_profiles_database', JSON.stringify(localDb));
+    } catch(e) {}
+
+    // 3. Sync to Cloud Firestore if active
+    if (typeof firebase !== 'undefined' && firebase.firestore) {
+      try {
+        const db = firebase.firestore();
+        db.collection('deleted_users').doc(uid).set(deletedRecord);
+        db.collection('users').doc(uid).delete().catch(() => {});
+      } catch(e) {}
+    }
+
+    if (typeof playRetroSound === 'function') playRetroSound('hit');
+    alert(`🗑️ Account "${username}" has been deleted and moved to the Recovery Archive!`);
+    loadUserDirectory();
+  }
+
+  function adminRecoverUserAccount(uid, email, username) {
+    if (!confirm(`♻️ Admin Recovery\n\nAre you sure you want to RECOVER the account "${username}" (${email})?`)) return;
+
+    // 1. Remove from local deleted accounts
+    let deletedList = [];
+    try {
+      deletedList = JSON.parse(localStorage.getItem('scw_deleted_accounts') || '[]');
+    } catch(e) {}
+    const matchedRecord = deletedList.find(d => (d.email && email && d.email.toLowerCase() === email.toLowerCase()) || (d.username && username && d.username.toLowerCase() === username.toLowerCase()) || d.uid === uid);
+    
+    deletedList = deletedList.filter(d => d.uid !== uid && (d.email || '').toLowerCase() !== (email || '').toLowerCase() && (d.username || '').toLowerCase() !== (username || '').toLowerCase());
+    localStorage.setItem('scw_deleted_accounts', JSON.stringify(deletedList));
+
+    // 2. Restore profile into active local database
+    const restoredCoins = matchedRecord ? (matchedRecord.coins || 0) : 0;
+    const restoredCosmetics = matchedRecord ? (matchedRecord.cosmetics || []) : [];
+    
+    let localDb = [];
+    try {
+      localDb = JSON.parse(localStorage.getItem('scw_local_profiles_database') || '[]');
+    } catch(e) {}
+    
+    const existingIdx = localDb.findIndex(u => (u.email && email && u.email.toLowerCase() === email.toLowerCase()) || (u.username && username && u.username.toLowerCase() === username.toLowerCase()));
+    const restoredProfile = {
+      username: username,
+      email: email,
+      coins: restoredCoins,
+      cosmetics: restoredCosmetics,
+      status: "Active / Recovered",
+      ...(matchedRecord && matchedRecord.profileData ? matchedRecord.profileData : {})
+    };
+
+    if (existingIdx >= 0) {
+      localDb[existingIdx] = restoredProfile;
+    } else {
+      localDb.push(restoredProfile);
+    }
+    localStorage.setItem('scw_local_profiles_database', JSON.stringify(localDb));
+
+    // 3. Restore to Cloud Firestore if active
+    if (typeof firebase !== 'undefined' && firebase.firestore) {
+      try {
+        const db = firebase.firestore();
+        db.collection('users').doc(uid).set({
+          username: username,
+          email: email,
+          coins: restoredCoins,
+          ownedItems: restoredCosmetics,
+          recoveredAt: new Date().toISOString(),
+          status: 'Active / Recovered'
+        }, { merge: true });
+
+        db.collection('deleted_users').doc(uid).delete().catch(() => {});
+      } catch(e) {}
+    }
+
+    if (typeof playRetroSound === 'function') playRetroSound('purchase');
+    alert(`♻️ Account "${username}" has been successfully RECOVERED and restored!`);
+    loadUserDirectory();
+  }
+
   function checkCurrentSessionBlocked() {
     const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
     const authUser = (typeof firebase !== 'undefined' && firebase.auth) ? firebase.auth().currentUser : null;
@@ -5699,6 +5964,8 @@ document.addEventListener('DOMContentLoaded', () => {
         ? `<button class="btn btn-secondary btn-admin-unblock-user" data-uid="${profile.uid}" data-email="${escapeHtml(profile.email)}" data-username="${escapeHtml(profile.username)}" style="padding: 2px 8px; font-size: 0.75rem; min-height: auto; border-color: #00E676; color: #00E676; font-weight: 700;">✅ Unblock</button>`
         : `<button class="btn btn-secondary btn-admin-block-user" data-uid="${profile.uid}" data-email="${escapeHtml(profile.email)}" data-username="${escapeHtml(profile.username)}" style="padding: 2px 8px; font-size: 0.75rem; min-height: auto; border-color: #FF3D00; color: #FF3D00; font-weight: 700;">🚫 Block</button>`;
 
+      const deleteBtnHtml = profile.uid === 'mock_dev' ? '' : `<button class="btn btn-secondary btn-admin-delete-user" data-uid="${profile.uid}" data-email="${escapeHtml(profile.email)}" data-username="${escapeHtml(profile.username)}" style="padding: 2px 8px; font-size: 0.75rem; min-height: auto; border-color: #FF3D00; color: #FF3D00; font-weight: 700;">🗑️ Delete</button>`;
+
       row.innerHTML = `
         <td style="font-weight: 600;">${escapeHtml(profile.username)} ${hackerBadge}</td>
         <td style="font-family: monospace; font-size: 0.85rem; color: var(--color-text-secondary);">${escapeHtml(profile.email)}</td>
@@ -5715,6 +5982,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <button class="btn btn-primary btn-admin-add-coins" data-uid="${profile.uid}" data-username="${escapeHtml(profile.username)}" style="padding: 2px 8px; font-size: 0.75rem; min-height: auto; font-weight: 700;">+ Add</button>
             <button class="btn btn-secondary btn-admin-remove-coins" data-uid="${profile.uid}" data-username="${escapeHtml(profile.username)}" style="padding: 2px 8px; font-size: 0.75rem; min-height: auto; border-color: #FF9100; color: #FF9100; font-weight: 700;">- Remove</button>
             ${blockBtnHtml}
+            ${deleteBtnHtml}
           </div>
         </td>
       `;
@@ -5726,6 +5994,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const removeBtns = tbody.querySelectorAll('.btn-admin-remove-coins');
     const blockBtns = tbody.querySelectorAll('.btn-admin-block-user');
     const unblockBtns = tbody.querySelectorAll('.btn-admin-unblock-user');
+    const deleteBtns = tbody.querySelectorAll('.btn-admin-delete-user');
 
     addBtns.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -5758,6 +6027,52 @@ document.addEventListener('DOMContentLoaded', () => {
         const email = btn.getAttribute('data-email');
         const username = btn.getAttribute('data-username');
         adminUnblockUser(uid, email, username);
+      });
+    });
+
+    deleteBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const uid = btn.getAttribute('data-uid');
+        const email = btn.getAttribute('data-email');
+        const username = btn.getAttribute('data-username');
+        adminDeleteUserAccount(uid, email, username);
+      });
+    });
+  }
+
+  function renderDeletedAccountsTable(deletedProfiles) {
+    const tbody = document.getElementById('deleted-directory-tbody');
+    if (!tbody) return;
+
+    if (!deletedProfiles || deletedProfiles.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--color-text-muted); padding: 15px;">No deleted accounts in recovery archive.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = '';
+    deletedProfiles.forEach(p => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td style="font-weight: 600; color: #FF7043;"><span style="text-decoration: line-through;">${escapeHtml(p.username)}</span></td>
+        <td style="font-family: monospace; font-size: 0.85rem; color: var(--color-text-secondary);">${escapeHtml(p.email)}</td>
+        <td style="color: #FFD700; font-weight: 700;">
+          <img src="coin.png" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;" /> ${p.coins || 0}
+        </td>
+        <td style="font-size: 0.8rem; color: var(--color-text-muted);">${escapeHtml(p.deletedAt || 'Archived')}</td>
+        <td>
+          <button class="btn btn-primary btn-admin-recover-account" data-uid="${p.uid}" data-email="${escapeHtml(p.email)}" data-username="${escapeHtml(p.username)}" style="padding: 3px 10px; font-size: 0.75rem; background: rgba(0, 230, 118, 0.18); border: 1px solid #00E676; color: #00E676; font-weight: 800; cursor: pointer;">♻️ Recover Account</button>
+        </td>
+      `;
+      tbody.appendChild(row);
+    });
+
+    const recoverBtns = tbody.querySelectorAll('.btn-admin-recover-account');
+    recoverBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const uid = btn.getAttribute('data-uid');
+        const email = btn.getAttribute('data-email');
+        const username = btn.getAttribute('data-username');
+        adminRecoverUserAccount(uid, email, username);
       });
     });
   }

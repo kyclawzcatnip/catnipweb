@@ -2114,6 +2114,36 @@
                   </tr>
                 </tbody>
               </table>
+          </div>
+
+          <!-- Developer Secrets: Deleted Accounts & Recovery Archive Card -->
+          <div class="secrets-card deleted-accounts-card" style="grid-column: 1 / -1; margin-top: 15px; border: 1px dashed rgba(255, 61, 0, 0.4); background: rgba(255, 61, 0, 0.03);">
+            <div class="secrets-card-header">
+              <span class="secrets-cat" style="color: #FF3D00; background: rgba(255, 61, 0, 0.15);">Recovery Archive</span>
+              <h3>Deleted User Accounts & Account Recovery</h3>
+            </div>
+            
+            <p style="font-size: 0.9rem; color: var(--color-text-secondary); margin-bottom: 15px;">
+              Accounts deleted by users are safely archived below. Click <strong>♻️ Recover Account</strong> next to any profile to restore their coins, items, and progress.
+            </p>
+
+            <div class="table-container" style="overflow-x: auto; width: 100%;">
+              <table class="leaderboard-table" style="width: 100%; border-collapse: collapse; min-width: 550px;">
+                <thead>
+                  <tr>
+                    <th>Deleted Username</th>
+                    <th>Email / Auth ID</th>
+                    <th>Archived Coins</th>
+                    <th>Deletion Date</th>
+                    <th>Admin Recovery</th>
+                  </tr>
+                </thead>
+                <tbody id="deleted-directory-tbody">
+                  <tr>
+                    <td colspan="5" style="text-align: center; color: var(--color-text-muted); padding: 15px;">No deleted accounts in recovery archive.</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
 
@@ -2314,9 +2344,10 @@
           <div>────────────────────</div>
         </div>
 
-        <div style="margin-top: 15px; display: flex; gap: 8px;">
-          <button class="btn btn-primary btn-sm btn-block" id="btn-edit-profile" style="margin: 0; padding: 6px 10px; font-size: 0.78rem; font-weight: 700; flex: 1;">Personalize</button>
-          <button class="btn btn-secondary btn-sm btn-block" id="btn-sign-out" style="margin: 0; padding: 6px 10px; font-size: 0.78rem; flex: 1;">Sign Out</button>
+        <div style="margin-top: 15px; display: flex; gap: 6px; flex-wrap: wrap;">
+          <button class="btn btn-primary btn-sm btn-block" id="btn-edit-profile" style="margin: 0; padding: 6px 8px; font-size: 0.76rem; font-weight: 700; flex: 1; min-width: 80px;">Personalize</button>
+          <button class="btn btn-secondary btn-sm btn-block" id="btn-sign-out" style="margin: 0; padding: 6px 8px; font-size: 0.76rem; flex: 1; min-width: 80px;">Sign Out</button>
+          <button class="btn btn-danger btn-sm btn-block" id="btn-delete-account" style="margin: 0; padding: 6px 8px; font-size: 0.76rem; background: rgba(255, 61, 0, 0.15); border: 1px solid #FF3D00; color: #FF3D00; font-weight: 700; flex: 1; min-width: 90px; cursor: pointer;">🗑️ Delete Account</button>
         </div>
       </div>
 
@@ -2538,6 +2569,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
   <!-- Main Script File -->
-  <script src="script.js?v=20260726zk107"></script>
+  <script src="script.js?v=20260726zk108"></script>
 </body>
 </html>
