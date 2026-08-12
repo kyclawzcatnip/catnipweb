@@ -1331,9 +1331,11 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Navigate to target section
   function navigateTo(sectionId) {
+    const cleanSection = (sectionId || '').trim().toLowerCase();
+
     // Check if section is the REAL Developer Master Unlock URL Route (Secret Hash Token)
-    const REAL_UNLOCK_ROUTES = ['djyujhgGFjtfvjytfvJYHhhhHHHGSDKYJSYDKAO28462'];
-    if (REAL_UNLOCK_ROUTES.includes(sectionId)) {
+    const REAL_UNLOCK_ROUTES = ['djyujhggfjtfvjytfvjyhhhhhhhgsdkyjsydkao28462'];
+    if (REAL_UNLOCK_ROUTES.includes(cleanSection)) {
       removeLockdownScreen();
       sessionStorage.setItem('dev_auth', 'true');
       if (typeof showAchievementToast === 'function') {
@@ -1347,7 +1349,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Check if section is a Normal User Session Unlock route (Clears Lockdown without Admin access)
     const NORMAL_UNLOCK_ROUTES = ['normal-unlock', 'clear-lockdown', 'user-unlock', 'unblock-session', 'k9f3j29d81z04x7'];
-    if (NORMAL_UNLOCK_ROUTES.includes(sectionId)) {
+    if (NORMAL_UNLOCK_ROUTES.includes(cleanSection)) {
       removeLockdownScreen();
       sessionStorage.removeItem('dev_auth');
       if (typeof showAchievementToast === 'function') {
@@ -1363,9 +1365,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const HONEYPOT_ROUTES = [
       'honeypot', 'hackertrap', 'admin-login', 'admin_login', 'dev-login', 'dev_login', 'hacker-trap',
       'unlock-honeypot', 'unlock_honeypot', 'unlock-admin', 'unlock_admin', 'bypass-lockdown', 'unlock-hacker', 'reset-lockdown',
-      'catnip-master-unlock', 'admin-master-override', 'catnip_master_unlock'
+      'catnip-master-unlock', 'admin-master-override', 'catnip_master_unlock',
+      'scw', 'supercatworld', 'super-cat-world', 'super_cat_world',
+      'scw-unlock', 'scw_unlock', 'scw-master-unlock', 'scw_master_unlock', 'scw-admin', 'scw_admin', 'scw-override', 'scw_override',
+      'supercatworld-unlock', 'supercatworld_unlock', 'supercatworld-admin', 'supercatworld_admin', 'supercatworld-master-unlock',
+      'scw-hacker', 'scw-bypass', 'supercatworld-bypass'
     ];
-    if (HONEYPOT_ROUTES.includes(sectionId)) {
+    if (HONEYPOT_ROUTES.includes(cleanSection)) {
       if (typeof flagHackerAttempt === 'function') {
         flagHackerAttempt(`Fake Unlock/Honeypot URL #${sectionId}`);
       }
