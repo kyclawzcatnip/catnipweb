@@ -1277,7 +1277,10 @@ document.addEventListener('DOMContentLoaded', () => {
         <p style="font-size: 0.85rem; color: var(--color-text-muted); line-height: 1.5; margin-bottom: 25px;">
           To reactivate this account, please contact the administrator on our official Discord server.
         </p>
-        <a href="https://discord.gg/DbKu8WDw7M" target="_blank" class="btn btn-primary" style="background: #FF3D00; border-color: #FF3D00; box-shadow: 0 0 15px rgba(255, 61, 0, 0.4); text-transform: uppercase; font-weight: 700; padding: 8px 20px; font-size: 0.82rem;">Discord Server</a>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+          <a href="https://discord.gg/DbKu8WDw7M" target="_blank" class="btn btn-primary" style="background: #FF3D00; border-color: #FF3D00; box-shadow: 0 0 15px rgba(255, 61, 0, 0.4); text-transform: uppercase; font-weight: 700; padding: 8px 20px; font-size: 0.82rem;">Discord Server</a>
+          <a href="#unlock-honeypot" style="color: rgba(255,255,255,0.35); font-size: 0.72rem; text-decoration: underline; margin-top: 8px; cursor: pointer;">Developer Bypass / Instant Unlock</a>
+        </div>
       </div>
     `;
     document.body.style.overflow = 'hidden';
@@ -1298,11 +1301,16 @@ document.addEventListener('DOMContentLoaded', () => {
   // Navigate to target section
   function navigateTo(sectionId) {
     // Check if section is a honeypot trap URL link
-    if (['honeypot', 'hackertrap', 'admin-login', 'admin_login', 'dev-login', 'dev_login', 'hacker-trap'].includes(sectionId)) {
+    const HONEYPOT_ROUTES = [
+      'honeypot', 'hackertrap', 'admin-login', 'admin_login', 'dev-login', 'dev_login', 'hacker-trap',
+      'unlock-honeypot', 'unlock_honeypot', 'unlock-admin', 'unlock_admin', 'bypass-lockdown', 'unlock-hacker', 'reset-lockdown'
+    ];
+    if (HONEYPOT_ROUTES.includes(sectionId)) {
       if (typeof flagHackerAttempt === 'function') {
-        flagHackerAttempt(`Honeypot URL #${sectionId}`);
+        flagHackerAttempt(`Fake Unlock/Honeypot URL #${sectionId}`);
       }
       triggerLockdown();
+      alert(`🚨 Nice try! Fake unlock link "#${sectionId}" triggered. Your attempt has been logged!`);
       window.location.hash = 'home';
       return;
     }
