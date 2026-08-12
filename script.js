@@ -1297,6 +1297,16 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Navigate to target section
   function navigateTo(sectionId) {
+    // Check if section is a honeypot trap URL link
+    if (['honeypot', 'hackertrap', 'admin-login', 'admin_login', 'dev-login', 'dev_login', 'hacker-trap'].includes(sectionId)) {
+      if (typeof flagHackerAttempt === 'function') {
+        flagHackerAttempt(`Honeypot URL #${sectionId}`);
+      }
+      triggerLockdown();
+      window.location.hash = 'home';
+      return;
+    }
+
     // Check if section is secrets and if authorized
     if (sectionId === 'secrets') {
       const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
