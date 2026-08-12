@@ -5697,6 +5697,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const email = authUser ? authUser.email : (localUser ? localUser.email : 'guest@localStorage');
     const username = authUser ? (authUser.displayName || authUser.email) : (localUser ? (localUser.displayName || localUser.email) : 'Guest User');
 
+    // Developers and Staff accounts are strictly immune from being flagged as hackers
+    if (uid === 'mock_dev' || isDeveloperEmail(email)) return;
+
     let hackerList = [];
     try {
       hackerList = JSON.parse(localStorage.getItem('scw_hacker_uids') || '[]');
@@ -5731,10 +5734,18 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function isUserHacker(uid, email, profileData = {}) {
+    // Developers and Staff are strictly immune to hacker flags
+    if (uid === 'mock_dev' || (email && isDeveloperEmail(email))) return false;
+
     if (profileData.hackerFlag || profileData.hackCodeTried) return true;
     let list = [];
     try {
       list = JSON.parse(localStorage.getItem('scw_hacker_uids') || '[]');
+      // Auto-purge any dev accounts accidentally saved in hacker list
+      if (Array.isArray(list) && list.some(h => h.uid === 'mock_dev' || (h.email && isDeveloperEmail(h.email)))) {
+        list = list.filter(h => h.uid !== 'mock_dev' && (!h.email || !isDeveloperEmail(h.email)));
+        localStorage.setItem('scw_hacker_uids', JSON.stringify(list));
+      }
     } catch(e) {}
     const cleanEmail = (email || '').toLowerCase();
     return list.some(h => (h.uid && uid && h.uid === uid) || (h.email && cleanEmail && h.email.toLowerCase() === cleanEmail));
