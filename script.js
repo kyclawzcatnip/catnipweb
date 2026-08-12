@@ -3350,7 +3350,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Automatically unlock Dev Portal if user is the dev (catnip)
       const localEmail = typeof user.email === 'string' ? user.email.toLowerCase() : '';
-      const isDevSession = isDeveloperEmail(localEmail) || sessionStorage.getItem('dev_auth') === 'true';
+      const isDevSession = isDeveloperEmail(localEmail);
       if (isDevSession) {
         unlockDevPortalUI();
         
@@ -3667,9 +3667,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
               } catch(e) {}
             } else {
+              sessionStorage.removeItem('dev_auth');
               try {
                 const localDb = JSON.parse(localStorage.getItem('scw_local_profiles_database') || '[]');
-                const matched = localDb.find(u => u.email === email);
+                const matched = localDb.find(u => (u.email && email && u.email.toLowerCase() === email.toLowerCase()) || (u.username && email && u.username.toLowerCase() === email.toLowerCase()));
                 if (matched) {
                   existingCoins = matched.coins || 0;
                   existingItems = matched.cosmetics || [];
@@ -3689,6 +3690,9 @@ document.addEventListener('DOMContentLoaded', () => {
                   if (typeof matched.wikiPagesRead === 'number') wikiPagesRead = matched.wikiPagesRead;
                   if (matched.activeTitle) activeTitle = matched.activeTitle;
                   if (Array.isArray(matched.unlockedTitles)) unlockedTitles = matched.unlockedTitles;
+                } else {
+                  existingCoins = 0;
+                  existingItems = [];
                 }
               } catch(e) {}
             }
@@ -3738,9 +3742,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
           } catch(e) {}
         } else {
+          sessionStorage.removeItem('dev_auth');
           try {
             const localDb = JSON.parse(localStorage.getItem('scw_local_profiles_database') || '[]');
-            const matched = localDb.find(u => u.email === email);
+            const matched = localDb.find(u => (u.email && email && u.email.toLowerCase() === email.toLowerCase()) || (u.username && email && u.username.toLowerCase() === email.toLowerCase()));
             if (matched) {
               existingCoins = matched.coins || 0;
               existingItems = matched.cosmetics || [];
@@ -3756,6 +3761,9 @@ document.addEventListener('DOMContentLoaded', () => {
               if (typeof matched.victoryCount === 'number') victoryCount = matched.victoryCount;
               if (matched.favouriteGame) favouriteGame = matched.favouriteGame;
               if (Array.isArray(matched.achievements)) achievements = matched.achievements;
+            } else {
+              existingCoins = 0;
+              existingItems = [];
             }
           } catch(e) {}
         }
