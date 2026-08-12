@@ -1331,8 +1331,8 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Navigate to target section
   function navigateTo(sectionId) {
-    // Check if section is the REAL Developer Master Unlock URL Route
-    const REAL_UNLOCK_ROUTES = ['catnip-master-unlock', 'admin-master-override', 'catnip_master_unlock'];
+    // Check if section is the REAL Developer Master Unlock URL Route (Secret Hash Token)
+    const REAL_UNLOCK_ROUTES = ['djyujhgGFjtfvjytfvJYHhhhHHHGSDKYJSYDKAO28462'];
     if (REAL_UNLOCK_ROUTES.includes(sectionId)) {
       removeLockdownScreen();
       sessionStorage.setItem('dev_auth', 'true');
@@ -1348,7 +1348,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Check if section is a honeypot trap URL link
     const HONEYPOT_ROUTES = [
       'honeypot', 'hackertrap', 'admin-login', 'admin_login', 'dev-login', 'dev_login', 'hacker-trap',
-      'unlock-honeypot', 'unlock_honeypot', 'unlock-admin', 'unlock_admin', 'bypass-lockdown', 'unlock-hacker', 'reset-lockdown'
+      'unlock-honeypot', 'unlock_honeypot', 'unlock-admin', 'unlock_admin', 'bypass-lockdown', 'unlock-hacker', 'reset-lockdown',
+      'catnip-master-unlock', 'admin-master-override', 'catnip_master_unlock'
     ];
     if (HONEYPOT_ROUTES.includes(sectionId)) {
       if (typeof flagHackerAttempt === 'function') {
