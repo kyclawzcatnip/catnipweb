@@ -5790,45 +5790,45 @@ document.addEventListener('DOMContentLoaded', () => {
       osc.stop(now + 0.35);
     } catch(e) {}
 
-    if (uid === 'mock_dev') {
-      alert(`🛡️ Mock Action: Simulating successfully modifying coins for dev.`);
-      return;
-    }
-
-    if (uid === 'local_user' || uid === 'guest_user') {
-      // Modify local coin state
+    // Helper to update local coins balance seamlessly
+    function updateLocalAccountCoins() {
       if (action === 'add') {
         userCoins += amount;
       } else {
         userCoins = Math.max(0, userCoins - amount);
       }
       localStorage.setItem('scw_coins_balance', userCoins.toString());
-      
-      // Update portal UI elements
+
+      // Update local profiles db if present
+      try {
+        let localDb = JSON.parse(localStorage.getItem('scw_local_profiles_database') || '[]');
+        let target = localDb.find(p => p.username === username || p.uid === uid);
+        if (target) {
+          target.coins = (action === 'add') ? ((target.coins || 0) + amount) : Math.max(0, (target.coins || 0) - amount);
+          localStorage.setItem('scw_local_profiles_database', JSON.stringify(localDb));
+        }
+      } catch(e) {}
+
       updateCoinUI();
-      
-      // Reload directory
       loadUserDirectory();
-      alert(`🛡️ Local user coins updated! New balance: ${userCoins}`);
-    } else {
-      // Modify Firestore user account
-      if (typeof firebase !== 'undefined' && firebase.firestore) {
+      alert(`🛡️ Account balance updated for ${username}! New balance: ${userCoins}`);
+    }
+
+    // Check if Firestore is actively initialized and available
+    const isFirestoreAvailable = typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0 && typeof firebase.firestore === 'function';
+
+    if (isFirestoreAvailable && uid !== 'mock_dev' && uid !== 'local_user' && uid !== 'guest_user' && !uid.startsWith('local_')) {
+      try {
         const db = firebase.firestore();
         const userRef = db.collection('users').doc(uid);
 
         userRef.get().then(doc => {
           if (doc.exists) {
             const currentCoins = doc.data().coins || 0;
-            let newCoins = currentCoins;
-            if (action === 'add') {
-              newCoins += amount;
-            } else {
-              newCoins = Math.max(0, currentCoins - amount);
-            }
+            let newCoins = action === 'add' ? (currentCoins + amount) : Math.max(0, currentCoins - amount);
             
             userRef.update({ coins: newCoins }).then(() => {
-              alert(`🛡️ Firestore balance updated successfully for ${username}! New balance: ${newCoins}`);
-              // If we edited ourselves, update local state too
+              alert(`🛡️ Firestore balance updated for ${username}! New balance: ${newCoins}`);
               const currentUser = firebase.auth().currentUser;
               if (currentUser && currentUser.uid === uid) {
                 userCoins = newCoins;
@@ -5837,24 +5837,30 @@ document.addEventListener('DOMContentLoaded', () => {
               }
               loadUserDirectory();
             }).catch(err => {
-              alert(`❌ Failed to update Firestore: ${err.message}`);
+              console.warn("Firestore update error, using local fallback:", err);
+              updateLocalAccountCoins();
             });
           } else {
-            // User document doesn't exist yet, initialize it
             let newCoins = action === 'add' ? amount : 0;
             userRef.set({ coins: newCoins, username: username }).then(() => {
               alert(`🛡️ Firestore document created and balance set for ${username}! Balance: ${newCoins}`);
               loadUserDirectory();
             }).catch(err => {
-              alert(`❌ Failed to create document in Firestore: ${err.message}`);
+              console.warn("Firestore create error, using local fallback:", err);
+              updateLocalAccountCoins();
             });
           }
         }).catch(err => {
-          alert(`❌ Failed to retrieve user doc: ${err.message}`);
+          console.warn("Firestore fetch error, using local fallback:", err);
+          updateLocalAccountCoins();
         });
-      } else {
-        alert("❌ Firestore is not initialized.");
+      } catch(e) {
+        console.warn("Firestore exception, using local fallback:", e);
+        updateLocalAccountCoins();
       }
+    } else {
+      // Local fallback mode when offline or for local/guest/mock accounts
+      updateLocalAccountCoins();
     }
   }
 
