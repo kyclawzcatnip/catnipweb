@@ -1257,9 +1257,37 @@ document.addEventListener('DOMContentLoaded', () => {
            cleanEmail.includes('admin');
   }
 
-  function triggerLockdown() {
+  function showHackerNotification(message) {
+    const existing = document.getElementById('hacker-notification-toast');
+    if (existing) existing.remove();
+
+    const toast = document.createElement('div');
+    toast.id = 'hacker-notification-toast';
+    toast.style.cssText = 'position: fixed; top: 25px; left: 50%; transform: translateX(-50%) translateY(-20px); background: #150505; border: 2px solid #FF3D00; color: #FF3D00; font-family: "Space Grotesk", sans-serif; font-weight: 800; font-size: 0.9rem; padding: 12px 24px; border-radius: 10px; box-shadow: 0 0 30px rgba(255, 61, 0, 0.8); z-index: 10000000; display: flex; align-items: center; gap: 10px; transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275); opacity: 0; pointer-events: none; text-align: center;';
+    toast.innerHTML = `
+      <span style="font-size: 1.4rem;">🚨</span>
+      <span>${escapeHtml(message || 'SECURITY ALERT: Honeypot Trap Triggered! Hack Attempt Logged.')}</span>
+    `;
+    document.body.appendChild(toast);
+
+    requestAnimationFrame(() => {
+      toast.style.transform = 'translateX(-50%) translateY(0)';
+      toast.style.opacity = '1';
+    });
+
+    if (typeof playRetroSound === 'function') playRetroSound('hit');
+
+    setTimeout(() => {
+      toast.style.transform = 'translateX(-50%) translateY(-20px)';
+      toast.style.opacity = '0';
+      setTimeout(() => toast.remove(), 450);
+    }, 5000);
+  }
+
+  function triggerLockdown(reasonMessage) {
     localStorage.setItem('scw_lockdown_active', 'true');
     showLockdownScreen();
+    showHackerNotification(reasonMessage || 'SECURITY ALERT: Honeypot Trap Triggered! Hack Attempt Logged.');
   }
 
   function showLockdownScreen() {
@@ -1268,7 +1296,10 @@ document.addEventListener('DOMContentLoaded', () => {
     overlay.id = 'lockdown-overlay';
     overlay.style.cssText = 'position: fixed; inset: 0; background: rgba(5, 2, 10, 0.98); backdrop-filter: blur(25px); z-index: 9999999; display: flex; align-items: center; justify-content: center; color: #FFF; font-family: "Space Grotesk", sans-serif; padding: 20px; text-align: center;';
     overlay.innerHTML = `
-      <div style="max-width: 500px; padding: 30px; background: rgba(255, 61, 0, 0.05); border: 2px dashed #FF3D00; border-radius: 12px; box-shadow: 0 0 30px rgba(255, 61, 0, 0.2);">
+      <div style="max-width: 520px; padding: 30px; background: rgba(255, 61, 0, 0.05); border: 2px dashed #FF3D00; border-radius: 12px; box-shadow: 0 0 35px rgba(255, 61, 0, 0.25);">
+        <div style="background: rgba(255, 61, 0, 0.18); border: 1px solid #FF3D00; color: #FF3D00; font-weight: 800; padding: 10px 14px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <span>🚨 SECURITY ALERT:</span> <span>Honeypot Trap Triggered! Attempt Logged.</span>
+        </div>
         <span style="font-size: 3.5rem; display: block; margin-bottom: 15px; filter: drop-shadow(0 0 10px #FF3D00);">⚠️</span>
         <h2 style="color: #FF3D00; font-weight: 800; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 1px;">Security Lockdown</h2>
         <p style="font-size: 0.95rem; color: #FFF; line-height: 1.6; margin-bottom: 20px;">
@@ -1309,8 +1340,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (typeof flagHackerAttempt === 'function') {
         flagHackerAttempt(`Fake Unlock/Honeypot URL #${sectionId}`);
       }
-      triggerLockdown();
-      alert(`🚨 Nice try! Fake unlock link "#${sectionId}" triggered. Your attempt has been logged!`);
+      triggerLockdown(`🚨 SECURITY ALERT: Honeypot link "#${sectionId}" triggered! Hack attempt logged.`);
       window.location.hash = 'home';
       return;
     }
