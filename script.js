@@ -5363,48 +5363,66 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function updatePublicDiagnosticLabels() {
-    const labels = document.querySelectorAll('.diagnostic-spec-label');
-    labels.forEach(label => {
-      const game = label.getAttribute('data-game');
-      if (game) {
-        const savedCode = localStorage.getItem(`scw_bug_code_${game}`) || '0';
-        let desc = 'Code 0: Bug Free';
-        let styleColor = '#00E676';
-        
-        switch (savedCode) {
-          case '0':
-            desc = 'Code 0: Bug Free';
-            styleColor = '#00E676';
-            break;
-          case '1':
-            desc = 'Code 1: Buggy';
-            styleColor = '#FFA726';
-            break;
-          case '2':
-            desc = 'Code 2: Stalled';
-            styleColor = '#FF5252';
-            break;
-          case '3':
-            desc = 'Code 3: Critical';
-            styleColor = '#FF5252';
-            break;
-          case '4':
-            desc = 'Code 4: Unstable';
-            styleColor = '#F44336';
-            break;
-          case '5':
-            desc = 'Code 5: Doomed';
-            styleColor = '#FF1744';
-            break;
-          case '6':
-            desc = 'Code 6: Discontinued';
-            styleColor = '#9E9E9E';
-            break;
-        }
-        
+    const games = ['scw', 'ssc', 'kart', 'cau', 'kingdom', 'maker'];
+    games.forEach(game => {
+      const savedCode = localStorage.getItem(`scw_bug_code_${game}`) || '0';
+      let desc = 'Code 0: Bug Free';
+      let statusBadgeText = 'Code 0 / Bug Free';
+      let styleColor = '#00E676';
+      
+      switch (savedCode) {
+        case '0':
+          desc = 'Code 0: Bug Free';
+          statusBadgeText = game === 'scw' ? 'Done' : 'Code 0: Bug Free';
+          styleColor = '#00E676';
+          break;
+        case '1':
+          desc = 'Code 1: Annoying bug';
+          statusBadgeText = 'Code 1: Buggy';
+          styleColor = '#FFA726';
+          break;
+        case '2':
+          desc = 'Code 2: Stops running';
+          statusBadgeText = 'Code 2: Stalled';
+          styleColor = '#FF5252';
+          break;
+        case '3':
+          desc = 'Code 3: Critical Issue';
+          statusBadgeText = 'Code 3: Critical';
+          styleColor = '#FF5252';
+          break;
+        case '4':
+          desc = 'Code 4: 50% Cancelled';
+          statusBadgeText = 'Code 4: 50% Cancelled';
+          styleColor = '#F44336';
+          break;
+        case '5':
+          desc = 'Code 5: Doomed';
+          statusBadgeText = 'Code 5: Doomed';
+          styleColor = '#FF1744';
+          break;
+        case '6':
+          desc = 'Code 6: Discontinued';
+          statusBadgeText = 'Code 6: Discontinued';
+          styleColor = '#9E9E9E';
+          break;
+      }
+      
+      // Update diagnostic labels
+      const labels = document.querySelectorAll(`.diagnostic-spec-label[data-game="${game}"]`);
+      labels.forEach(label => {
         label.textContent = desc;
         label.style.color = styleColor;
-      }
+      });
+
+      // Update main game card status badges live
+      const statusBadges = document.querySelectorAll(`.game-status-badge[data-game="${game}"]`);
+      statusBadges.forEach(badge => {
+        badge.textContent = statusBadgeText;
+        badge.style.color = '#ffffff';
+        badge.style.background = styleColor;
+        badge.style.borderColor = styleColor;
+      });
     });
   }
 
@@ -5418,9 +5436,22 @@ document.addEventListener('DOMContentLoaded', () => {
       select.addEventListener('change', () => {
         const newCode = select.value;
         localStorage.setItem(`scw_bug_code_${game}`, newCode);
-        playRetroSound('click');
+        if (typeof playRetroSound === 'function') playRetroSound('click');
         if (game === 'scw') updateSCWSpecsPanel();
         updatePublicDiagnosticLabels();
+
+        const gameNames = {
+          scw: 'Super Cat World',
+          ssc: 'Super Smash Cats',
+          cau: 'Cats Among Us',
+          kart: 'Catnip Kart',
+          kingdom: 'Catnip Kingdom',
+          maker: 'SCW Maker'
+        };
+        const gName = gameNames[game] || game.toUpperCase();
+        if (typeof showHackerNotification === 'function') {
+          showHackerNotification(`👾 Diagnostics Updated: ${gName} set to Code ${newCode}!`);
+        }
         console.log(`[Developer Diagnostics] ${game.toUpperCase()} bug level set to Code ${newCode}`);
       });
     }
