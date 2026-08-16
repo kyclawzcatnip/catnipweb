@@ -17,14 +17,17 @@ window.updateChestUI = function() {
 document.addEventListener('DOMContentLoaded', () => {
 
   const fullUrlStr = window.location.href;
-  if (fullUrlStr.includes('unlock_honeypot=true')) {
-    localStorage.removeItem('scw_lockdown_active');
-    const cleanUrl = fullUrlStr.replace(/[?&]unlock_honeypot=true/, '');
-    window.history.replaceState({path: cleanUrl}, '', cleanUrl);
-    alert("🔓 Security Bypass:\nYou are free... don't try hacking again!");
-  }
+  const currentHashRoute = (window.location.hash || '').substring(1).trim().toLowerCase();
+  const UNLOCK_HASHES = ['normal-unlock', 'clear-lockdown', 'user-unlock', 'unblock-session', 'k9f3j29d81z04x7', 'djyujhggfjtfvjytfvjyhhhhhhhgsdkyjsydkao28462'];
 
-  if (localStorage.getItem('scw_lockdown_active') === 'true') {
+  if (fullUrlStr.includes('unlock_honeypot=true') || UNLOCK_HASHES.includes(currentHashRoute)) {
+    localStorage.removeItem('scw_lockdown_active');
+    if (fullUrlStr.includes('unlock_honeypot=true')) {
+      const cleanUrl = fullUrlStr.replace(/[?&]unlock_honeypot=true/, '');
+      window.history.replaceState({path: cleanUrl}, '', cleanUrl);
+      alert("🔓 Security Bypass:\nYou are free... don't try hacking again!");
+    }
+  } else if (localStorage.getItem('scw_lockdown_active') === 'true') {
     showLockdownScreen();
   }
 
@@ -1308,14 +1311,29 @@ document.addEventListener('DOMContentLoaded', () => {
         <p style="font-size: 0.85rem; color: var(--color-text-muted); line-height: 1.5; margin-bottom: 25px;">
           To reactivate this account, please contact the administrator on our official Discord server.
         </p>
-        <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
           <a href="https://discord.gg/DbKu8WDw7M" target="_blank" class="btn btn-primary" style="background: #FF3D00; border-color: #FF3D00; box-shadow: 0 0 15px rgba(255, 61, 0, 0.4); text-transform: uppercase; font-weight: 700; padding: 8px 20px; font-size: 0.82rem;">Discord Server</a>
-          <a href="#unlock-honeypot" style="color: rgba(255,255,255,0.35); font-size: 0.72rem; text-decoration: underline; margin-top: 8px; cursor: pointer;">Developer Bypass / Instant Unlock</a>
+          <button id="btn-lockdown-restore" class="btn btn-secondary" style="font-size: 0.78rem; border-color: #00E676; color: #00E676; font-weight: 700; padding: 6px 16px; margin-top: 4px;">🔓 Clear Lockdown & Restore Access</button>
+          <a href="#normal-unlock" class="nav-trigger" data-target="normal-unlock" style="color: rgba(255,255,255,0.35); font-size: 0.72rem; text-decoration: underline; cursor: pointer;">Developer Bypass / Instant Unlock (#normal-unlock)</a>
         </div>
       </div>
     `;
     document.body.style.overflow = 'hidden';
     document.body.appendChild(overlay);
+
+    const btnRestore = overlay.querySelector('#btn-lockdown-restore');
+    if (btnRestore) {
+      btnRestore.addEventListener('click', () => {
+        removeLockdownScreen();
+        sessionStorage.removeItem('dev_auth');
+        window.location.hash = 'home';
+        if (typeof showAchievementToast === 'function') {
+          showAchievementToast('Session Restored', '🔓', 'Lockdown screen cleared! Normal access restored.');
+        } else {
+          alert('🔓 Lockdown screen cleared! Normal access restored.');
+        }
+      });
+    }
   }
 
   function removeLockdownScreen() {
