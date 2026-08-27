@@ -878,14 +878,20 @@ document.addEventListener('DOMContentLoaded', () => {
       firstAppearance: 'Catnip Studios founder board',
       quotes: ['Coding feline dreams since 2025.'],
       trivia: [
-        "The first line of code was written in a local coffee shop during a blizzard.",
-        "Logo design was selected through an online cat community poll."
+        "The first lines of code were made in an old and rusty office with almost no internet.",
+        "The logo took 1 month to make with the help of AI for details and color in the first 3 months of coding.",
+        "The original logo was just a Minecraft cat's face.",
+        "The official Discord server was created on June 23, 2026 (23/6/26)."
       ],
       related: ['super-cat-world', 'world-of-catz'],
       content: `
         <p>Catnip Studios' development history officially begins on the <strong>24th of February, 2025</strong>.</p>
-        <h4>Origins</h4>
-        <p>The studio was established to create its debut title, the action-platformer <strong>Super Cat World</strong>. You can play it directly using the link in the Games section.</p>
+        <h4>Origins & First Codebase</h4>
+        <p>The studio was established to create its debut title, the action-platformer <strong>Super Cat World</strong>. The first lines of code were written in an old and rusty office with almost no internet connection.</p>
+        <h4>Logo Design Evolution</h4>
+        <p>The original logo was just a Minecraft cat's face. During the first 3 months of coding, the logo took 1 month to make with the help of AI for details and color.</p>
+        <h4>Community Launch</h4>
+        <p>The official Catnip Studios Discord server was created on <strong>June 23, 2026 (23/6/26)</strong>.</p>
       `
     },
     'lore-book-1': {
