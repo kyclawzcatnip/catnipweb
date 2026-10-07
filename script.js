@@ -677,6 +677,44 @@ document.addEventListener('DOMContentLoaded', () => {
         </ul>
       `
     },
+    'laws-of-code': {
+      title: 'Laws of Code',
+      category: 'mechanics',
+      tag: 'Rule',
+      image: '📜',
+      firstAppearance: 'Catnip Studios Development Standard (October 2026)',
+      quotes: ['Existing systems are sacred.'],
+      trivia: [
+        "Law 1 is the primary cornerstone of development at Catnip Studios.",
+        "The mandated priority hierarchy is: PRESERVE → EXTEND → TEST → IMPROVE.",
+        "A feature is not considered complete if it breaks a pre-existing working system."
+      ],
+      related: ['bug-code-classifications', 'studio-history', 'mechanics'],
+      content: `
+        <p>The <strong>Laws of Code</strong> define the fundamental rules governing software architecture, refactoring, and feature additions at Catnip Studios.</p>
+        
+        <h4 style="margin-top: 15px; margin-bottom: 8px; color: var(--color-accent);">Law 1: Existing Systems Are Sacred</h4>
+        <div style="background: rgba(255, 215, 0, 0.08); border-left: 4px solid #ffd700; padding: 14px 18px; border-radius: 6px; margin: 12px 0;">
+          <p style="margin-bottom: 10px; font-weight: 600; font-size: 1.05rem; color: #ffd700;">Existing systems are sacred.</p>
+          <p style="margin-bottom: 8px;">Before modifying existing code, understand what the system currently does and preserve its behavior.</p>
+          <p style="margin-bottom: 8px;">Do not remove, replace, simplify, refactor, or rewrite working systems unless explicitly instructed.</p>
+          <p style="margin-bottom: 8px;">New features must be added around existing functionality whenever possible.</p>
+          <p style="margin-bottom: 8px;">If a new feature conflicts with an existing system, resolve the conflict without silently breaking the existing system.</p>
+          <p style="margin-bottom: 8px;">Do not remove existing functionality simply because it is not required for the current task.</p>
+          <p style="margin-bottom: 8px;">Do not change existing controls, mechanics, visuals, data structures, map behavior, or gameplay rules unless explicitly instructed.</p>
+          <p style="margin-bottom: 8px;">After every major change, verify that previously working functionality still works.</p>
+          <p style="margin-bottom: 0;">A feature is NOT complete if it works while breaking something that worked before.</p>
+        </div>
+
+        <h4 style="margin-top: 16px; margin-bottom: 8px; color: var(--color-accent);">Order of Priority</h4>
+        <p style="font-weight: bold; font-size: 1.1rem; color: #4CAF50; letter-spacing: 1px;">PRESERVE &rarr; EXTEND &rarr; TEST &rarr; IMPROVE</p>
+
+        <h4 style="margin-top: 16px; margin-bottom: 8px; color: #f44336;">Never:</h4>
+        <p style="font-weight: bold; font-size: 1.1rem; color: #f44336; letter-spacing: 1px;">REPLACE &rarr; BREAK &rarr; &ldquo;FIX LATER&rdquo;</p>
+
+        <p style="margin-top: 14px; font-style: italic;">If uncertain, preserve the existing system.</p>
+      `
+    },
     'super-cat-world': {
       title: 'Super Cat World',
       category: 'games',
