@@ -822,6 +822,34 @@ document.addEventListener('DOMContentLoaded', () => {
         <p>Drift around sharp corners to build boost energy, and blast opponents using a variety of feline-themed items like heat-seeking hairballs, banana peels, and invincibility catnip. Race across tracks like the Catnip Forest Speedway, Floating Castle Clouds, and the lava-filled Subterranean Mines.</p>
       `
     },
+    'catnip-warships': {
+      title: 'Catnip Warships',
+      category: 'games',
+      tag: 'Game',
+      image: '⚓',
+      firstAppearance: 'October 2026',
+      characters: 'Allied Cat Captains, Fleet Officers',
+      quotes: ['Full speed ahead! Prepare broadside cannons!'],
+      trivia: [
+        "Features a playable Harbor Hub map, naval shipyard, and officer quarters.",
+        "Contains an escalating fleet roster of up to 100 feline warships across multiple naval classes.",
+        "Includes diverse game modes: Skirmish, Outnumbered, Protect Carrier, Wave Survival, and Boss Rush."
+      ],
+      timeline: '<ul><li><strong>October 2026</strong> - Public release of Catnip Warships (v3.0.1) with 30-ship fleet action and Catnip Harbor Hub.</li></ul>',
+      related: ['super-cat-world', 'super-smash-cats', 'catnip-kingdom'],
+      content: `
+        <p><strong>Catnip Warships</strong> is an action-packed naval combat simulator and fleet strategy game set on the open seas of the Catnip universe. Players take command of customizable feline warships, unleash devastating broadside salvos, deploy specialized tactical abilities, and navigate tactical island archipelagos.</p>
+        <h4>⚓ Playable Harbor Hub</h4>
+        <p>Explore the coastal basin, shipyard dock, and officer quarters in the interactive Catnip Harbor Hub before setting sail into fierce fleet clashes.</p>
+        <h4>🚢 Fleet Hangar & Battle Modes</h4>
+        <p>Choose from an expansive roster of frigates, destroyers, cruisers, and battleships. Engage in tactical 5v5 Fleet Skirmishes, Carrier Escorts, Outnumbered clashes, or gauntlets against colossal sea bosses.</p>
+        <div style="margin-top: 15px;">
+          <a href="https://kyclawzcatnip.github.io/catships/" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px;">
+            <span>⚓</span> Play Catnip Warships Live &rarr;
+          </a>
+        </div>
+      `
+    },
     'characters': {
       title: 'Characters',
       category: 'characters',
@@ -5425,7 +5453,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function updatePublicDiagnosticLabels() {
-    const games = ['scw', 'ssc', 'kart', 'cau', 'kingdom', 'maker'];
+    const games = ['scw', 'ssc', 'kart', 'cau', 'kingdom', 'maker', 'warships'];
     games.forEach(game => {
       const savedCode = localStorage.getItem(`scw_bug_code_${game}`) || '0';
       let desc = 'Code 0: Bug Free';
@@ -5435,8 +5463,8 @@ document.addEventListener('DOMContentLoaded', () => {
       switch (savedCode) {
         case '0':
           desc = 'Code 0: Bug Free';
-          statusBadgeText = game === 'scw' ? 'Done' : 'Code 0: Bug Free';
-          styleColor = '#00E676';
+          statusBadgeText = game === 'scw' ? 'Done' : (game === 'warships' ? 'v3.0.1 Released' : 'Code 0: Bug Free');
+          styleColor = (game === 'warships') ? '#00e5ff' : '#00E676';
           break;
         case '1':
           desc = 'Code 1: Annoying bug';
@@ -5481,7 +5509,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const statusBadges = document.querySelectorAll(`.game-status-badge[data-game="${game}"]`);
       statusBadges.forEach(badge => {
         badge.textContent = statusBadgeText;
-        badge.style.color = '#ffffff';
+        badge.style.color = (game === 'warships' && savedCode === '0') ? '#030a16' : '#ffffff';
         badge.style.background = styleColor;
         badge.style.borderColor = styleColor;
       });
@@ -5508,7 +5536,8 @@ document.addEventListener('DOMContentLoaded', () => {
           cau: 'Cats Among Us',
           kart: 'Catnip Kart',
           kingdom: 'Catnip Kingdom',
-          maker: 'SCW Maker'
+          maker: 'SCW Maker',
+          warships: 'Catnip Warships'
         };
         const gName = gameNames[game] || game.toUpperCase();
         if (typeof showHackerNotification === 'function') {
