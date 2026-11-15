@@ -6,7 +6,6 @@
 -- Extends auth.users to provide voter profile metadata and admin role flags.
 CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-  email TEXT,
   display_name TEXT DEFAULT 'Community Feline',
   avatar_url TEXT,
   is_admin BOOLEAN NOT NULL DEFAULT false,
@@ -232,10 +231,9 @@ CREATE POLICY "Users can retract vote in open round or admin" ON public.votes
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger AS $$
 BEGIN
-  INSERT INTO public.profiles (id, email, display_name, is_admin)
+  INSERT INTO public.profiles (id, display_name, is_admin)
   VALUES (
     new.id,
-    new.email,
     COALESCE(new.raw_user_meta_data->>'display_name', new.raw_user_meta_data->>'name', 'Feline Citizen'),
     false
   )

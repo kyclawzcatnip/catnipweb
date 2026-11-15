@@ -163,7 +163,7 @@
     }
   }
 
-  // Fetch or create public.profiles record for current user
+  // Fetch and verify public.profiles record for current user using auth user ID
   async function fetchUserProfile() {
     currentProfile = null;
     if (!supabase || !currentUser) {
@@ -172,31 +172,38 @@
     }
 
     try {
+      // Look up profile strictly by auth user ID
+      // Does not rely on or require an email column in public.profiles
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select('id, is_admin, display_name, avatar_url')
         .eq('id', currentUser.id)
         .maybeSingle();
 
       if (data) {
+        // Existing profile found (including existing admin with is_admin = true)
+        // Strictly preserve and use existing permissions
         currentProfile = data;
       } else {
-        // Create initial default profile row if not existing
+        // Only if NO profile row exists at all for this user ID, insert a default voter profile without email
         const isAnon = currentUser.is_anonymous || !currentUser.email;
         const defaultName = isAnon 
           ? `Feline #${currentUser.id.substring(0, 6)}` 
-          : (currentUser.email ? currentUser.email.split('@')[0] : 'Community Feline');
+          : (currentUser.user_metadata?.display_name || currentUser.user_metadata?.name || (currentUser.email ? currentUser.email.split('@')[0] : 'Community Feline'));
 
-        const { data: newProfile } = await supabase
+        const { data: newProfile, error: insertError } = await supabase
           .from('profiles')
           .insert({
             id: currentUser.id,
-            email: currentUser.email || null,
             display_name: defaultName,
             is_admin: false
           })
-          .select()
+          .select('id, is_admin, display_name, avatar_url')
           .maybeSingle();
+
+        if (insertError) {
+          console.warn('[Catnip Voting] Profile insert notice:', insertError.message);
+        }
 
         currentProfile = newProfile || { id: currentUser.id, is_admin: false, display_name: defaultName };
       }
@@ -678,7 +685,7 @@
             <span class="admin-shield-icon">🛡️</span>
             <div>
               <h3>Voting Administration & Game Controls</h3>
-              <p class="admin-subtitle">Authenticated as verified Studio Admin (${escapeHtml(currentProfile.display_name || currentProfile.email || 'Admin')})</p>
+              <p class="admin-subtitle">Authenticated as verified Studio Admin (${escapeHtml((currentProfile && currentProfile.display_name) || (currentUser && currentUser.email) || 'Admin')})</p>
             </div>
           </div>
           <div class="admin-header-actions">
