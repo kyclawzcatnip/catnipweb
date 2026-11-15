@@ -1549,6 +1549,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (sectionId === 'secrets') {
       if (typeof loadUserDirectory === 'function') loadUserDirectory();
       if (typeof updateBankUI === 'function') updateBankUI();
+      if (window.CatnipVoting && typeof window.CatnipVoting.renderDevSecretsManager === 'function') {
+        window.CatnipVoting.renderDevSecretsManager();
+      }
     }
   }
 
@@ -1570,7 +1573,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Monitor hash changes
   window.addEventListener('hashchange', () => {
     const hash = window.location.hash.substring(1) || 'home';
-    const validSections = ['home', 'games', 'wiki', 'map', 'news', 'stress', 'shop', 'community', 'secrets'];
+    const validSections = ['home', 'games', 'wiki', 'map', 'news', 'stress', 'shop', 'community', 'secrets', 'voting'];
     if (validSections.includes(hash)) {
       navigateTo(hash);
     }

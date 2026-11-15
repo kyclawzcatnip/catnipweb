@@ -297,6 +297,7 @@
       // Render UI components
       renderVotingInterface();
       renderAdminDashboard();
+      renderDevSecretsManager();
     } catch (err) {
       console.error('[Catnip Voting] Failed to refresh voting data:', err);
       showToast(`Error syncing voting data: ${err.message}`, 'error');
@@ -664,22 +665,41 @@
     candidatesGrid.innerHTML = cardsHTML;
   }
 
+  // Helper to determine if user is admin via profile or dev portal session
+  function checkIsAdmin() {
+    const isDevSession = typeof sessionStorage !== 'undefined' && sessionStorage.getItem('dev_auth') === 'true';
+    const isProfileAdmin = !!(currentProfile && currentProfile.is_admin === true);
+    return isProfileAdmin || isDevSession;
+  }
+
   // Render Admin Dashboard Controls
   function renderAdminDashboard() {
     const adminContainer = document.getElementById('voting-admin-container');
     if (!adminContainer) return;
 
-    // Strict security check: only render admin controls if profiles.is_admin === true
-    const isAdmin = currentProfile && currentProfile.is_admin === true;
+    // Strict security check: check profiles.is_admin === true or authenticated developer portal session
+    const isAdmin = checkIsAdmin();
     if (!isAdmin) {
-      adminContainer.style.display = 'none';
-      adminContainer.innerHTML = '';
+      adminContainer.style.display = 'block';
+      adminContainer.innerHTML = `
+        <div style="text-align: center; margin-top: 35px; padding: 22px; border: 1px dashed rgba(124, 77, 255, 0.35); border-radius: var(--radius-md); background: rgba(17, 11, 31, 0.5);">
+          <div style="font-size: 1.6rem; margin-bottom: 6px;">🛡️</div>
+          <h4 style="font-family: var(--font-headings); color: #fff; font-size: 1.05rem; margin-bottom: 6px;">Catnip Studios Administrator Access</h4>
+          <p style="font-size: 0.84rem; color: var(--color-text-secondary); max-width: 500px; margin: 0 auto 14px auto; line-height: 1.45;">
+            Need to add or manage candidate games? Sign in with your admin account or authenticate through the Developer Portal to unlock candidate management.
+          </p>
+          <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+            <button class="btn btn-primary btn-sm" onclick="window.CatnipVoting.openAuthModal()">🔑 Admin Sign In</button>
+            <button class="btn btn-secondary btn-sm" onclick="if (typeof openSecurityGate === 'function') openSecurityGate();">⚡ Open Dev Portal Gate</button>
+          </div>
+        </div>
+      `;
       return;
     }
 
     adminContainer.style.display = 'block';
     const isOpen = currentRound && currentRound.status === 'open';
-    const adminName = (currentProfile && currentProfile.display_name) || (currentUser && currentUser.email) || 'Admin';
+    const adminName = (currentProfile && currentProfile.display_name) || (currentUser && currentUser.email) || 'Studio Admin';
 
     adminContainer.innerHTML = `
       <div class="admin-dashboard-card">
@@ -830,6 +850,101 @@
     `;
   }
 
+  // Render Simple Voting Candidate Manager inside Dev Secrets section
+  function renderDevSecretsManager() {
+    const container = document.getElementById('dev-secrets-voting-manager-container');
+    if (!container) return;
+
+    container.innerHTML = `
+      <div class="admin-candidate-add-section" style="margin-top: 0; background: rgba(124, 77, 255, 0.04); border-color: rgba(124, 77, 255, 0.25);">
+        <div class="admin-section-header">
+          <h4 class="admin-section-heading"><span>➕</span> Add a Voting Candidate</h4>
+          <p class="admin-section-sub">Add a new game candidate to the voting database. It will immediately appear on the public voting page.</p>
+        </div>
+        <form id="dev-add-candidate-form" class="admin-candidate-form" onsubmit="window.CatnipVoting.submitAddCandidateForm(event, 'dev')">
+          <div class="form-row-grid">
+            <div class="form-group">
+              <label for="dev-candidate-name">Game Name <span class="required-star">*</span></label>
+              <input type="text" id="dev-candidate-name" class="form-input" placeholder="e.g. Catnip Warships" required autocomplete="off" />
+            </div>
+            <div class="form-group">
+              <label for="dev-candidate-image">Game Image URL <span class="optional-label">(optional)</span></label>
+              <input type="url" id="dev-candidate-image" class="form-input" placeholder="https://example.com/cover.png" autocomplete="off" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="dev-candidate-desc">Game Description <span class="required-star">*</span></label>
+            <textarea id="dev-candidate-desc" class="form-input" rows="3" placeholder="Describe the gameplay mechanics, style, and why players should vote for it..." required></textarea>
+          </div>
+          <div class="form-actions-row">
+            <button type="submit" class="btn btn-primary btn-add-candidate" id="dev-add-candidate-btn">
+              <span>➕</span> Add Candidate
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="admin-section-divider"></div>
+
+      <div class="admin-candidate-manage-section">
+        <div class="admin-section-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+          <div>
+            <h4 class="admin-section-heading"><span>🎮</span> Manage Existing Candidates (${allGames.length})</h4>
+            <p class="admin-section-sub">Edit details, toggle voting eligibility, or safely remove candidates.</p>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-secondary btn-xs" onclick="window.CatnipVoting.refreshData()">🔄 Refresh Standings</button>
+          </div>
+        </div>
+
+        ${allGames.length === 0 ? `
+          <div class="admin-candidate-empty">
+            <p>No candidate games yet. Fill out the <strong>Add a Voting Candidate</strong> form above to add your first candidate!</p>
+          </div>
+        ` : `
+          <div class="admin-candidate-items">
+            ${allGames.map(game => {
+              const gameVotes = currentVotes.filter(v => v.game_id === game.id).length;
+              const fallbackImg = getPlaceholderSvg(game.name);
+              const imgSrc = game.image_url ? escapeHtml(game.image_url) : fallbackImg;
+              
+              return `
+                <div class="admin-candidate-item" id="dev-admin-item-${game.id}">
+                  <img src="${imgSrc}" alt="${escapeHtml(game.name)}" class="admin-candidate-thumb" onerror="this.onerror=null; this.src='${fallbackImg}';" />
+                  <div class="admin-candidate-info">
+                    <div class="admin-candidate-name-row">
+                      <strong>${escapeHtml(game.name)}</strong>
+                      <span class="status-pill ${game.is_available ? 'pill-active' : 'pill-disabled'}">
+                        ${game.is_available ? '● Voting Enabled' : '○ Voting Disabled'}
+                      </span>
+                    </div>
+                    <p class="admin-candidate-desc">${escapeHtml(game.description || 'No description provided.')}</p>
+                    <div class="admin-candidate-stats">
+                      <span>🗳️ <strong>${gameVotes}</strong> votes in current round</span>
+                      <span>•</span>
+                      <span>📅 Added ${new Date(game.created_at || Date.now()).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+                  <div class="admin-candidate-actions">
+                    <button class="btn-candidate-action btn-action-edit" onclick="window.CatnipVoting.openEditCandidateModal('${game.id}')" title="Edit candidate details">
+                      <span>✏️</span> Edit Candidate
+                    </button>
+                    <button class="btn-candidate-action ${game.is_available ? 'btn-action-disable' : 'btn-action-enable'}" onclick="window.CatnipVoting.toggleCandidateAvailability('${game.id}', ${!game.is_available})" title="${game.is_available ? 'Disable voting' : 'Enable voting'}">
+                      <span>${game.is_available ? '🚫' : '✅'}</span> ${game.is_available ? 'Disable Candidate' : 'Enable Candidate'}
+                    </button>
+                    <button class="btn-candidate-action btn-action-remove" onclick="window.CatnipVoting.removeCandidate('${game.id}')" title="Safely remove candidate">
+                      <span>🗑️</span> Remove Candidate
+                    </button>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `}
+      </div>
+    `;
+  }
+
   // Setup / Connection Banner & Config Modal
   function renderSetupBanner(isConnected, errorMsg = '') {
     const banner = document.getElementById('voting-connection-banner');
@@ -865,20 +980,20 @@
   // ==================== ADMIN ACTIONS ====================
 
   // 1. Simple Add Candidate Form submission
-  async function submitAddCandidateForm(event) {
+  async function submitAddCandidateForm(event, prefix = 'admin') {
     if (event) {
       event.preventDefault();
     }
 
-    if (!supabase || !currentProfile?.is_admin) {
-      showToast('⚠️ Admin privileges required to manage candidates.', 'error');
+    if (!checkIsAdmin()) {
+      showToast('⚠️ Admin or Developer privileges required to manage candidates.', 'error');
       return;
     }
 
-    const nameInput = document.getElementById('admin-candidate-name');
-    const descInput = document.getElementById('admin-candidate-desc');
-    const imgInput = document.getElementById('admin-candidate-image');
-    const submitBtn = document.getElementById('admin-add-candidate-btn');
+    const nameInput = document.getElementById(`${prefix}-candidate-name`) || document.getElementById('admin-candidate-name');
+    const descInput = document.getElementById(`${prefix}-candidate-desc`) || document.getElementById('admin-candidate-desc');
+    const imgInput = document.getElementById(`${prefix}-candidate-image`) || document.getElementById('admin-candidate-image');
+    const submitBtn = document.getElementById(`${prefix}-add-candidate-btn`) || document.getElementById('admin-add-candidate-btn');
 
     const name = nameInput ? nameInput.value.trim() : '';
     const desc = descInput ? descInput.value.trim() : '';
@@ -894,6 +1009,11 @@
     if (!desc) {
       showToast('⚠️ Please enter a Game Description.', 'warning');
       if (descInput) descInput.focus();
+      return;
+    }
+
+    if (!supabase) {
+      showToast('⚠️ Supabase connection is required. Click "⚙️ Configure Supabase Credentials" to connect.', 'warning');
       return;
     }
 
@@ -942,7 +1062,10 @@
 
   // 2. Open Edit Candidate Modal
   function openEditCandidateModal(gameId) {
-    if (!supabase || !currentProfile?.is_admin) return;
+    if (!checkIsAdmin()) {
+      showToast('⚠️ Admin or Developer privileges required to edit candidates.', 'error');
+      return;
+    }
 
     const game = allGames.find(g => g.id === gameId);
     if (!game) {
@@ -1020,7 +1143,10 @@
 
   // 3. Toggle Candidate Availability (Enable / Disable)
   async function toggleCandidateAvailability(gameId, isAvailable) {
-    if (!supabase || !currentProfile?.is_admin) return;
+    if (!checkIsAdmin()) {
+      showToast('⚠️ Admin or Developer privileges required to update status.', 'error');
+      return;
+    }
 
     const targetGame = allGames.find(g => g.id === gameId);
     if (!targetGame) return;
@@ -1052,7 +1178,10 @@
 
   // 4. Remove Candidate Safely (Without destroying historical vote data)
   async function removeCandidate(gameId) {
-    if (!supabase || !currentProfile?.is_admin) return;
+    if (!checkIsAdmin()) {
+      showToast('⚠️ Admin or Developer privileges required to remove candidates.', 'error');
+      return;
+    }
 
     const targetGame = allGames.find(g => g.id === gameId);
     if (!targetGame) return;
@@ -1116,7 +1245,15 @@
 
   // 5. Toggle Round Status (Open Voting / Close Voting)
   async function toggleRoundStatus() {
-    if (!supabase || !currentRound || !currentProfile?.is_admin) return;
+    if (!checkIsAdmin()) {
+      showToast('⚠️ Admin or Developer privileges required to change round status.', 'error');
+      return;
+    }
+
+    if (!supabase || !currentRound) {
+      showToast('⚠️ No active voting round found.', 'warning');
+      return;
+    }
 
     const isOpen = currentRound.status === 'open';
     const newStatus = isOpen ? 'closed' : 'open';
@@ -1687,6 +1824,7 @@
     refreshData,
     openConfigModal,
     submitAddCandidateForm,
+    renderDevSecretsManager,
     openAddGameModal,
     openEditCandidateModal,
     openEditGameModal: openEditCandidateModal,
@@ -1704,17 +1842,23 @@
     getConfig
   };
 
-  // Auto-init if DOM is already loaded and on voting hash
-  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  // Auto-init if DOM is already loaded and on voting or secrets hash
+  function autoCheckHashInit() {
     if (window.location.hash === '#voting') {
       setTimeout(init, 100);
+    } else if (window.location.hash === '#secrets') {
+      setTimeout(() => {
+        init().then(() => {
+          renderDevSecretsManager();
+        });
+      }, 100);
     }
+  }
+
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    autoCheckHashInit();
   } else {
-    document.addEventListener('DOMContentLoaded', () => {
-      if (window.location.hash === '#voting') {
-        setTimeout(init, 100);
-      }
-    });
+    document.addEventListener('DOMContentLoaded', autoCheckHashInit);
   }
 
 })(window);

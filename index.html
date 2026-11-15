@@ -2244,6 +2244,29 @@
             </div>
           </div>
 
+          <!-- Developer Secrets: Simple Voting Candidate Manager Card -->
+          <div class="secrets-card voting-manager-secrets-card" id="dev-voting-manager-card" style="grid-column: 1 / -1; border: 1px solid rgba(124, 77, 255, 0.45); background: rgba(17, 11, 31, 0.95); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6); padding: 25px 28px; border-radius: var(--radius-lg); margin-top: 10px;">
+            <div class="secrets-card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; padding-bottom: 14px; border-bottom: 1px solid var(--border-light);">
+              <div>
+                <span class="secrets-cat" style="color: #00B0FF; background: rgba(0, 176, 255, 0.15);">Community Voting</span>
+                <h3 style="font-family: var(--font-headings); font-size: 1.25rem; color: #fff; margin-top: 4px;">Simple Voting Candidate Manager</h3>
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <a href="#voting" class="btn btn-secondary btn-sm nav-trigger" data-target="voting" style="display: inline-flex; align-items: center; gap: 6px;">
+                  <span>🗳️</span> Go to Public Voting Page
+                </a>
+              </div>
+            </div>
+            
+            <p style="font-size: 0.88rem; color: var(--color-text-secondary); margin-bottom: 18px; line-height: 1.5;">
+              Manage Community Voting candidates directly from Dev Secrets without writing SQL or opening Supabase. Add candidate games, edit details, toggle voting eligibility, or safely remove candidates.
+            </p>
+
+            <div id="dev-secrets-voting-manager-container">
+              <!-- Rendered dynamically by voting.js -->
+            </div>
+          </div>
+
           <!-- Developer Secrets: Creator Reflection Publisher Card -->
           <div class="secrets-card stress-publisher-card" style="grid-column: 1 / -1;">
             <div class="secrets-card-header">
