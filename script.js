@@ -1538,6 +1538,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (sectionId === 'community') {
       loadLeaderboard();
     }
+    if (sectionId === 'voting') {
+      if (window.CatnipVoting && typeof window.CatnipVoting.init === 'function') {
+        window.CatnipVoting.init();
+      }
+    }
     if (sectionId === 'stress') {
       if (typeof renderStressJournal === 'function') renderStressJournal();
     }
