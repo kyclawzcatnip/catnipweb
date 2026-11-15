@@ -874,20 +874,8 @@
     // Strict security check: check profiles.is_admin === true or authenticated developer portal session
     const isAdmin = checkIsAdmin();
     if (!isAdmin) {
-      adminContainer.style.display = 'block';
-      adminContainer.innerHTML = `
-        <div style="text-align: center; margin-top: 35px; padding: 22px; border: 1px dashed rgba(124, 77, 255, 0.35); border-radius: var(--radius-md); background: rgba(17, 11, 31, 0.5);">
-          <div style="font-size: 1.6rem; margin-bottom: 6px;">🛡️</div>
-          <h4 style="font-family: var(--font-headings); color: #fff; font-size: 1.05rem; margin-bottom: 6px;">Catnip Studios Administrator Access</h4>
-          <p style="font-size: 0.84rem; color: var(--color-text-secondary); max-width: 500px; margin: 0 auto 14px auto; line-height: 1.45;">
-            Need to add or manage candidate games? Sign in with your admin account or authenticate through the Developer Portal to unlock candidate management.
-          </p>
-          <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
-            <button class="btn btn-primary btn-sm" onclick="window.CatnipVoting.openAuthModal()">🔑 Admin Sign In</button>
-            <button class="btn btn-secondary btn-sm" onclick="if (typeof openSecurityGate === 'function') openSecurityGate();">⚡ Open Dev Portal Gate</button>
-          </div>
-        </div>
-      `;
+      adminContainer.style.display = 'none';
+      adminContainer.innerHTML = '';
       return;
     }
 
@@ -896,20 +884,21 @@
     const adminName = (currentProfile && currentProfile.display_name) || (currentUser && currentUser.email) || 'Studio Admin';
 
     adminContainer.innerHTML = `
-      <div class="admin-dashboard-card">
-        <!-- Header: Title & Round Actions -->
-        <div class="admin-card-header">
-          <div class="admin-title-group">
-            <span class="admin-shield-icon">🛡️</span>
+      <div class="admin-dashboard-card" style="padding: 16px 22px; margin-top: 25px; background: rgba(124, 77, 255, 0.08); border: 1px solid rgba(124, 77, 255, 0.35);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 1.5rem;">🛡️</span>
             <div>
-              <h3>Admin Dashboard</h3>
-              <p class="admin-subtitle">Authenticated as verified Studio Admin (${escapeHtml(adminName)}) &bull; Round: <strong>${escapeHtml(currentRound ? currentRound.title : 'No Active Round')}</strong> (${isOpen ? '🟢 Open' : '🔴 Closed'})</p>
+              <strong style="color: #fff; font-size: 0.95rem;">Studio Administrator Active (${escapeHtml(adminName)})</strong>
+              <p style="margin: 2px 0 0 0; font-size: 0.8rem; color: var(--color-text-secondary);">
+                Adding and editing voting candidates is located inside <strong>Developer Secrets</strong>.
+              </p>
             </div>
           </div>
-          <div class="admin-header-actions">
-            <button class="btn btn-secondary btn-sm" onclick="window.CatnipVoting.openConfigModal()">
-              <span>⚙️</span> Supabase Credentials
-            </button>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <a href="#secrets" class="btn btn-primary btn-sm nav-trigger" data-target="secrets" style="display: inline-flex; align-items: center; gap: 6px;">
+              <span>⚡</span> Manage Candidates in Dev Secrets &rarr;
+            </a>
             <button class="btn ${isOpen ? 'btn-danger' : 'btn-primary'} btn-sm" onclick="window.CatnipVoting.toggleRoundStatus()">
               <span>${isOpen ? '🔒' : '🔓'}</span> ${isOpen ? 'Close Voting' : 'Open Voting'}
             </button>
@@ -920,99 +909,6 @@
               <span>🏆</span> Declare Winner
             </button>
           </div>
-        </div>
-
-        <!-- 1. SIMPLE ADD CANDIDATE FORM -->
-        <div class="admin-candidate-add-section">
-          <div class="admin-section-header">
-            <h4 class="admin-section-heading"><span>➕</span> Add a Voting Candidate</h4>
-            <p class="admin-section-sub">Add a new game candidate to the voting page. It will immediately appear for all community members.</p>
-          </div>
-          <form id="admin-add-candidate-form" class="admin-candidate-form" novalidate onsubmit="window.CatnipVoting.submitAddCandidateForm(event, 'admin')">
-            <div class="form-group" style="margin-bottom: 14px;">
-              <label for="admin-candidate-name">Game Name <span class="required-star">*</span></label>
-              <input type="text" id="admin-candidate-name" name="candidate-name" class="form-input" placeholder="e.g. Catnip Warships" required autocomplete="off" />
-            </div>
-
-            <div class="form-group" style="margin-bottom: 14px;">
-              <label for="admin-candidate-image">
-                <span>🔗</span> Game Link or Image URL <span class="optional-label">(optional — playable game URL or cover art)</span>
-              </label>
-              <input type="text" inputmode="url" id="admin-candidate-image" name="candidate-image" class="form-input candidate-url-input" placeholder="Paste link here (e.g. https://kyclawzcatnip.github.io/catships/ or image URL)" autocomplete="off" spellcheck="false" oninput="window.CatnipVoting.onUrlInput(this, 'admin')" />
-              <div class="url-input-feedback" id="admin-url-feedback">
-                <span class="url-feedback-text">💡 You can paste a playable web game link (like GitHub Pages) or an image/screenshot link.</span>
-              </div>
-            </div>
-
-            <div class="form-group" style="margin-bottom: 14px;">
-              <label for="admin-candidate-desc">Game Description <span class="required-star">*</span></label>
-              <textarea id="admin-candidate-desc" name="candidate-desc" class="form-input" rows="3" placeholder="Describe the gameplay mechanics, style, and why players should vote for it..." required></textarea>
-            </div>
-            <div class="form-actions-row">
-              <button type="submit" class="btn btn-primary btn-add-candidate" id="admin-add-candidate-btn">
-                <span>➕</span> Add Candidate
-              </button>
-            </div>
-          </form>
-        </div>
-
-        <div class="admin-section-divider"></div>
-
-        <!-- 2. MANAGE EXISTING CANDIDATES -->
-        <div class="admin-candidate-manage-section">
-          <div class="admin-section-header">
-            <h4 class="admin-section-heading"><span>🎮</span> Manage Existing Candidates (${allGames.length})</h4>
-            <p class="admin-section-sub">Edit details, toggle voting eligibility, or safely remove candidates. Historical vote data is always preserved.</p>
-          </div>
-
-          ${allGames.length === 0 ? `
-            <div class="admin-candidate-empty">
-              <p>No candidate games yet. Fill out the <strong>Add a Voting Candidate</strong> form above to add your first candidate!</p>
-            </div>
-          ` : `
-            <div class="admin-candidate-items">
-              ${allGames.map(game => {
-                const gameVotes = currentVotes.filter(v => v.game_id === game.id).length;
-                const fallbackImg = getPlaceholderSvg(game.name);
-                const imgSrc = game.image_url ? escapeHtml(game.image_url) : fallbackImg;
-                
-                return `
-                  <div class="admin-candidate-item" id="admin-item-${game.id}">
-                    <img src="${imgSrc}" alt="${escapeHtml(game.name)}" data-candidate-title="${escapeHtml(game.name)}" class="admin-candidate-thumb" onerror="window.CatnipVoting.handleImageError(this)" />
-                    <div class="admin-candidate-info">
-                      <div class="admin-candidate-name-row">
-                        <strong>${escapeHtml(game.name)}</strong>
-                        <span class="status-pill ${game.is_available ? 'pill-active' : 'pill-disabled'}">
-                          ${game.is_available ? '● Voting Enabled' : '○ Voting Disabled'}
-                        </span>
-                      </div>
-                      <p class="admin-candidate-desc">${escapeHtml(game.description || 'No description provided.')}</p>
-                      <div class="admin-candidate-stats">
-                        <span>🗳️ <strong>${gameVotes}</strong> votes in current round</span>
-                        <span>•</span>
-                        <span>📅 Added ${new Date(game.created_at || Date.now()).toLocaleDateString()}</span>
-                        ${game.image_url ? `
-                          <span>•</span>
-                          <span class="admin-candidate-link-badge">🔗 <a href="${escapeHtml(game.image_url)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(game.image_url)}">${escapeHtml(game.image_url.length > 35 ? game.image_url.substring(0, 32) + '...' : game.image_url)}</a></span>
-                        ` : ''}
-                      </div>
-                    </div>
-                    <div class="admin-candidate-actions">
-                      <button class="btn-candidate-action btn-action-edit" onclick="window.CatnipVoting.openEditCandidateModal('${game.id}')" title="Edit candidate details">
-                        <span>✏️</span> Edit Candidate
-                      </button>
-                      <button class="btn-candidate-action ${game.is_available ? 'btn-action-disable' : 'btn-action-enable'}" onclick="window.CatnipVoting.toggleCandidateAvailability('${game.id}', ${!game.is_available})" title="${game.is_available ? 'Disable voting' : 'Enable voting'}">
-                        <span>${game.is_available ? '🚫' : '✅'}</span> ${game.is_available ? 'Disable Candidate' : 'Enable Candidate'}
-                      </button>
-                      <button class="btn-candidate-action btn-action-remove" onclick="window.CatnipVoting.removeCandidate('${game.id}')" title="Safely remove candidate">
-                        <span>🗑️</span> Remove Candidate
-                      </button>
-                    </div>
-                  </div>
-                `;
-              }).join('')}
-            </div>
-          `}
         </div>
       </div>
     `;
@@ -1090,8 +986,36 @@
       `;
     }
 
+    const isOpen = currentRound && currentRound.status === 'open';
+
     container.innerHTML = `
       ${setupAlertHtml}
+
+      <!-- Voting Round Controls Bar -->
+      <div class="admin-card-header" style="margin-bottom: 20px; padding: 14px 18px; background: rgba(124, 77, 255, 0.08); border: 1px solid rgba(124, 77, 255, 0.25); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <h4 style="margin: 0; color: #fff; font-size: 0.98rem; display: flex; align-items: center; gap: 8px;">
+            <span>🗳️ Active Round:</span>
+            <strong>${escapeHtml(currentRound ? currentRound.title : 'No Active Round')}</strong>
+            <span class="status-pill ${isOpen ? 'pill-active' : 'pill-disabled'}">${isOpen ? '● Open' : '○ Closed'}</span>
+          </h4>
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button class="btn ${isOpen ? 'btn-danger' : 'btn-primary'} btn-sm" onclick="window.CatnipVoting.toggleRoundStatus()">
+            <span>${isOpen ? '🔒' : '🔓'}</span> ${isOpen ? 'Close Voting' : 'Open Voting'}
+          </button>
+          <button class="btn btn-secondary btn-sm" onclick="window.CatnipVoting.openNewRoundModal()">
+            <span>✨</span> Start New Round
+          </button>
+          <button class="btn btn-secondary btn-sm" onclick="window.CatnipVoting.openWinnerModal()">
+            <span>🏆</span> Declare Winner
+          </button>
+          <button class="btn btn-secondary btn-sm" onclick="window.CatnipVoting.openConfigModal()">
+            <span>⚙️</span> Supabase Credentials
+          </button>
+        </div>
+      </div>
+
       <div class="admin-candidate-add-section" style="margin-top: 0; background: rgba(124, 77, 255, 0.04); border-color: rgba(124, 77, 255, 0.25);">
         <div class="admin-section-header">
           <h4 class="admin-section-heading"><span>➕</span> Add a Voting Candidate</h4>
@@ -1101,6 +1025,7 @@
           <div class="form-group" style="margin-bottom: 14px;">
             <label for="dev-candidate-name">Game Name <span class="required-star">*</span></label>
             <input type="text" id="dev-candidate-name" name="candidate-name" class="form-input" placeholder="e.g. Catnip Warships" required autocomplete="off" />
+            <input type="hidden" id="admin-candidate-name" />
           </div>
 
           <div class="form-group" style="margin-bottom: 14px;">
@@ -1108,19 +1033,23 @@
               <span>🔗</span> Game Link or Image URL <span class="optional-label">(optional — playable game URL or cover art)</span>
             </label>
             <input type="text" inputmode="url" id="dev-candidate-image" name="candidate-image" class="form-input candidate-url-input" placeholder="Paste link here (e.g. https://kyclawzcatnip.github.io/catships/ or image URL)" autocomplete="off" spellcheck="false" oninput="window.CatnipVoting.onUrlInput(this, 'dev')" />
+            <input type="hidden" inputmode="url" id="admin-candidate-image" />
             <div class="url-input-feedback" id="dev-url-feedback">
               <span class="url-feedback-text">💡 You can paste a playable web game link (like GitHub Pages) or an image/screenshot link.</span>
             </div>
+            <div id="admin-url-feedback" style="display: none;"></div>
           </div>
 
           <div class="form-group" style="margin-bottom: 14px;">
             <label for="dev-candidate-desc">Game Description <span class="required-star">*</span></label>
             <textarea id="dev-candidate-desc" name="candidate-desc" class="form-input" rows="3" placeholder="Describe the gameplay mechanics, style, and why players should vote for it..." required></textarea>
+            <textarea id="admin-candidate-desc" style="display: none;"></textarea>
           </div>
           <div class="form-actions-row">
             <button type="submit" class="btn btn-primary btn-add-candidate" id="dev-add-candidate-btn">
               <span>➕</span> Add Candidate
             </button>
+            <button type="button" id="admin-add-candidate-btn" style="display: none;">Add Candidate</button>
           </div>
         </form>
       </div>
