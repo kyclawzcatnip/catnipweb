@@ -771,7 +771,7 @@
         cardsHTML += `
           <div class="candidate-card ${isVoted ? 'card-voted' : ''}" id="game-card-${game.id}">
             <div class="candidate-card-media">
-              <img src="${imgSrc}" alt="${escapeHtml(game.name)}" class="candidate-card-img" onerror="this.onerror=null; this.src='${fallbackImg}';" />
+              <img src="${imgSrc}" alt="${escapeHtml(game.name)}" data-candidate-title="${escapeHtml(game.name)}" class="candidate-card-img" onerror="window.CatnipVoting.handleImageError(this)" />
               <div class="candidate-rank-badge ${game.rank === 1 ? 'rank-gold' : ''}">${medal}</div>
               ${isVoted ? '<div class="candidate-voted-pill">Your Current Vote</div>' : ''}
             </div>
@@ -978,7 +978,7 @@
                 
                 return `
                   <div class="admin-candidate-item" id="admin-item-${game.id}">
-                    <img src="${imgSrc}" alt="${escapeHtml(game.name)}" class="admin-candidate-thumb" onerror="this.onerror=null; this.src='${fallbackImg}';" />
+                    <img src="${imgSrc}" alt="${escapeHtml(game.name)}" data-candidate-title="${escapeHtml(game.name)}" class="admin-candidate-thumb" onerror="window.CatnipVoting.handleImageError(this)" />
                     <div class="admin-candidate-info">
                       <div class="admin-candidate-name-row">
                         <strong>${escapeHtml(game.name)}</strong>
@@ -1152,7 +1152,7 @@
               
               return `
                 <div class="admin-candidate-item" id="dev-admin-item-${game.id}">
-                  <img src="${imgSrc}" alt="${escapeHtml(game.name)}" class="admin-candidate-thumb" onerror="this.onerror=null; this.src='${fallbackImg}';" />
+                  <img src="${imgSrc}" alt="${escapeHtml(game.name)}" data-candidate-title="${escapeHtml(game.name)}" class="admin-candidate-thumb" onerror="window.CatnipVoting.handleImageError(this)" />
                   <div class="admin-candidate-info">
                     <div class="admin-candidate-name-row">
                       <strong>${escapeHtml(game.name)}</strong>
@@ -2457,7 +2457,8 @@
   }
 
   function getPlaceholderSvg(title) {
-    const safeTitle = (title || 'Catnip Game').substring(0, 18);
+    const rawTitle = (title || 'Catnip Game').substring(0, 18);
+    const safeTitle = escapeHtml(rawTitle);
     const svg = `
       <svg xmlns="http://www.w3.org/2000/svg" width="400" height="220" viewBox="0 0 400 220">
         <defs>
@@ -2471,11 +2472,19 @@
         <circle cx="200" cy="90" r="45" fill="rgba(124, 77, 255, 0.15)" stroke="#7C4DFF" stroke-width="1.5" stroke-dasharray="4 2" />
         <circle cx="200" cy="90" r="28" fill="rgba(0, 176, 255, 0.2)" stroke="#00B0FF" stroke-width="2" />
         <text x="200" y="98" font-size="28" text-anchor="middle">🐾</text>
-        <text x="200" y="165" font-family="'Outfit', 'Space Grotesk', sans-serif" font-weight="700" font-size="16" fill="#f5f4f8" text-anchor="middle">${safeTitle}</text>
-        <text x="200" y="185" font-family="'Space Grotesk', monospace" font-size="11" fill="#7C4DFF" text-anchor="middle">CATNIP STUDIOS CANDIDATE</text>
+        <text x="200" y="165" font-family="Outfit, Space Grotesk, sans-serif" font-weight="700" font-size="16" fill="#f5f4f8" text-anchor="middle">${safeTitle}</text>
+        <text x="200" y="185" font-family="Space Grotesk, monospace" font-size="11" fill="#7C4DFF" text-anchor="middle">CATNIP STUDIOS CANDIDATE</text>
       </svg>
     `;
-    return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+    return `data:image/svg+xml;utf8,${encodeURIComponent(svg).replace(/'/g, '%27')}`;
+  }
+
+  // Safe Image error handler to prevent inline JS quotation syntax errors
+  function handleImageError(img) {
+    if (!img) return;
+    img.onerror = null;
+    const title = img.getAttribute('data-candidate-title') || img.getAttribute('alt') || 'Catnip Game';
+    img.src = getPlaceholderSvg(title);
   }
 
   // Main Public Init function
@@ -2524,7 +2533,8 @@
     signOut,
     getConfig,
     normalizeUrl,
-    onUrlInput
+    onUrlInput,
+    handleImageError
   };
 
   // Auto-init if DOM is already loaded and on voting or secrets hash
