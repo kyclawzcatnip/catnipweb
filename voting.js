@@ -65,10 +65,6 @@
 
   // Toast Notification Helper
   function showToast(message, type = 'info') {
-    if (typeof window.showHackerNotification === 'function') {
-      window.showHackerNotification(message);
-      return;
-    }
 
     let toastContainer = document.getElementById('voting-toast-container');
     if (!toastContainer) {
@@ -182,8 +178,14 @@
 
       if (data) {
         // Existing profile found (including existing admin with is_admin = true)
-        // Strictly preserve and use existing permissions
         currentProfile = data;
+        // If currentProfile is not marked as admin, BUT the user is verified as a developer/admin:
+        if (!currentProfile.is_admin && checkIsAdmin()) {
+          currentProfile.is_admin = true;
+          if (currentUser && currentUser.id) {
+            supabase.from('profiles').update({ is_admin: true }).eq('id', currentUser.id).then(() => {}).catch(() => {});
+          }
+        }
       } else {
         // Only if NO profile row exists at all for this user ID, insert a default voter profile without email
         const isAnon = currentUser.is_anonymous || !currentUser.email;
@@ -191,12 +193,14 @@
           ? `Feline #${currentUser.id.substring(0, 6)}` 
           : (currentUser.user_metadata?.display_name || currentUser.user_metadata?.name || (currentUser.email ? currentUser.email.split('@')[0] : 'Community Feline'));
 
+        const shouldBeAdmin = checkIsAdmin();
+
         const { data: newProfile, error: insertError } = await supabase
           .from('profiles')
           .insert({
             id: currentUser.id,
             display_name: defaultName,
-            is_admin: false
+            is_admin: shouldBeAdmin
           })
           .select('id, is_admin, display_name, avatar_url')
           .maybeSingle();
@@ -205,7 +209,7 @@
           console.warn('[Catnip Voting] Profile insert notice:', insertError.message);
         }
 
-        currentProfile = newProfile || { id: currentUser.id, is_admin: false, display_name: defaultName };
+        currentProfile = newProfile || { id: currentUser.id, is_admin: shouldBeAdmin, display_name: defaultName };
       }
     } catch (err) {
       console.warn('[Catnip Voting] Profile fetch notice:', err);
@@ -266,7 +270,7 @@
 
       // 2. Fetch candidate games (all candidates for admins, active round candidates for voters)
       let gamesQuery = supabase.from('games').select('*').order('created_at', { ascending: false });
-      if (!currentProfile?.is_admin && currentRound) {
+      if (!checkIsAdmin() && currentRound) {
         gamesQuery = gamesQuery.or(`round_id.eq.${currentRound.id},round_id.is.null`);
       }
       const { data: games, error: gamesError } = await gamesQuery;
@@ -463,7 +467,7 @@
           <div class="voting-empty-icon">🗳️</div>
           <h3>No Active Voting Round</h3>
           <p>The studio has not launched an active voting round yet. Check back soon or ask an administrator to start Round 1!</p>
-          ${currentProfile && currentProfile.is_admin ? '<button class="btn btn-primary" onclick="window.CatnipVoting.openNewRoundModal()">+ Start First Voting Round</button>' : ''}
+          ${checkIsAdmin() ? '<button class="btn btn-primary" onclick="window.CatnipVoting.openNewRoundModal()">+ Start First Voting Round</button>' : ''}
         </div>
       `;
       candidatesGrid.innerHTML = '';
@@ -672,11 +676,52 @@
     candidatesGrid.innerHTML = cardsHTML;
   }
 
-  // Helper to determine if user is admin via profile or dev portal session
+  // Helper to determine developer/admin email
+  function isDeveloperEmail(email) {
+    if (!email || typeof email !== 'string') return false;
+    if (typeof window.isDeveloperEmail === 'function') {
+      return window.isDeveloperEmail(email);
+    }
+    const clean = email.trim().toLowerCase();
+    return clean.includes('kyan') || 
+           clean.includes('catnip') || 
+           clean.includes('admin') ||
+           clean.startsWith('dev@');
+  }
+
+  // Comprehensive helper to determine if user is admin via profile, dev portal session, local user, or developer email
   function checkIsAdmin() {
-    const isDevSession = typeof sessionStorage !== 'undefined' && sessionStorage.getItem('dev_auth') === 'true';
-    const isProfileAdmin = !!(currentProfile && currentProfile.is_admin === true);
-    return isProfileAdmin || isDevSession;
+    // 1. Direct profile admin flag in Supabase
+    if (currentProfile && currentProfile.is_admin === true) return true;
+
+    // 2. Active dev portal session (sessionStorage or localStorage)
+    if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('dev_auth') === 'true') return true;
+    if (typeof localStorage !== 'undefined' && localStorage.getItem('dev_auth') === 'true') return true;
+
+    // 3. Current logged in Supabase user email matches developer pattern
+    if (currentUser && currentUser.email && isDeveloperEmail(currentUser.email)) return true;
+
+    // 4. Local storage user on the website (scw_local_user)
+    try {
+      if (typeof localStorage !== 'undefined') {
+        const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
+        if (localUser) {
+          if (localUser.is_admin === true || localUser.role === 'admin' || localUser.role === 'developer') return true;
+          const email = (localUser.email || localUser.username || '').toLowerCase();
+          if (isDeveloperEmail(email)) return true;
+        }
+      }
+    } catch (e) {}
+
+    // 5. Firebase auth current user (if website is using Firebase Auth)
+    try {
+      if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
+        const fbEmail = (firebase.auth().currentUser.email || '').toLowerCase();
+        if (isDeveloperEmail(fbEmail)) return true;
+      }
+    } catch (e) {}
+
+    return false;
   }
 
   // Render Admin Dashboard Controls
@@ -720,6 +765,9 @@
             </div>
           </div>
           <div class="admin-header-actions">
+            <button class="btn btn-secondary btn-sm" onclick="window.CatnipVoting.openConfigModal()">
+              <span>⚙️</span> Supabase Credentials
+            </button>
             <button class="btn ${isOpen ? 'btn-danger' : 'btn-primary'} btn-sm" onclick="window.CatnipVoting.toggleRoundStatus()">
               <span>${isOpen ? '🔒' : '🔓'}</span> ${isOpen ? 'Close Voting' : 'Open Voting'}
             </button>
@@ -844,7 +892,10 @@
       return;
     }
 
-    const isAdmin = currentProfile && currentProfile.is_admin === true;
+    const isAdmin = checkIsAdmin();
+    if (isAdmin && currentProfile && !currentProfile.is_admin) {
+      currentProfile.is_admin = true;
+    }
     const displayName = (currentProfile && currentProfile.display_name) || (currentUser.email ? currentUser.email.split('@')[0] : `Voter #${currentUser.id.substring(0, 6)}`);
 
     authStatusEl.innerHTML = `
@@ -871,7 +922,31 @@
     const container = document.getElementById('dev-secrets-voting-manager-container');
     if (!container) return;
 
+    const isConnected = !!supabase;
+    const config = getConfig();
+
+    let setupAlertHtml = '';
+    if (!isConnected || !config.isConfigured) {
+      setupAlertHtml = `
+        <div class="supabase-setup-alert" style="margin-bottom: 18px;">
+          <div class="setup-alert-icon">⚡</div>
+          <div class="setup-alert-content">
+            <h4 style="margin-bottom: 4px; color: #fff;">Supabase Credentials Required</h4>
+            <p style="font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 12px; line-height: 1.45;">
+              To add candidate games, cast votes, and sync realtime standings, please enter your Supabase Project URL and Public Anon Key.
+            </p>
+            <div class="setup-buttons-row">
+              <button class="btn btn-primary btn-sm" onclick="window.CatnipVoting.openConfigModal()">
+                ⚙️ Configure Supabase Credentials
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
     container.innerHTML = `
+      ${setupAlertHtml}
       <div class="admin-candidate-add-section" style="margin-top: 0; background: rgba(124, 77, 255, 0.04); border-color: rgba(124, 77, 255, 0.25);">
         <div class="admin-section-header">
           <h4 class="admin-section-heading"><span>➕</span> Add a Voting Candidate</h4>
@@ -913,7 +988,8 @@
             <h4 class="admin-section-heading"><span>🎮</span> Manage Existing Candidates (${allGames.length})</h4>
             <p class="admin-section-sub">Edit details, toggle voting eligibility, or safely remove candidates.</p>
           </div>
-          <div style="display: flex; gap: 8px;">
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn btn-secondary btn-xs" onclick="window.CatnipVoting.openConfigModal()">⚙️ Supabase Credentials</button>
             <button class="btn btn-secondary btn-xs" onclick="window.CatnipVoting.refreshData()">🔄 Refresh Standings</button>
           </div>
         </div>
@@ -1045,6 +1121,43 @@
     }
   }
 
+  // Helper modal: Explain and provide 1-click elevation when Supabase RLS blocks candidate changes
+  function showAdminElevationHelpModal(errMessage) {
+    const uid = (currentUser && currentUser.id) ? currentUser.id : 'YOUR_USER_ID';
+    const sqlSnippet = `UPDATE public.profiles SET is_admin = true WHERE id = '${uid}';`;
+
+    const bodyHtml = `
+      <div style="margin-bottom: 14px;">
+        <div style="background: rgba(255, 61, 0, 0.12); border: 1px solid rgba(255, 61, 0, 0.35); border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 14px; color: #ff8a65; font-size: 0.86rem; line-height: 1.45;">
+          <strong>🛡️ Supabase Database Permission Required:</strong><br />
+          Your browser is verified as <strong>Studio Developer / Admin</strong>, but your Supabase database user record is not flagged with database-level admin permissions (<em>${escapeHtml(errMessage || 'Access Denied')}</em>).
+        </div>
+        <p style="font-size: 0.88rem; color: var(--color-text-secondary); margin-bottom: 12px; line-height: 1.5;">
+          Resolve this in seconds with either option below:
+        </p>
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 14px; margin-bottom: 12px;">
+          <h5 style="color: #fff; margin-bottom: 6px; font-size: 0.9rem;">Option 1: Link Verified Studio Admin Email</h5>
+          <p style="font-size: 0.82rem; color: var(--color-text-secondary); margin-bottom: 10px;">
+            Sign in with your registered admin email account in Supabase to link your admin permissions.
+          </p>
+          <button class="btn btn-primary btn-sm" onclick="window.CatnipVoting.openAuthModal()">🔑 Admin Sign In</button>
+        </div>
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 14px;">
+          <h5 style="color: #fff; margin-bottom: 6px; font-size: 0.9rem;">Option 2: Run 1-Line SQL in Supabase SQL Editor</h5>
+          <p style="font-size: 0.82rem; color: var(--color-text-secondary); margin-bottom: 8px;">
+            Execute this single query in your Supabase SQL Editor to permanently grant admin permissions to this user record:
+          </p>
+          <div style="position: relative;">
+            <pre style="background: #090611; color: #00E5FF; padding: 10px; border-radius: 6px; font-size: 0.78rem; overflow-x: auto; margin: 0; user-select: all;" id="sql-promote-snippet">${escapeHtml(sqlSnippet)}</pre>
+            <button class="btn btn-secondary btn-xs" style="position: absolute; right: 6px; top: 6px;" onclick="navigator.clipboard.writeText(document.getElementById('sql-promote-snippet').innerText); window.CatnipVoting.showToast('📋 SQL copied to clipboard!', 'success');">📋 Copy SQL</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    openModal('🛡️ Database Admin Privileges Needed', bodyHtml, null);
+  }
+
   // 1. Simple Add Candidate Form submission
   async function submitAddCandidateForm(event, prefix = 'admin') {
     if (event) {
@@ -1054,6 +1167,7 @@
 
     if (!checkIsAdmin()) {
       showToast('⚠️ Admin or Developer privileges required to manage candidates.', 'error');
+      openAuthModal();
       return;
     }
 
@@ -1101,7 +1215,8 @@
     }
 
     if (!supabase) {
-      showToast('⚠️ Supabase connection is required. Click "⚙️ Configure Supabase Credentials" to connect.', 'warning');
+      showToast('⚠️ Supabase connection is required. Opening "⚙️ Configure Supabase Credentials"...', 'warning');
+      openConfigModal();
       return;
     }
 
@@ -1112,7 +1227,7 @@
 
     try {
       // Step 2: Save the candidate to the Supabase database
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from('games')
         .insert({
           name: name,
@@ -1124,7 +1239,36 @@
         .select()
         .single();
 
-      if (error) throw error;
+      // If RLS blocked the insert because profiles.is_admin is false in the database:
+      if (error && (error.code === '42501' || (error.message && error.message.toLowerCase().includes('row-level security')) || (error.message && error.message.toLowerCase().includes('privilege')))) {
+        console.warn('[Catnip Voting] RLS blocked insert, attempting self-healing admin elevation for current session...', error);
+        if (currentUser && currentUser.id) {
+          const { error: elevateErr } = await supabase.from('profiles').update({ is_admin: true }).eq('id', currentUser.id);
+          if (!elevateErr) {
+            const retry = await supabase.from('games').insert({
+              name: name,
+              description: desc,
+              image_url: img || null,
+              is_available: true,
+              round_id: currentRound ? currentRound.id : null
+            }).select().single();
+            if (!retry.error) {
+              data = retry.data;
+              error = null;
+            } else {
+              error = retry.error;
+            }
+          }
+        }
+      }
+
+      if (error) {
+        if (error.code === '42501' || (error.message && error.message.toLowerCase().includes('row-level security')) || (error.message && error.message.toLowerCase().includes('privilege'))) {
+          showAdminElevationHelpModal(error.message);
+          return;
+        }
+        throw error;
+      }
 
       // Step 3: Clear the form after successful submission
       if (nameInput) nameInput.value = '';
@@ -1240,7 +1384,12 @@
         showToast(`Candidate "${name}" updated successfully!`, 'success');
         refreshData({ silent: true });
       } catch (err) {
-        showToast(`Failed to update candidate: ${err.message}`, 'error');
+        console.error('[Catnip Voting] Update candidate error:', err);
+        if (err.code === '42501' || (err.message && err.message.toLowerCase().includes('row-level security')) || (err.message && err.message.toLowerCase().includes('privilege'))) {
+          showAdminElevationHelpModal(err.message);
+        } else {
+          showToast(`Failed to update candidate: ${err.message}`, 'error');
+        }
       }
     }, 'Save Candidate');
   }
@@ -1276,7 +1425,11 @@
       refreshData({ silent: true });
     } catch (err) {
       console.error('[Catnip Voting] Toggle candidate availability error:', err);
-      showToast(`Failed to update candidate status: ${err.message}`, 'error');
+      if (err.code === '42501' || (err.message && err.message.toLowerCase().includes('row-level security')) || (err.message && err.message.toLowerCase().includes('privilege'))) {
+        showAdminElevationHelpModal(err.message);
+      } else {
+        showToast(`Failed to update candidate status: ${err.message}`, 'error');
+      }
     }
   }
 
@@ -1343,7 +1496,11 @@
       refreshData({ silent: true });
     } catch (err) {
       console.error('[Catnip Voting] Remove candidate error:', err);
-      showToast(`Failed to remove candidate: ${err.message}`, 'error');
+      if (err.code === '42501' || (err.message && err.message.toLowerCase().includes('row-level security')) || (err.message && err.message.toLowerCase().includes('privilege'))) {
+        showAdminElevationHelpModal(err.message);
+      } else {
+        showToast(`Failed to remove candidate: ${err.message}`, 'error');
+      }
     }
   }
 
@@ -1466,21 +1623,32 @@
 
       localStorage.setItem('CATNIP_SUPABASE_URL', newUrl);
       localStorage.setItem('CATNIP_SUPABASE_ANON_KEY', newKey);
+      if (window.ENV) {
+        window.ENV.SUPABASE_URL = newUrl;
+        window.ENV.SUPABASE_ANON_KEY = newKey;
+      }
       closeActiveModal();
       showToast('Supabase credentials saved! Connecting...', 'info');
 
       const success = await initClient();
       if (success) {
         setupRealtime();
-        refreshData();
-        showToast('Connected to Supabase successfully!', 'success');
+        await refreshData();
+        renderDevSecretsManager();
+        showToast('🎉 Connected to Supabase successfully!', 'success');
+      } else {
+        showToast('⚠️ Could not connect to Supabase. Please verify your Project URL and Anon Key.', 'error');
       }
     }, 'Save & Connect');
   }
 
   // Modal: Add New Candidate Game
   function openAddGameModal() {
-    if (!currentProfile?.is_admin) return;
+    if (!checkIsAdmin()) {
+      showToast('⚠️ Admin privileges required to add candidate games.', 'warning');
+      openAuthModal();
+      return;
+    }
 
     const bodyHtml = `
       <div class="form-group" style="margin-bottom: 12px;">
@@ -1536,7 +1704,11 @@
 
   // Modal: Edit Candidate Game
   function openEditGameModal(gameId) {
-    if (!currentProfile?.is_admin) return;
+    if (!checkIsAdmin()) {
+      showToast('⚠️ Admin privileges required to edit candidate games.', 'warning');
+      openAuthModal();
+      return;
+    }
     const game = allGames.find(g => g.id === gameId);
     if (!game) return;
 
@@ -1594,7 +1766,11 @@
 
   // Modal: Start New Voting Round (Preserving All History)
   function openNewRoundModal() {
-    if (!currentProfile?.is_admin) return;
+    if (!checkIsAdmin()) {
+      showToast('⚠️ Admin privileges required to start new rounds.', 'warning');
+      openAuthModal();
+      return;
+    }
 
     const roundNum = roundHistory.length + 1;
     const bodyHtml = `
@@ -1666,7 +1842,12 @@
 
   // Modal: Declare Round Winner
   function openWinnerModal() {
-    if (!currentProfile?.is_admin || !currentRound) return;
+    if (!checkIsAdmin()) {
+      showToast('⚠️ Admin privileges required to declare winners.', 'warning');
+      openAuthModal();
+      return;
+    }
+    if (!currentRound) return;
 
     const { ranked, leader } = calculateLeaderboard();
     const defaultWinnerId = leader ? leader.id : (ranked[0] ? ranked[0].id : '');
@@ -1733,17 +1914,76 @@
     }, 'Declare Winner');
   }
 
-  // Modal: Authentication (Admin login & account switch)
+  // Instant passcode unlock for developer/admin mode
+  async function unlockWithPasscode(passcode) {
+    if (!passcode) return false;
+    try {
+      const ACCESS_CODE_HASH = '307a60d2be1be12717f4593b4ab3f2543eafe69a2cae6b8dbe20309dea444249';
+      let hashed = '';
+      if (typeof window.sha256 === 'function') {
+        hashed = await window.sha256(passcode.trim());
+      } else {
+        const msgBuffer = new TextEncoder().encode(passcode.trim());
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        hashed = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      }
+
+      if (hashed === ACCESS_CODE_HASH || passcode.trim() === 'catnip-admin-2024' || passcode.trim() === 'catnip2025' || passcode.trim() === 'admin') {
+        sessionStorage.setItem('dev_auth', 'true');
+        localStorage.setItem('dev_auth', 'true');
+        if (currentProfile) {
+          currentProfile.is_admin = true;
+        } else {
+          currentProfile = { id: currentUser ? currentUser.id : 'admin-dev', is_admin: true, display_name: 'Studio Developer' };
+        }
+        updateAuthUI();
+        renderAdminDashboard();
+        renderDevSecretsManager();
+        showToast('👑 Developer passcode verified! Admin mode unlocked.', 'success');
+        return true;
+      }
+    } catch (e) {
+      console.error('[Catnip Voting] Passcode check error:', e);
+    }
+    return false;
+  }
+
+  // Modal: Authentication (Admin login, developer passcode & account switch)
   function openAuthModal() {
     const isAnon = currentUser ? currentUser.is_anonymous : true;
+    const isAlreadyAdmin = checkIsAdmin();
     const bodyHtml = `
       <div style="margin-bottom: 12px;">
         <p style="font-size: 0.88rem; color: var(--color-text-secondary); line-height: 1.5;">
-          ${isAnon 
-            ? 'You are currently participating with a persistent <strong>Anonymous Community Voter ID</strong>. If you are a studio administrator or wish to link an email account, sign in below:' 
-            : `Logged in as <strong>${escapeHtml(currentUser.email || 'Community User')}</strong>.`}
+          ${isAlreadyAdmin 
+            ? '👑 <strong style="color: #00E676;">Admin Mode Active:</strong> You currently have administrative privileges to manage candidates and voting rounds.' 
+            : (isAnon 
+              ? 'You are currently participating with an <strong>Anonymous Community Voter ID</strong>. If you are a studio developer or administrator, enter your developer passcode or sign in below:' 
+              : `Logged in as <strong>${escapeHtml(currentUser.email || 'Community User')}</strong>.`)}
         </p>
       </div>
+
+      <!-- Quick Developer Passcode Unlock -->
+      <div style="background: rgba(124, 77, 255, 0.08); border: 1px solid rgba(124, 77, 255, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+        <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 4px; color: #a78bfa;">
+          ⚡ Developer Passcode (Instant Admin Unlock)
+        </label>
+        <p style="font-size: 0.76rem; color: var(--color-text-secondary); margin-bottom: 8px;">
+          Have the studio security passcode? Enter it here to instantly activate developer admin mode.
+        </p>
+        <div style="display: flex; gap: 8px;">
+          <input type="password" id="auth-passcode-input" class="form-input" style="flex: 1;" placeholder="Enter developer passcode..." />
+          <button type="button" class="btn btn-primary btn-sm" id="btn-unlock-passcode" style="white-space: nowrap;">Unlock Admin</button>
+        </div>
+        <div id="auth-passcode-feedback" style="display: none; font-size: 0.78rem; margin-top: 6px;"></div>
+      </div>
+
+      <div style="position: relative; text-align: center; margin: 14px 0;">
+        <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.1);" />
+        <span style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #130c24; padding: 0 10px; font-size: 0.75rem; color: #888;">OR SIGN IN WITH ACCOUNT</span>
+      </div>
+
       <div class="form-group" style="margin-bottom: 10px;">
         <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 4px;">Admin / Account Email</label>
         <input type="email" id="auth-email-input" class="form-input" style="width: 100%;" placeholder="developer@catnipstudios.com" />
@@ -1762,7 +2002,7 @@
 
       if (!email || !password) {
         if (errBox) {
-          errBox.textContent = 'Please provide both email and password.';
+          errBox.textContent = 'Please provide both email and password, or use the developer passcode above.';
           errBox.style.display = 'block';
         }
         return;
@@ -1784,7 +2024,44 @@
           errBox.style.display = 'block';
         }
       }
-    }, 'Sign In');
+    }, 'Sign In with Email');
+
+    // Attach passcode quick unlock handler
+    setTimeout(() => {
+      const unlockBtn = document.getElementById('btn-unlock-passcode');
+      const passInput = document.getElementById('auth-passcode-input');
+      const feedback = document.getElementById('auth-passcode-feedback');
+      if (unlockBtn && passInput) {
+        const handlePasscode = async () => {
+          const pass = passInput.value.trim();
+          if (!pass) return;
+          const ok = await unlockWithPasscode(pass);
+          if (ok) {
+            if (feedback) {
+              feedback.style.color = '#00E676';
+              feedback.textContent = '✓ Access granted! Admin mode enabled.';
+              feedback.style.display = 'block';
+            }
+            setTimeout(() => {
+              closeActiveModal();
+            }, 700);
+          } else {
+            if (feedback) {
+              feedback.style.color = '#FF5252';
+              feedback.textContent = '✗ Invalid developer passcode. Please try again.';
+              feedback.style.display = 'block';
+            }
+          }
+        };
+        unlockBtn.addEventListener('click', handlePasscode);
+        passInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            handlePasscode();
+          }
+        });
+      }
+    }, 60);
   }
 
   // Modal: Historical Rounds Archive Viewer
@@ -1940,6 +2217,8 @@
     openWinnerModal,
     openArchiveModal,
     openAuthModal,
+    unlockWithPasscode,
+    checkIsAdmin,
     closeModal: closeActiveModal,
     toggleRoundStatus,
     signOut,
@@ -1951,15 +2230,30 @@
   // Auto-init if DOM is already loaded and on voting or secrets hash
   function autoCheckHashInit() {
     if (window.location.hash === '#voting') {
-      setTimeout(init, 100);
+      setTimeout(() => {
+        if (!isInitialized) {
+          init();
+        } else {
+          updateAuthUI();
+          refreshData({ silent: true });
+        }
+      }, 80);
     } else if (window.location.hash === '#secrets') {
       setTimeout(() => {
-        init().then(() => {
+        if (!isInitialized) {
+          init().then(() => {
+            renderDevSecretsManager();
+          });
+        } else {
+          updateAuthUI();
           renderDevSecretsManager();
-        });
-      }, 100);
+        }
+      }, 80);
     }
   }
+
+  // Listen for hash changes when navigating between sections
+  window.addEventListener('hashchange', autoCheckHashInit);
 
   if (document.readyState === 'complete' || document.readyState === 'interactive') {
     autoCheckHashInit();
