@@ -382,14 +382,28 @@
         roundHistory = rounds || [];
         currentRound = roundHistory.find(r => r.status === 'open' && r.is_active) || roundHistory[0] || null;
 
-        // 2. Fetch candidate games (all candidates for admins, active round candidates for voters)
-        let gamesQuery = supabase.from('games').select('*').order('created_at', { ascending: false });
-        if (!checkIsAdmin() && currentRound) {
-          gamesQuery = gamesQuery.or(`round_id.eq.${currentRound.id},round_id.is.null`);
+        // Fallback round if table is empty
+        if (!currentRound) {
+          const localRounds = getLocalRounds();
+          if (localRounds && localRounds.length > 0) {
+            currentRound = localRounds[0];
+            roundHistory = localRounds;
+          }
         }
-        const { data: games, error: gamesError } = await gamesQuery;
+
+        // 2. Fetch candidate games (all candidates)
+        const { data: games, error: gamesError } = await supabase
+          .from('games')
+          .select('*')
+          .order('created_at', { ascending: false });
+
         if (gamesError) throw gamesError;
         allGames = games || [];
+
+        // Fallback if games table in Supabase is empty
+        if (allGames.length === 0) {
+          allGames = getLocalGames();
+        }
 
         // 3. Fetch votes for the current round
         if (currentRound) {
@@ -432,8 +446,24 @@
       renderAdminDashboard();
       renderDevSecretsManager();
     } catch (err) {
-      console.error('[Catnip Voting] Failed to refresh voting data:', err);
-      showToast(`Error syncing voting data: ${err.message}`, 'error');
+      console.warn('[Catnip Voting] Supabase sync notice, activating local candidate fallback:', err);
+      // Fallback to local data so candidate cards and leaderboard ALWAYS load immediately
+      roundHistory = getLocalRounds();
+      currentRound = roundHistory.find(r => r.status === 'open' && r.is_active) || roundHistory[0] || null;
+      allGames = getLocalGames();
+
+      if (currentRound) {
+        currentVotes = getLocalVotes().filter(v => v.round_id === currentRound.id);
+        const localVoterId = getLocalVoterId();
+        userVote = currentVotes.find(v => v.user_id === localVoterId) || null;
+      } else {
+        currentVotes = [];
+        userVote = null;
+      }
+
+      renderVotingInterface();
+      renderAdminDashboard();
+      renderDevSecretsManager();
     } finally {
       if (!silent) {
         setLoadingState(false);
@@ -592,29 +622,30 @@
 
   // Render the primary voting interface
   function renderVotingInterface() {
-    const statsContainer = document.getElementById('voting-header-stats');
     const roundBanner = document.getElementById('voting-round-banner');
     const leaderboardGrid = document.getElementById('voting-leaderboard-grid');
     const candidatesGrid = document.getElementById('voting-candidates-grid');
     const winnerDisplay = document.getElementById('voting-winner-showcase');
 
-    if (!statsContainer || !candidatesGrid) return;
+    if (!candidatesGrid) return;
 
     // 1. Setup banner visibility
     renderSetupBanner(true);
 
     if (!currentRound) {
-      roundBanner.innerHTML = `
-        <div class="voting-empty-state">
-          <div class="voting-empty-icon">🗳️</div>
-          <h3>No Active Voting Round</h3>
-          <p>The studio has not launched an active voting round yet. Check back soon or ask an administrator to start Round 1!</p>
-          ${checkIsAdmin() ? '<button class="btn btn-primary" onclick="window.CatnipVoting.openNewRoundModal()">+ Start First Voting Round</button>' : ''}
-        </div>
-      `;
+      if (roundBanner) {
+        roundBanner.innerHTML = `
+          <div class="voting-empty-state">
+            <div class="voting-empty-icon">🗳️</div>
+            <h3>No Active Voting Round</h3>
+            <p>The studio has not launched an active voting round yet. Check back soon or ask an administrator to start Round 1!</p>
+            ${checkIsAdmin() ? '<button class="btn btn-primary" onclick="window.CatnipVoting.openNewRoundModal()">+ Start First Voting Round</button>' : ''}
+          </div>
+        `;
+      }
       candidatesGrid.innerHTML = '';
-      leaderboardGrid.innerHTML = '';
-      winnerDisplay.style.display = 'none';
+      if (leaderboardGrid) leaderboardGrid.innerHTML = '';
+      if (winnerDisplay) winnerDisplay.style.display = 'none';
       return;
     }
 
@@ -625,32 +656,34 @@
     const statusClass = isOpen ? 'badge-open' : 'badge-closed';
     const statusLabel = isOpen ? '🟢 Live & Open' : (currentRound.status === 'archived' ? '📦 Archived' : '🔴 Voting Closed');
 
-    roundBanner.innerHTML = `
-      <div class="voting-round-header">
-        <div class="voting-round-info">
-          <div class="voting-badge-row">
-            <span class="voting-status-badge ${statusClass}">${statusLabel}</span>
-            <span class="voting-round-chip">Voting Cycle</span>
+    if (roundBanner) {
+      roundBanner.innerHTML = `
+        <div class="voting-round-header">
+          <div class="voting-round-info">
+            <div class="voting-badge-row">
+              <span class="voting-status-badge ${statusClass}">${statusLabel}</span>
+              <span class="voting-round-chip">Voting Cycle</span>
+            </div>
+            <h2 class="voting-round-title">${escapeHtml(currentRound.title)}</h2>
+            <p class="voting-round-desc">${escapeHtml(currentRound.description || 'Cast your community vote to steer upcoming Catnip Studios game development priorities!')}</p>
           </div>
-          <h2 class="voting-round-title">${escapeHtml(currentRound.title)}</h2>
-          <p class="voting-round-desc">${escapeHtml(currentRound.description || 'Cast your community vote to steer upcoming Catnip Studios game development priorities!')}</p>
+          <div class="voting-metrics-cards">
+            <div class="voting-metric-card">
+              <span class="metric-val" id="metric-total-votes">${totalVotes}</span>
+              <span class="metric-lbl">Total Votes Cast</span>
+            </div>
+            <div class="voting-metric-card">
+              <span class="metric-val">${allGames.filter(g => g.is_available).length}</span>
+              <span class="metric-lbl">Candidate Games</span>
+            </div>
+            <div class="voting-metric-card">
+              <span class="metric-val">${userVote ? '1/1 Cast' : (isOpen ? '0/1 Voted' : 'None')}</span>
+              <span class="metric-lbl">Your Vote</span>
+            </div>
+          </div>
         </div>
-        <div class="voting-metrics-cards">
-          <div class="voting-metric-card">
-            <span class="metric-val" id="metric-total-votes">${totalVotes}</span>
-            <span class="metric-lbl">Total Votes Cast</span>
-          </div>
-          <div class="voting-metric-card">
-            <span class="metric-val">${allGames.filter(g => g.is_available).length}</span>
-            <span class="metric-lbl">Candidate Games</span>
-          </div>
-          <div class="voting-metric-card">
-            <span class="metric-val">${userVote ? '1/1 Cast' : (isOpen ? '0/1 Voted' : 'None')}</span>
-            <span class="metric-lbl">Your Vote</span>
-          </div>
-        </div>
-      </div>
-    `;
+      `;
+    }
 
     // 3. Winner Showcase (if round is closed/completed with a declared winner)
     let winnerGame = null;
@@ -660,26 +693,28 @@
       winnerGame = leader;
     }
 
-    if (!isOpen && winnerGame) {
-      winnerDisplay.style.display = 'block';
-      winnerDisplay.innerHTML = `
-        <div class="winner-showcase-card">
-          <div class="winner-glow-banner">
-            <div class="winner-trophy">🏆</div>
-            <div class="winner-text-group">
-              <span class="winner-eyebrow">COMMUNITY CHOICE WINNER</span>
-              <h3 class="winner-title">${escapeHtml(winnerGame.name)}</h3>
-              <p class="winner-desc">Next Development Priority for Catnip Studios Roadmap! (Received ${winnerGame.votes || 0} votes)</p>
+    if (winnerDisplay) {
+      if (!isOpen && winnerGame) {
+        winnerDisplay.style.display = 'block';
+        winnerDisplay.innerHTML = `
+          <div class="winner-showcase-card">
+            <div class="winner-glow-banner">
+              <div class="winner-trophy">🏆</div>
+              <div class="winner-text-group">
+                <span class="winner-eyebrow">COMMUNITY CHOICE WINNER</span>
+                <h3 class="winner-title">${escapeHtml(winnerGame.name)}</h3>
+                <p class="winner-desc">Next Development Priority for Catnip Studios Roadmap! (Received ${winnerGame.votes || 0} votes)</p>
+              </div>
+            </div>
+            <div class="winner-notice-pill">
+              <span>⚙️ Roadmap Priority: Queued for active development planning</span>
             </div>
           </div>
-          <div class="winner-notice-pill">
-            <span>⚙️ Roadmap Priority: Queued for active development planning</span>
-          </div>
-        </div>
-      `;
-    } else {
-      winnerDisplay.style.display = 'none';
-      winnerDisplay.innerHTML = '';
+        `;
+      } else {
+        winnerDisplay.style.display = 'none';
+        winnerDisplay.innerHTML = '';
+      }
     }
 
     // 4. Live Leaderboard Section
@@ -733,10 +768,14 @@
 
     // 5. Candidate Game Cards Grid
     let cardsHTML = '';
-    const availableGames = ranked.filter(g => {
+    let availableGames = ranked.filter(g => {
       const matchesRound = !g.round_id || (currentRound && g.round_id === currentRound.id);
       return g.is_available && matchesRound;
     });
+
+    if (availableGames.length === 0 && ranked.filter(g => g.is_available).length > 0) {
+      availableGames = ranked.filter(g => g.is_available);
+    }
 
     if (availableGames.length === 0) {
       cardsHTML = `
@@ -2372,6 +2411,15 @@
           <p>Syncing live candidate standings with Supabase...</p>
         </div>
       `;
+    } else if (!isLoading) {
+      const spinner = container.querySelector('.voting-loading-spinner');
+      if (spinner && (!allGames || allGames.length === 0)) {
+        spinner.innerHTML = `
+          <div class="voting-empty-state" style="grid-column: 1 / -1;">
+            <p>No candidates available yet. Add candidates in Dev Secrets!</p>
+          </div>
+        `;
+      }
     }
   }
 
