@@ -4611,9 +4611,117 @@ body.theme-anniversary #profile-display-name:not(.crown-badge-active)::before {
 
 .admin-candidate-form .form-row-grid {
   display: grid;
-  grid-template-columns: 1.2fr 1fr;
+  grid-template-columns: 1fr;
   gap: 15px;
   margin-bottom: 12px;
+}
+
+.admin-candidate-form .form-group {
+  margin-bottom: 14px;
+}
+
+.admin-candidate-form .form-input,
+.admin-dashboard-card .form-input,
+.candidate-url-input {
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(14, 9, 28, 0.7);
+  border: 1px solid rgba(124, 77, 255, 0.35);
+  border-radius: var(--radius-sm);
+  color: #FFFFFF;
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 12px 16px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.admin-candidate-form .form-input:focus,
+.admin-dashboard-card .form-input:focus,
+.candidate-url-input:focus {
+  border-color: #00B0FF;
+  box-shadow: 0 0 0 3px rgba(0, 176, 255, 0.25), 0 0 15px rgba(0, 176, 255, 0.15);
+  background: rgba(18, 12, 36, 0.9);
+}
+
+.admin-candidate-form .candidate-url-input {
+  font-size: 0.95rem;
+  padding: 13px 16px;
+  min-height: 48px;
+  background: rgba(10, 6, 22, 0.85);
+  border: 1px solid rgba(0, 176, 255, 0.45);
+  letter-spacing: 0.2px;
+}
+
+.admin-candidate-form .candidate-url-input:focus {
+  border-color: #00E676;
+  box-shadow: 0 0 0 3px rgba(0, 230, 118, 0.25), 0 0 15px rgba(0, 230, 118, 0.15);
+}
+
+.admin-candidate-form textarea.form-input {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.url-input-feedback {
+  margin-top: 6px;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  line-height: 1.4;
+  word-break: break-all;
+}
+
+.url-input-feedback.has-url {
+  color: #00E676;
+  font-weight: 600;
+  background: rgba(0, 230, 118, 0.08);
+  padding: 6px 12px;
+  border-radius: 4px;
+  border-left: 3px solid #00E676;
+}
+
+.admin-candidate-link-badge {
+  color: #00B0FF;
+  font-size: 0.78rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.admin-candidate-link-badge a {
+  color: #00B0FF;
+  text-decoration: underline;
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.candidate-play-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 6px 14px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #00B0FF !important;
+  border: 1px solid rgba(0, 176, 255, 0.45);
+  background: rgba(0, 176, 255, 0.08);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.candidate-play-link:hover {
+  background: rgba(0, 176, 255, 0.2);
+  border-color: #00B0FF;
+  box-shadow: 0 0 10px rgba(0, 176, 255, 0.3);
+  transform: translateY(-1px);
 }
 
 .admin-candidate-form label {

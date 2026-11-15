@@ -634,6 +634,13 @@
                 <h3 class="candidate-title">${escapeHtml(game.name)}</h3>
               </div>
               <p class="candidate-desc">${escapeHtml(game.description || 'Vote for this game candidate to make it the next development priority!')}</p>
+              ${game.image_url ? `
+                <div style="margin: 8px 0 12px 0;">
+                  <a href="${escapeHtml(game.image_url)}" target="_blank" rel="noopener noreferrer" class="candidate-play-link" title="Open ${escapeHtml(game.name)} link">
+                    <span>🌐</span> Play / View Link &rarr;
+                  </a>
+                </div>
+              ` : ''}
               
               <div class="candidate-stats-box">
                 <div class="candidate-stats-row">
@@ -731,20 +738,25 @@
             <h4 class="admin-section-heading"><span>➕</span> Add a Voting Candidate</h4>
             <p class="admin-section-sub">Add a new game candidate to the voting page. It will immediately appear for all community members.</p>
           </div>
-          <form id="admin-add-candidate-form" class="admin-candidate-form" onsubmit="window.CatnipVoting.submitAddCandidateForm(event)">
-            <div class="form-row-grid">
-              <div class="form-group">
-                <label for="admin-candidate-name">Game Name <span class="required-star">*</span></label>
-                <input type="text" id="admin-candidate-name" class="form-input" placeholder="e.g. Catnip Warships" required autocomplete="off" />
-              </div>
-              <div class="form-group">
-                <label for="admin-candidate-image">Game Image URL <span class="optional-label">(optional)</span></label>
-                <input type="url" id="admin-candidate-image" class="form-input" placeholder="https://example.com/cover.png" autocomplete="off" />
+          <form id="admin-add-candidate-form" class="admin-candidate-form" novalidate onsubmit="window.CatnipVoting.submitAddCandidateForm(event, 'admin')">
+            <div class="form-group" style="margin-bottom: 14px;">
+              <label for="admin-candidate-name">Game Name <span class="required-star">*</span></label>
+              <input type="text" id="admin-candidate-name" name="candidate-name" class="form-input" placeholder="e.g. Catnip Warships" required autocomplete="off" />
+            </div>
+
+            <div class="form-group" style="margin-bottom: 14px;">
+              <label for="admin-candidate-image">
+                <span>🔗</span> Game Link or Image URL <span class="optional-label">(optional — playable game URL or cover art)</span>
+              </label>
+              <input type="text" inputmode="url" id="admin-candidate-image" name="candidate-image" class="form-input candidate-url-input" placeholder="Paste link here (e.g. https://kyclawzcatnip.github.io/catships/ or image URL)" autocomplete="off" spellcheck="false" oninput="window.CatnipVoting.onUrlInput(this, 'admin')" />
+              <div class="url-input-feedback" id="admin-url-feedback">
+                <span class="url-feedback-text">💡 You can paste a playable web game link (like GitHub Pages) or an image/screenshot link.</span>
               </div>
             </div>
-            <div class="form-group">
+
+            <div class="form-group" style="margin-bottom: 14px;">
               <label for="admin-candidate-desc">Game Description <span class="required-star">*</span></label>
-              <textarea id="admin-candidate-desc" class="form-input" rows="3" placeholder="Describe the gameplay mechanics, style, and why players should vote for it..." required></textarea>
+              <textarea id="admin-candidate-desc" name="candidate-desc" class="form-input" rows="3" placeholder="Describe the gameplay mechanics, style, and why players should vote for it..." required></textarea>
             </div>
             <div class="form-actions-row">
               <button type="submit" class="btn btn-primary btn-add-candidate" id="admin-add-candidate-btn">
@@ -789,6 +801,10 @@
                         <span>🗳️ <strong>${gameVotes}</strong> votes in current round</span>
                         <span>•</span>
                         <span>📅 Added ${new Date(game.created_at || Date.now()).toLocaleDateString()}</span>
+                        ${game.image_url ? `
+                          <span>•</span>
+                          <span class="admin-candidate-link-badge">🔗 <a href="${escapeHtml(game.image_url)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(game.image_url)}">${escapeHtml(game.image_url.length > 35 ? game.image_url.substring(0, 32) + '...' : game.image_url)}</a></span>
+                        ` : ''}
                       </div>
                     </div>
                     <div class="admin-candidate-actions">
@@ -861,20 +877,25 @@
           <h4 class="admin-section-heading"><span>➕</span> Add a Voting Candidate</h4>
           <p class="admin-section-sub">Add a new game candidate to the voting database. It will immediately appear on the public voting page.</p>
         </div>
-        <form id="dev-add-candidate-form" class="admin-candidate-form" onsubmit="window.CatnipVoting.submitAddCandidateForm(event, 'dev')">
-          <div class="form-row-grid">
-            <div class="form-group">
-              <label for="dev-candidate-name">Game Name <span class="required-star">*</span></label>
-              <input type="text" id="dev-candidate-name" class="form-input" placeholder="e.g. Catnip Warships" required autocomplete="off" />
-            </div>
-            <div class="form-group">
-              <label for="dev-candidate-image">Game Image URL <span class="optional-label">(optional)</span></label>
-              <input type="url" id="dev-candidate-image" class="form-input" placeholder="https://example.com/cover.png" autocomplete="off" />
+        <form id="dev-add-candidate-form" class="admin-candidate-form" novalidate onsubmit="window.CatnipVoting.submitAddCandidateForm(event, 'dev')">
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label for="dev-candidate-name">Game Name <span class="required-star">*</span></label>
+            <input type="text" id="dev-candidate-name" name="candidate-name" class="form-input" placeholder="e.g. Catnip Warships" required autocomplete="off" />
+          </div>
+
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label for="dev-candidate-image">
+              <span>🔗</span> Game Link or Image URL <span class="optional-label">(optional — playable game URL or cover art)</span>
+            </label>
+            <input type="text" inputmode="url" id="dev-candidate-image" name="candidate-image" class="form-input candidate-url-input" placeholder="Paste link here (e.g. https://kyclawzcatnip.github.io/catships/ or image URL)" autocomplete="off" spellcheck="false" oninput="window.CatnipVoting.onUrlInput(this, 'dev')" />
+            <div class="url-input-feedback" id="dev-url-feedback">
+              <span class="url-feedback-text">💡 You can paste a playable web game link (like GitHub Pages) or an image/screenshot link.</span>
             </div>
           </div>
-          <div class="form-group">
+
+          <div class="form-group" style="margin-bottom: 14px;">
             <label for="dev-candidate-desc">Game Description <span class="required-star">*</span></label>
-            <textarea id="dev-candidate-desc" class="form-input" rows="3" placeholder="Describe the gameplay mechanics, style, and why players should vote for it..." required></textarea>
+            <textarea id="dev-candidate-desc" name="candidate-desc" class="form-input" rows="3" placeholder="Describe the gameplay mechanics, style, and why players should vote for it..." required></textarea>
           </div>
           <div class="form-actions-row">
             <button type="submit" class="btn btn-primary btn-add-candidate" id="dev-add-candidate-btn">
@@ -923,6 +944,10 @@
                       <span>🗳️ <strong>${gameVotes}</strong> votes in current round</span>
                       <span>•</span>
                       <span>📅 Added ${new Date(game.created_at || Date.now()).toLocaleDateString()}</span>
+                      ${game.image_url ? `
+                        <span>•</span>
+                        <span class="admin-candidate-link-badge">🔗 <a href="${escapeHtml(game.image_url)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(game.image_url)}">${escapeHtml(game.image_url.length > 35 ? game.image_url.substring(0, 32) + '...' : game.image_url)}</a></span>
+                      ` : ''}
                     </div>
                   </div>
                   <div class="admin-candidate-actions">
@@ -979,10 +1004,52 @@
 
   // ==================== ADMIN ACTIONS ====================
 
+  // Smart URL normalizer: cleans spaces, auto-adds https:// protocol if missing, trims surrounding quotes
+  function normalizeUrl(raw) {
+    if (!raw) return '';
+    let str = String(raw).trim();
+    // Remove surrounding quotes or backticks if pasted with them
+    str = str.replace(/^["'`]|["'`]$/g, '').trim();
+    if (!str) return '';
+    // If missing protocol (e.g. kyclawzcatnip.github.io/catships/ or www.example.com), auto-prepend https://
+    if (!/^(https?|mailto|tel|data|blob):\/\//i.test(str) && !str.startsWith('/') && !str.startsWith('data:')) {
+      str = 'https://' + str;
+    }
+    return str;
+  }
+
+  // Live URL input feedback handler
+  function onUrlInput(inputEl, prefix) {
+    if (!inputEl) return;
+    const feedbackEl = document.getElementById(`${prefix}-url-feedback`);
+    if (!feedbackEl) return;
+
+    const raw = (inputEl.value || '').trim();
+    if (!raw) {
+      feedbackEl.className = 'url-input-feedback';
+      feedbackEl.innerHTML = '<span class="url-feedback-text">💡 You can paste a playable web game link (like GitHub Pages) or an image/screenshot link.</span>';
+      return;
+    }
+
+    const normalized = normalizeUrl(raw);
+    const isLikelyImage = /\.(png|jpe?g|gif|svg|webp|avif)(\?.*)?$/i.test(normalized);
+    const isGameLink = /(github\.io|itch\.io|gitlab\.io|vercel\.app|netlify\.app|\.html?(\?.*)?$)/i.test(normalized);
+
+    feedbackEl.className = 'url-input-feedback has-url';
+    if (isGameLink) {
+      feedbackEl.innerHTML = `<span>🎮</span> <span class="url-feedback-text">Playable Web Game Link: <strong>${escapeHtml(normalized)}</strong></span>`;
+    } else if (isLikelyImage) {
+      feedbackEl.innerHTML = `<span>🖼️</span> <span class="url-feedback-text">Image / Artwork Link: <strong>${escapeHtml(normalized)}</strong></span>`;
+    } else {
+      feedbackEl.innerHTML = `<span>🔗</span> <span class="url-feedback-text">Link Recognized: <strong>${escapeHtml(normalized)}</strong></span>`;
+    }
+  }
+
   // 1. Simple Add Candidate Form submission
   async function submitAddCandidateForm(event, prefix = 'admin') {
     if (event) {
       event.preventDefault();
+      if (typeof event.stopPropagation === 'function') event.stopPropagation();
     }
 
     if (!checkIsAdmin()) {
@@ -990,14 +1057,35 @@
       return;
     }
 
-    const nameInput = document.getElementById(`${prefix}-candidate-name`) || document.getElementById('admin-candidate-name');
-    const descInput = document.getElementById(`${prefix}-candidate-desc`) || document.getElementById('admin-candidate-desc');
-    const imgInput = document.getElementById(`${prefix}-candidate-image`) || document.getElementById('admin-candidate-image');
-    const submitBtn = document.getElementById(`${prefix}-add-candidate-btn`) || document.getElementById('admin-add-candidate-btn');
+    // Robust field lookup: check the form that fired the event first
+    let form = null;
+    if (event && event.target) {
+      form = event.target.tagName === 'FORM' ? event.target : event.target.closest('form');
+    }
+
+    let nameInput = form ? (form.querySelector('[name="candidate-name"]') || form.querySelector('[id$="-candidate-name"]')) : null;
+    let descInput = form ? (form.querySelector('[name="candidate-desc"]') || form.querySelector('[id$="-candidate-desc"]')) : null;
+    let imgInput = form ? (form.querySelector('[name="candidate-image"]') || form.querySelector('[id$="-candidate-image"]')) : null;
+    let submitBtn = form ? (form.querySelector('button[type="submit"]') || form.querySelector('[id$="-add-candidate-btn"]')) : null;
+
+    // Fallbacks if not found within form
+    if (!nameInput) nameInput = document.getElementById(`${prefix}-candidate-name`) || document.getElementById('dev-candidate-name') || document.getElementById('admin-candidate-name');
+    if (!descInput) descInput = document.getElementById(`${prefix}-candidate-desc`) || document.getElementById('dev-candidate-desc') || document.getElementById('admin-candidate-desc');
+    if (!imgInput) imgInput = document.getElementById(`${prefix}-candidate-image`) || document.getElementById('dev-candidate-image') || document.getElementById('admin-candidate-image');
+    if (!submitBtn) submitBtn = document.getElementById(`${prefix}-add-candidate-btn`) || document.getElementById('dev-add-candidate-btn') || document.getElementById('admin-add-candidate-btn');
 
     const name = nameInput ? nameInput.value.trim() : '';
     const desc = descInput ? descInput.value.trim() : '';
-    const img = imgInput ? imgInput.value.trim() : '';
+
+    // If imgInput in this form happens to be empty, also check the sibling dev or admin input
+    let rawUrl = imgInput ? imgInput.value.trim() : '';
+    if (!rawUrl) {
+      const altImg = (prefix === 'dev') ? document.getElementById('admin-candidate-image') : document.getElementById('dev-candidate-image');
+      if (altImg && altImg.value.trim()) {
+        rawUrl = altImg.value.trim();
+      }
+    }
+    const img = normalizeUrl(rawUrl);
 
     // Step 1: Validate the information
     if (!name) {
@@ -1043,6 +1131,18 @@
       if (descInput) descInput.value = '';
       if (imgInput) imgInput.value = '';
 
+      // Reset feedback indicators
+      const feedbackDev = document.getElementById('dev-url-feedback');
+      if (feedbackDev) {
+        feedbackDev.className = 'url-input-feedback';
+        feedbackDev.innerHTML = '<span class="url-feedback-text">💡 You can paste a playable web game link (like GitHub Pages) or an image/screenshot link.</span>';
+      }
+      const feedbackAdmin = document.getElementById('admin-url-feedback');
+      if (feedbackAdmin) {
+        feedbackAdmin.className = 'url-input-feedback';
+        feedbackAdmin.innerHTML = '<span class="url-feedback-text">💡 You can paste a playable web game link (like GitHub Pages) or an image/screenshot link.</span>';
+      }
+
       // Step 4: Show a success message
       playSound('achievement');
       showToast('🎉 Candidate added successfully!', 'success');
@@ -1074,23 +1174,26 @@
     }
 
     const bodyHtml = `
-      <div class="form-group" style="margin-bottom: 12px;">
+      <div class="form-group" style="margin-bottom: 14px;">
         <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 4px;">
           Game Name <span class="required-star">*</span>
         </label>
         <input type="text" id="edit-candidate-name" class="form-input" style="width: 100%;" value="${escapeHtml(game.name)}" required />
       </div>
-      <div class="form-group" style="margin-bottom: 12px;">
+      <div class="form-group" style="margin-bottom: 14px;">
+        <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 4px;">
+          <span>🔗</span> Game Link or Image URL <span class="optional-label">(optional)</span>
+        </label>
+        <input type="text" inputmode="url" id="edit-candidate-img" class="form-input candidate-url-input" style="width: 100%;" value="${escapeHtml(game.image_url || '')}" placeholder="https://.../cover.png or game link" autocomplete="off" spellcheck="false" oninput="window.CatnipVoting.onUrlInput(this, 'edit')" />
+        <div class="url-input-feedback" id="edit-url-feedback">
+          <span class="url-feedback-text">💡 Playable web game link (like GitHub Pages) or cover art URL.</span>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom: 14px;">
         <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 4px;">
           Game Description <span class="required-star">*</span>
         </label>
         <textarea id="edit-candidate-desc" class="form-input" style="width: 100%; height: 80px;" required>${escapeHtml(game.description || '')}</textarea>
-      </div>
-      <div class="form-group" style="margin-bottom: 12px;">
-        <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 4px;">
-          Game Image URL <span class="optional-label">(optional)</span>
-        </label>
-        <input type="url" id="edit-candidate-img" class="form-input" style="width: 100%;" value="${escapeHtml(game.image_url || '')}" placeholder="https://.../cover.png" />
       </div>
       <div class="form-group" style="margin-top: 14px;">
         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem;">
@@ -1106,7 +1209,8 @@
     openModal(`✏️ Edit Candidate: ${escapeHtml(game.name)}`, bodyHtml, async () => {
       const name = (document.getElementById('edit-candidate-name')?.value || '').trim();
       const desc = (document.getElementById('edit-candidate-desc')?.value || '').trim();
-      const img = (document.getElementById('edit-candidate-img')?.value || '').trim();
+      const rawImg = (document.getElementById('edit-candidate-img')?.value || '').trim();
+      const img = normalizeUrl(rawImg);
       const isAvail = !!document.getElementById('edit-candidate-avail')?.checked;
 
       if (!name) {
@@ -1839,7 +1943,9 @@
     closeModal: closeActiveModal,
     toggleRoundStatus,
     signOut,
-    getConfig
+    getConfig,
+    normalizeUrl,
+    onUrlInput
   };
 
   // Auto-init if DOM is already loaded and on voting or secrets hash
