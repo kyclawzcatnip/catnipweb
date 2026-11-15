@@ -264,10 +264,9 @@
       // Pick active open round, or the latest round if none open
       currentRound = roundHistory.find(r => r.status === 'open' && r.is_active) || roundHistory[0] || null;
 
-      // 2. Fetch candidate games for this round or available games
-      let gamesQuery = supabase.from('games').select('*').order('name', { ascending: true });
-      if (currentRound) {
-        // Fetch games matching this round or global games
+      // 2. Fetch candidate games (all candidates for admins, active round candidates for voters)
+      let gamesQuery = supabase.from('games').select('*').order('created_at', { ascending: false });
+      if (!currentProfile?.is_admin && currentRound) {
         gamesQuery = gamesQuery.or(`round_id.eq.${currentRound.id},round_id.is.null`);
       }
       const { data: games, error: gamesError } = await gamesQuery;
@@ -587,7 +586,10 @@
 
     // 5. Candidate Game Cards Grid
     let cardsHTML = '';
-    const availableGames = ranked.filter(g => g.is_available);
+    const availableGames = ranked.filter(g => {
+      const matchesRound = !g.round_id || (currentRound && g.round_id === currentRound.id);
+      return g.is_available && matchesRound;
+    });
 
     if (availableGames.length === 0) {
       cardsHTML = `
@@ -677,26 +679,25 @@
 
     adminContainer.style.display = 'block';
     const isOpen = currentRound && currentRound.status === 'open';
+    const adminName = (currentProfile && currentProfile.display_name) || (currentUser && currentUser.email) || 'Admin';
 
     adminContainer.innerHTML = `
       <div class="admin-dashboard-card">
+        <!-- Header: Title & Round Actions -->
         <div class="admin-card-header">
           <div class="admin-title-group">
             <span class="admin-shield-icon">🛡️</span>
             <div>
-              <h3>Voting Administration & Game Controls</h3>
-              <p class="admin-subtitle">Authenticated as verified Studio Admin (${escapeHtml((currentProfile && currentProfile.display_name) || (currentUser && currentUser.email) || 'Admin')})</p>
+              <h3>Admin Dashboard</h3>
+              <p class="admin-subtitle">Authenticated as verified Studio Admin (${escapeHtml(adminName)}) &bull; Round: <strong>${escapeHtml(currentRound ? currentRound.title : 'No Active Round')}</strong> (${isOpen ? '🟢 Open' : '🔴 Closed'})</p>
             </div>
           </div>
           <div class="admin-header-actions">
+            <button class="btn ${isOpen ? 'btn-danger' : 'btn-primary'} btn-sm" onclick="window.CatnipVoting.toggleRoundStatus()">
+              <span>${isOpen ? '🔒' : '🔓'}</span> ${isOpen ? 'Close Voting' : 'Open Voting'}
+            </button>
             <button class="btn btn-secondary btn-sm" onclick="window.CatnipVoting.openNewRoundModal()">
-              <span>➕</span> New Voting Round
-            </button>
-            <button class="btn btn-secondary btn-sm" onclick="window.CatnipVoting.openAddGameModal()">
-              <span>🎮</span> Add Candidate Game
-            </button>
-            <button class="btn btn-secondary btn-sm" onclick="window.CatnipVoting.toggleRoundStatus()">
-              <span>${isOpen ? '🔒' : '🔓'}</span> ${isOpen ? 'Close Voting' : 'Re-Open Voting'}
+              <span>✨</span> Start New Round
             </button>
             <button class="btn btn-secondary btn-sm" onclick="window.CatnipVoting.openWinnerModal()">
               <span>🏆</span> Declare Winner
@@ -704,50 +705,88 @@
           </div>
         </div>
 
-        <div class="admin-tables-container">
-          <h4 class="admin-section-heading">Manage Candidate Games (${allGames.length})</h4>
-          <div class="admin-games-table-wrapper">
-            <table class="admin-table">
-              <thead>
-                <tr>
-                  <th>Game Name</th>
-                  <th>Status</th>
-                  <th>Current Votes</th>
-                  <th>Round</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${allGames.map(game => {
-                  const gameVotes = currentVotes.filter(v => v.game_id === game.id).length;
-                  return `
-                    <tr>
-                      <td>
-                        <strong>${escapeHtml(game.name)}</strong>
-                        <div class="game-meta-desc">${escapeHtml((game.description || '').substring(0, 60))}...</div>
-                      </td>
-                      <td>
-                        <span class="status-pill ${game.is_available ? 'pill-active' : 'pill-disabled'}">
-                          ${game.is_available ? 'Available' : 'Disabled'}
-                        </span>
-                      </td>
-                      <td><strong>${gameVotes}</strong> votes</td>
-                      <td>${game.round_id ? (currentRound && game.round_id === currentRound.id ? 'Current Round' : 'Assigned') : 'All Rounds'}</td>
-                      <td>
-                        <div class="admin-action-btn-group">
-                          <button class="btn-action-small" onclick="window.CatnipVoting.openEditGameModal('${game.id}')" title="Edit Game Details">✏️ Edit</button>
-                          <button class="btn-action-small" onclick="window.CatnipVoting.toggleGameAvailability('${game.id}', ${!game.is_available})" title="${game.is_available ? 'Disable Game' : 'Enable Game'}">
-                            ${game.is_available ? '🚫 Disable' : '✅ Enable'}
-                          </button>
-                          <button class="btn-action-small btn-action-danger" onclick="window.CatnipVoting.safeDeleteGame('${game.id}')" title="Safe Remove">🗑️ Remove</button>
-                        </div>
-                      </td>
-                    </tr>
-                  `;
-                }).join('')}
-              </tbody>
-            </table>
+        <!-- 1. SIMPLE ADD CANDIDATE FORM -->
+        <div class="admin-candidate-add-section">
+          <div class="admin-section-header">
+            <h4 class="admin-section-heading"><span>➕</span> Add a Voting Candidate</h4>
+            <p class="admin-section-sub">Add a new game candidate to the voting page. It will immediately appear for all community members.</p>
           </div>
+          <form id="admin-add-candidate-form" class="admin-candidate-form" onsubmit="window.CatnipVoting.submitAddCandidateForm(event)">
+            <div class="form-row-grid">
+              <div class="form-group">
+                <label for="admin-candidate-name">Game Name <span class="required-star">*</span></label>
+                <input type="text" id="admin-candidate-name" class="form-input" placeholder="e.g. Catnip Warships" required autocomplete="off" />
+              </div>
+              <div class="form-group">
+                <label for="admin-candidate-image">Game Image URL <span class="optional-label">(optional)</span></label>
+                <input type="url" id="admin-candidate-image" class="form-input" placeholder="https://example.com/cover.png" autocomplete="off" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="admin-candidate-desc">Game Description <span class="required-star">*</span></label>
+              <textarea id="admin-candidate-desc" class="form-input" rows="3" placeholder="Describe the gameplay mechanics, style, and why players should vote for it..." required></textarea>
+            </div>
+            <div class="form-actions-row">
+              <button type="submit" class="btn btn-primary btn-add-candidate" id="admin-add-candidate-btn">
+                <span>➕</span> Add Candidate
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div class="admin-section-divider"></div>
+
+        <!-- 2. MANAGE EXISTING CANDIDATES -->
+        <div class="admin-candidate-manage-section">
+          <div class="admin-section-header">
+            <h4 class="admin-section-heading"><span>🎮</span> Manage Existing Candidates (${allGames.length})</h4>
+            <p class="admin-section-sub">Edit details, toggle voting eligibility, or safely remove candidates. Historical vote data is always preserved.</p>
+          </div>
+
+          ${allGames.length === 0 ? `
+            <div class="admin-candidate-empty">
+              <p>No candidate games yet. Fill out the <strong>Add a Voting Candidate</strong> form above to add your first candidate!</p>
+            </div>
+          ` : `
+            <div class="admin-candidate-items">
+              ${allGames.map(game => {
+                const gameVotes = currentVotes.filter(v => v.game_id === game.id).length;
+                const fallbackImg = getPlaceholderSvg(game.name);
+                const imgSrc = game.image_url ? escapeHtml(game.image_url) : fallbackImg;
+                
+                return `
+                  <div class="admin-candidate-item" id="admin-item-${game.id}">
+                    <img src="${imgSrc}" alt="${escapeHtml(game.name)}" class="admin-candidate-thumb" onerror="this.onerror=null; this.src='${fallbackImg}';" />
+                    <div class="admin-candidate-info">
+                      <div class="admin-candidate-name-row">
+                        <strong>${escapeHtml(game.name)}</strong>
+                        <span class="status-pill ${game.is_available ? 'pill-active' : 'pill-disabled'}">
+                          ${game.is_available ? '● Voting Enabled' : '○ Voting Disabled'}
+                        </span>
+                      </div>
+                      <p class="admin-candidate-desc">${escapeHtml(game.description || 'No description provided.')}</p>
+                      <div class="admin-candidate-stats">
+                        <span>🗳️ <strong>${gameVotes}</strong> votes in current round</span>
+                        <span>•</span>
+                        <span>📅 Added ${new Date(game.created_at || Date.now()).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                    <div class="admin-candidate-actions">
+                      <button class="btn-candidate-action btn-action-edit" onclick="window.CatnipVoting.openEditCandidateModal('${game.id}')" title="Edit candidate details">
+                        <span>✏️</span> Edit Candidate
+                      </button>
+                      <button class="btn-candidate-action ${game.is_available ? 'btn-action-disable' : 'btn-action-enable'}" onclick="window.CatnipVoting.toggleCandidateAvailability('${game.id}', ${!game.is_available})" title="${game.is_available ? 'Disable voting' : 'Enable voting'}">
+                        <span>${game.is_available ? '🚫' : '✅'}</span> ${game.is_available ? 'Disable Candidate' : 'Enable Candidate'}
+                      </button>
+                      <button class="btn-candidate-action btn-action-remove" onclick="window.CatnipVoting.removeCandidate('${game.id}')" title="Safely remove candidate">
+                        <span>🗑️</span> Remove Candidate
+                      </button>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          `}
         </div>
       </div>
     `;
@@ -825,14 +864,265 @@
 
   // ==================== ADMIN ACTIONS ====================
 
-  // Toggle Round Status (Open / Close)
+  // 1. Simple Add Candidate Form submission
+  async function submitAddCandidateForm(event) {
+    if (event) {
+      event.preventDefault();
+    }
+
+    if (!supabase || !currentProfile?.is_admin) {
+      showToast('⚠️ Admin privileges required to manage candidates.', 'error');
+      return;
+    }
+
+    const nameInput = document.getElementById('admin-candidate-name');
+    const descInput = document.getElementById('admin-candidate-desc');
+    const imgInput = document.getElementById('admin-candidate-image');
+    const submitBtn = document.getElementById('admin-add-candidate-btn');
+
+    const name = nameInput ? nameInput.value.trim() : '';
+    const desc = descInput ? descInput.value.trim() : '';
+    const img = imgInput ? imgInput.value.trim() : '';
+
+    // Step 1: Validate the information
+    if (!name) {
+      showToast('⚠️ Please enter a Game Name.', 'warning');
+      if (nameInput) nameInput.focus();
+      return;
+    }
+
+    if (!desc) {
+      showToast('⚠️ Please enter a Game Description.', 'warning');
+      if (descInput) descInput.focus();
+      return;
+    }
+
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span>⏳</span> Adding Candidate...';
+    }
+
+    try {
+      // Step 2: Save the candidate to the Supabase database
+      const { data, error } = await supabase
+        .from('games')
+        .insert({
+          name: name,
+          description: desc,
+          image_url: img || null,
+          is_available: true,
+          round_id: currentRound ? currentRound.id : null
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Step 3: Clear the form after successful submission
+      if (nameInput) nameInput.value = '';
+      if (descInput) descInput.value = '';
+      if (imgInput) imgInput.value = '';
+
+      // Step 4: Show a success message
+      playSound('achievement');
+      showToast('🎉 Candidate added successfully!', 'success');
+
+      // Step 5: Make the candidate appear on the voting page immediately
+      await refreshData({ silent: true });
+    } catch (err) {
+      console.error('[Catnip Voting] Add candidate error:', err);
+      showToast(`❌ Failed to add candidate: ${err.message}`, 'error');
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span>➕</span> Add Candidate';
+      }
+    }
+  }
+
+  // 2. Open Edit Candidate Modal
+  function openEditCandidateModal(gameId) {
+    if (!supabase || !currentProfile?.is_admin) return;
+
+    const game = allGames.find(g => g.id === gameId);
+    if (!game) {
+      showToast('Candidate game not found.', 'warning');
+      return;
+    }
+
+    const bodyHtml = `
+      <div class="form-group" style="margin-bottom: 12px;">
+        <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 4px;">
+          Game Name <span class="required-star">*</span>
+        </label>
+        <input type="text" id="edit-candidate-name" class="form-input" style="width: 100%;" value="${escapeHtml(game.name)}" required />
+      </div>
+      <div class="form-group" style="margin-bottom: 12px;">
+        <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 4px;">
+          Game Description <span class="required-star">*</span>
+        </label>
+        <textarea id="edit-candidate-desc" class="form-input" style="width: 100%; height: 80px;" required>${escapeHtml(game.description || '')}</textarea>
+      </div>
+      <div class="form-group" style="margin-bottom: 12px;">
+        <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 4px;">
+          Game Image URL <span class="optional-label">(optional)</span>
+        </label>
+        <input type="url" id="edit-candidate-img" class="form-input" style="width: 100%;" value="${escapeHtml(game.image_url || '')}" placeholder="https://.../cover.png" />
+      </div>
+      <div class="form-group" style="margin-top: 14px;">
+        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem;">
+          <input type="checkbox" id="edit-candidate-avail" ${game.is_available ? 'checked' : ''} />
+          <span>Enable voting for this candidate in active rounds</span>
+        </label>
+      </div>
+      <div style="background: rgba(0, 230, 118, 0.08); border-left: 3px solid #00E676; padding: 10px; border-radius: 4px; font-size: 0.78rem; color: #a39eb8; margin-top: 14px;">
+        🛡️ <strong>Historical Protection:</strong> Changing details updates the candidate's presentation while preserving all historical votes and past round leaderboards intact.
+      </div>
+    `;
+
+    openModal(`✏️ Edit Candidate: ${escapeHtml(game.name)}`, bodyHtml, async () => {
+      const name = (document.getElementById('edit-candidate-name')?.value || '').trim();
+      const desc = (document.getElementById('edit-candidate-desc')?.value || '').trim();
+      const img = (document.getElementById('edit-candidate-img')?.value || '').trim();
+      const isAvail = !!document.getElementById('edit-candidate-avail')?.checked;
+
+      if (!name) {
+        showToast('⚠️ Game name is required.', 'warning');
+        return;
+      }
+      if (!desc) {
+        showToast('⚠️ Game description is required.', 'warning');
+        return;
+      }
+
+      try {
+        const { error } = await supabase
+          .from('games')
+          .update({
+            name: name,
+            description: desc,
+            image_url: img || null,
+            is_available: isAvail,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', game.id);
+
+        if (error) throw error;
+
+        closeActiveModal();
+        showToast(`Candidate "${name}" updated successfully!`, 'success');
+        refreshData({ silent: true });
+      } catch (err) {
+        showToast(`Failed to update candidate: ${err.message}`, 'error');
+      }
+    }, 'Save Candidate');
+  }
+
+  // 3. Toggle Candidate Availability (Enable / Disable)
+  async function toggleCandidateAvailability(gameId, isAvailable) {
+    if (!supabase || !currentProfile?.is_admin) return;
+
+    const targetGame = allGames.find(g => g.id === gameId);
+    if (!targetGame) return;
+
+    if (!isAvailable) {
+      if (!confirm(`Are you sure you want to disable voting for "${targetGame.name}"? Visitors will not be able to vote for this game.`)) {
+        return;
+      }
+    }
+
+    try {
+      const { error } = await supabase
+        .from('games')
+        .update({
+          is_available: isAvailable,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', gameId);
+
+      if (error) throw error;
+
+      showToast(`Voting for "${targetGame.name}" is now ${isAvailable ? 'ENABLED' : 'DISABLED'}!`, 'success');
+      refreshData({ silent: true });
+    } catch (err) {
+      console.error('[Catnip Voting] Toggle candidate availability error:', err);
+      showToast(`Failed to update candidate status: ${err.message}`, 'error');
+    }
+  }
+
+  // 4. Remove Candidate Safely (Without destroying historical vote data)
+  async function removeCandidate(gameId) {
+    if (!supabase || !currentProfile?.is_admin) return;
+
+    const targetGame = allGames.find(g => g.id === gameId);
+    if (!targetGame) return;
+
+    if (!confirm(`Are you sure you want to remove candidate "${targetGame.name}"?`)) {
+      return;
+    }
+
+    try {
+      // 1. Try safe_delete_game RPC if installed
+      let rpcHandled = false;
+      try {
+        const { data, error } = await supabase.rpc('safe_delete_game', { p_game_id: gameId });
+        if (!error && data && data.success) {
+          rpcHandled = true;
+          showToast(data.message, 'info');
+        }
+      } catch (e) {}
+
+      // 2. Direct database handling fallback
+      if (!rpcHandled) {
+        const { count, error: countError } = await supabase
+          .from('votes')
+          .select('*', { count: 'exact', head: true })
+          .eq('game_id', gameId);
+
+        if (count && count > 0) {
+          // Candidate has historical votes!
+          // Protect past voting history and leaderboards by disabling and unlinking from active round
+          const { error: updateError } = await supabase
+            .from('games')
+            .update({
+              is_available: false,
+              round_id: null,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', gameId);
+
+          if (updateError) throw updateError;
+
+          showToast(`Candidate "${targetGame.name}" has ${count} historical votes. To protect your voting history, it was disabled from active voting instead of deleted.`, 'info');
+        } else {
+          // Zero votes, completely safe to delete row
+          const { error: deleteError } = await supabase
+            .from('games')
+            .delete()
+            .eq('id', gameId);
+
+          if (deleteError) throw deleteError;
+
+          showToast(`Candidate "${targetGame.name}" removed successfully!`, 'success');
+        }
+      }
+
+      refreshData({ silent: true });
+    } catch (err) {
+      console.error('[Catnip Voting] Remove candidate error:', err);
+      showToast(`Failed to remove candidate: ${err.message}`, 'error');
+    }
+  }
+
+  // 5. Toggle Round Status (Open Voting / Close Voting)
   async function toggleRoundStatus() {
     if (!supabase || !currentRound || !currentProfile?.is_admin) return;
 
-    const newStatus = currentRound.status === 'open' ? 'closed' : 'open';
-    const confirmMsg = newStatus === 'closed' 
-      ? 'Are you sure you want to CLOSE voting for this round? Visitors will no longer be able to submit votes.' 
-      : 'Re-open voting for this round?';
+    const isOpen = currentRound.status === 'open';
+    const newStatus = isOpen ? 'closed' : 'open';
+    const confirmMsg = isOpen 
+      ? 'Are you sure you want to CLOSE voting for this round? Visitors will no longer be able to cast or switch votes.' 
+      : 'Are you sure you want to OPEN voting for this round? Visitors will be able to cast votes.';
 
     if (!confirm(confirmMsg)) return;
 
@@ -849,7 +1139,7 @@
 
       if (error) throw error;
 
-      showToast(`Voting round is now ${newStatus.toUpperCase()}!`, 'success');
+      showToast(`Voting is now ${newStatus === 'open' ? 'OPEN' : 'CLOSED'}!`, 'success');
       refreshData({ silent: true });
     } catch (err) {
       console.error('[Catnip Voting] Toggle round status error:', err);
@@ -857,69 +1147,9 @@
     }
   }
 
-  // Safe delete game (with vote preservation protection)
-  async function safeDeleteGame(gameId) {
-    if (!supabase || !currentProfile?.is_admin) return;
-
-    const targetGame = allGames.find(g => g.id === gameId);
-    if (!targetGame) return;
-
-    if (!confirm(`Are you sure you want to remove candidate game "${targetGame.name}"?`)) return;
-
-    try {
-      // 1. Try safe_delete_game RPC
-      let rpcHandled = false;
-      try {
-        const { data, error } = await supabase.rpc('safe_delete_game', { p_game_id: gameId });
-        if (!error && data && data.success) {
-          rpcHandled = true;
-          showToast(data.message, 'info');
-        }
-      } catch (e) {}
-
-      // 2. Direct check fallback
-      if (!rpcHandled) {
-        const { count, error: countError } = await supabase
-          .from('votes')
-          .select('*', { count: 'exact', head: true })
-          .eq('game_id', gameId);
-
-        if (count && count > 0) {
-          // Has historical votes! Protect integrity by disabling instead of deleting
-          await supabase.from('games').update({ is_available: false }).eq('id', gameId);
-          showToast(`Game "${targetGame.name}" has ${count} historical votes. To protect voting history, it was disabled instead of deleted.`, 'warning');
-        } else {
-          await supabase.from('games').delete().eq('id', gameId);
-          showToast(`Game "${targetGame.name}" was safely deleted.`, 'success');
-        }
-      }
-
-      refreshData({ silent: true });
-    } catch (err) {
-      console.error('[Catnip Voting] Safe delete game error:', err);
-      showToast(`Failed to remove game: ${err.message}`, 'error');
-    }
-  }
-
-  // Toggle Game Available status
-  async function toggleGameAvailability(gameId, isAvailable) {
-    if (!supabase || !currentProfile?.is_admin) return;
-
-    try {
-      const { error } = await supabase
-        .from('games')
-        .update({ is_available: isAvailable, updated_at: new Date().toISOString() })
-        .eq('id', gameId);
-
-      if (error) throw error;
-
-      showToast(`Game candidate status updated to ${isAvailable ? 'AVAILABLE' : 'DISABLED'}!`, 'success');
-      refreshData({ silent: true });
-    } catch (err) {
-      console.error('[Catnip Voting] Update game availability error:', err);
-      showToast(`Failed to update game status: ${err.message}`, 'error');
-    }
-  }
+  // Aliases for backwards compatibility
+  const safeDeleteGame = removeCandidate;
+  const toggleGameAvailability = toggleCandidateAvailability;
 
   // ==================== MODALS & DIALOGS ====================
 
@@ -1456,16 +1686,20 @@
     voteForGame,
     refreshData,
     openConfigModal,
+    submitAddCandidateForm,
     openAddGameModal,
-    openEditGameModal,
+    openEditCandidateModal,
+    openEditGameModal: openEditCandidateModal,
+    toggleCandidateAvailability,
+    toggleGameAvailability: toggleCandidateAvailability,
+    removeCandidate,
+    safeDeleteGame: removeCandidate,
     openNewRoundModal,
     openWinnerModal,
     openArchiveModal,
     openAuthModal,
     closeModal: closeActiveModal,
     toggleRoundStatus,
-    toggleGameAvailability,
-    safeDeleteGame,
     signOut,
     getConfig
   };
