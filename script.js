@@ -1177,7 +1177,20 @@ document.addEventListener('DOMContentLoaded', () => {
   let devVisibilityLeaveTimer = null;
 
   function lockDevPortal() {
+    // If the user is logged in as developer via localUser or has developer email, do NOT lock
+    const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
+    const localEmail = (localUser && typeof localUser.email === 'string') ? localUser.email.toLowerCase() : '';
+    if (isDeveloperEmail(localEmail)) {
+      return;
+    }
+    // Also if on secrets or voting, do not lock
+    const currentHash = (window.location.hash || '').replace('#', '');
+    if (currentSection === 'secrets' || currentSection === 'voting' || currentHash === 'secrets' || currentHash === 'voting') {
+      return;
+    }
+
     sessionStorage.removeItem('dev_auth');
+    localStorage.removeItem('dev_auth');
     secretsNavTrigger.classList.remove('unlocked');
     secretsNavTrigger.innerHTML = `
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -1331,6 +1344,8 @@ document.addEventListener('DOMContentLoaded', () => {
            cleanEmail.includes('catnip') || 
            cleanEmail.includes('admin');
   }
+  window.isDeveloperEmail = isDeveloperEmail;
+  window.sha256 = sha256;
 
   function showHackerNotification(message) {
     const existing = document.getElementById('hacker-notification-toast');
@@ -1475,7 +1490,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
       const localEmail = (localUser && typeof localUser.email === 'string') ? localUser.email.toLowerCase() : '';
       const isDevSession = isDeveloperEmail(localEmail);
-      const isAuth = sessionStorage.getItem('dev_auth') === 'true' || isDevSession;
+      const isAuth = sessionStorage.getItem('dev_auth') === 'true' || localStorage.getItem('dev_auth') === 'true' || isDevSession;
       
       if (!isAuth) {
         // Stop navigation, open gate modal
@@ -1484,6 +1499,9 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.hash = currentSection === 'secrets' ? 'home' : currentSection;
         return;
       }
+      sessionStorage.setItem('dev_auth', 'true');
+      if (isDevSession) localStorage.setItem('dev_auth', 'true');
+
       // Clear timers if user returned to dev secrets section
       if (devTabLeaveTimer) {
         clearTimeout(devTabLeaveTimer);
@@ -1495,7 +1513,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } else {
       // If we are leaving the secrets section, start the 1-minute autolock timer
-      if (currentSection === 'secrets') {
+      // EXCEPT when navigating to voting (which needs admin access) or if verified developer
+      const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
+      const localEmail = (localUser && typeof localUser.email === 'string') ? localUser.email.toLowerCase() : '';
+      if (currentSection === 'secrets' && sectionId !== 'voting' && !isDeveloperEmail(localEmail)) {
         if (!devTabLeaveTimer) {
           devTabLeaveTimer = setTimeout(lockDevPortal, 60 * 1000);
         }
@@ -1645,8 +1666,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const isDevSession = isDeveloperEmail(localEmail);
 
     // If already authenticated or logged in as Dev, jump straight to panel
-    if (sessionStorage.getItem('dev_auth') === 'true' || isDevSession) {
+    if (sessionStorage.getItem('dev_auth') === 'true' || localStorage.getItem('dev_auth') === 'true' || isDevSession) {
       sessionStorage.setItem('dev_auth', 'true');
+      localStorage.setItem('dev_auth', 'true');
       window.location.hash = 'secrets';
       return;
     }
@@ -1787,6 +1809,7 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem('dev_attempts', MAX_ATTEMPTS.toString());
       localStorage.removeItem('dev_lock_until');
       sessionStorage.setItem('dev_auth', 'true');
+      localStorage.setItem('dev_auth', 'true');
 
       // Success visual feedback
       card.classList.add('success-flash');
@@ -3167,15 +3190,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // Autolock when leaving the tab/window (document visibility change)
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') {
-      const isAuth = sessionStorage.getItem('dev_auth') === 'true';
-      if (isAuth) {
-        // Start 1 minute lock timer if visibility is lost
+      const isAuth = sessionStorage.getItem('dev_auth') === 'true' || localStorage.getItem('dev_auth') === 'true';
+      const localUser = JSON.parse(localStorage.getItem('scw_local_user') || 'null');
+      const localEmail = (localUser && typeof localUser.email === 'string') ? localUser.email.toLowerCase() : '';
+      if (isAuth && !isDeveloperEmail(localEmail) && currentSection !== 'voting' && currentSection !== 'secrets') {
+        // Start 1 minute lock timer if visibility is lost and not currently in dev/voting sections
         if (!devVisibilityLeaveTimer) {
           devVisibilityLeaveTimer = setTimeout(lockDevPortal, 60 * 1000);
         }
       }
     } else if (document.visibilityState === 'visible') {
-      // Clear visibility lock timer if they return before 1 minute
+      // Clear visibility lock timer if they return
       if (devVisibilityLeaveTimer) {
         clearTimeout(devVisibilityLeaveTimer);
         devVisibilityLeaveTimer = null;
