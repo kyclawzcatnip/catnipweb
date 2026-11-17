@@ -2531,6 +2531,148 @@
     img.src = getPlaceholderSvg(title);
   }
 
+  // ==================== SIDE VOTE NOTIFICATION ON REFRESH ====================
+  let hasShownRefreshNotification = false;
+  let sideNotificationTimer = null;
+
+  function checkAndShowVoteNotificationOnRefresh() {
+    if (hasShownRefreshNotification) return;
+
+    const isVoteHappening = !!(currentRound && currentRound.status === 'open');
+    const availableCandidates = allGames.filter(g => g.is_available);
+    const hasCandidates = availableCandidates.length > 0;
+
+    // Trigger condition: refresh the page when a vote is happening OR that there are candidates
+    if (isVoteHappening || hasCandidates) {
+      hasShownRefreshNotification = true;
+      setTimeout(() => {
+        showVoteSideNotification({
+          isVoteHappening,
+          candidateCount: availableCandidates.length,
+          roundTitle: currentRound ? currentRound.title : ''
+        });
+      }, 550);
+    }
+  }
+
+  function showVoteSideNotification(info = {}) {
+    // Remove any existing notification first
+    const existing = document.getElementById('vote-side-notification');
+    if (existing) existing.remove();
+
+    const availableCandidates = allGames.filter(g => g.is_available);
+    const candidateCount = info.candidateCount !== undefined ? info.candidateCount : availableCandidates.length;
+    const isVoteHappening = info.isVoteHappening !== undefined ? info.isVoteHappening : !!(currentRound && currentRound.status === 'open');
+
+    const notification = document.createElement('div');
+    notification.id = 'vote-side-notification';
+    notification.className = 'vote-side-notification';
+    notification.setAttribute('role', 'alert');
+    notification.setAttribute('aria-live', 'polite');
+
+    const statusBadge = isVoteHappening ? '🟢 Live Voting' : '🗳️ Candidates Ready';
+    const countBadge = candidateCount === 1 ? '1 candidate' : `${candidateCount} candidates`;
+
+    notification.innerHTML = `
+      <div class="vote-side-icon-box">
+        <span class="vote-side-icon">🗳️</span>
+        <span class="vote-pulse-ring"></span>
+      </div>
+      <div class="vote-side-content">
+        <div class="vote-side-header-line">
+          <span class="vote-side-tag">${statusBadge}</span>
+          <span class="vote-side-pulse-dot"></span>
+        </div>
+        <div class="vote-side-title">VOTE! vote for the new game(s)</div>
+        <div class="vote-side-sub">
+          <span class="vote-side-action-text">Cast your vote now &rarr;</span>
+          <span class="vote-side-count-pill">${countBadge}</span>
+        </div>
+      </div>
+      <button type="button" class="vote-side-close" title="Dismiss" aria-label="Close notification">&times;</button>
+    `;
+
+    document.body.appendChild(notification);
+
+    // Subtle audio cue
+    playSound('coin');
+
+    // Trigger smooth slide-in transition
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        notification.classList.add('show');
+      }, 40);
+    });
+
+    // Click handler: Clicking anywhere on card navigates to voting section
+    notification.addEventListener('click', (e) => {
+      if (e.target.closest('.vote-side-close')) {
+        dismissSideNotification();
+        return;
+      }
+      navigateToVotingFromNotification();
+    });
+
+    // Auto-dismiss after 12 seconds with pause-on-hover
+    let remainingMs = 12000;
+    let timerStart = Date.now();
+
+    const startDismissTimer = () => {
+      timerStart = Date.now();
+      sideNotificationTimer = setTimeout(() => {
+        dismissSideNotification();
+      }, remainingMs);
+    };
+
+    notification.addEventListener('mouseenter', () => {
+      if (sideNotificationTimer) {
+        clearTimeout(sideNotificationTimer);
+        sideNotificationTimer = null;
+        remainingMs -= (Date.now() - timerStart);
+      }
+    });
+
+    notification.addEventListener('mouseleave', () => {
+      if (remainingMs > 1000) {
+        startDismissTimer();
+      } else {
+        dismissSideNotification();
+      }
+    });
+
+    startDismissTimer();
+  }
+
+  function dismissSideNotification() {
+    const notification = document.getElementById('vote-side-notification');
+    if (!notification) return;
+    if (sideNotificationTimer) {
+      clearTimeout(sideNotificationTimer);
+      sideNotificationTimer = null;
+    }
+    notification.classList.remove('show');
+    setTimeout(() => {
+      if (notification && notification.parentNode) {
+        notification.remove();
+      }
+    }, 450);
+  }
+
+  function navigateToVotingFromNotification() {
+    dismissSideNotification();
+    playSound('click');
+    window.location.hash = 'voting';
+    if (typeof window.navigateTo === 'function') {
+      window.navigateTo('voting');
+    }
+    setTimeout(() => {
+      const section = document.getElementById('voting-section') || document.getElementById('voting-round-banner');
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  }
+
   // Main Public Init function
   async function init() {
     if (isInitializing) return;
@@ -2543,9 +2685,11 @@
       }
       await refreshData();
       isInitialized = true;
+      checkAndShowVoteNotificationOnRefresh();
     } catch (e) {
       console.error('[Catnip Voting] Initialization failed:', e);
       try { await refreshData(); } catch (e2) {}
+      checkAndShowVoteNotificationOnRefresh();
     } finally {
       isInitializing = false;
     }
@@ -2578,32 +2722,31 @@
     getConfig,
     normalizeUrl,
     onUrlInput,
-    handleImageError
+    handleImageError,
+    showVoteSideNotification,
+    dismissSideNotification,
+    navigateToVotingFromNotification,
+    checkAndShowVoteNotificationOnRefresh
   };
 
-  // Auto-init if DOM is already loaded and on voting or secrets hash
+  // Auto-init on page load / refresh across any section of the website
   function autoCheckHashInit() {
-    if (window.location.hash === '#voting') {
-      setTimeout(() => {
-        if (!isInitialized) {
-          init();
-        } else {
-          updateAuthUI();
-          refreshData({ silent: true });
-        }
-      }, 80);
-    } else if (window.location.hash === '#secrets') {
-      setTimeout(() => {
-        if (!isInitialized) {
-          init().then(() => {
+    setTimeout(() => {
+      if (!isInitialized) {
+        init().then(() => {
+          if (window.location.hash === '#secrets') {
             renderDevSecretsManager();
-          });
-        } else {
-          updateAuthUI();
+          }
+        });
+      } else {
+        updateAuthUI();
+        if (window.location.hash === '#voting') {
+          refreshData({ silent: true });
+        } else if (window.location.hash === '#secrets') {
           renderDevSecretsManager();
         }
-      }, 80);
-    }
+      }
+    }, 100);
   }
 
   // Listen for hash changes when navigating between sections
